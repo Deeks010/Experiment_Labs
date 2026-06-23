@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CCTV Map Editor</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --text: #17202a;
+      --muted: #667085;
+      --line: #d7dde5;
+      --accent: #d72638;
+      --accent-2: #1b5f9e;
+      --selected: #00a676;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app {
+      display: grid;
+      grid-template-rows: 58px 1fr;
+      height: 100vh;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input, select, button, textarea {
+      font: inherit;
+    }
+
+    input, select {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 0 10px;
+      min-width: 150px;
+    }
+
+    button {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0 12px;
+    }
+
+    button.primary {
+      background: var(--accent-2);
+      border-color: var(--accent-2);
+      color: #fff;
+    }
+
+    button.danger {
+      color: #b42318;
+      border-color: #f1b8b4;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      min-height: 0;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      overflow: auto;
+      padding: 14px;
+      background: #e9edf2;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .frame-stage {
+      position: relative;
+      display: block;
+      width: min(100%, 1120px);
+      max-height: calc(100vh - 92px);
+      background: #111;
+      border: 1px solid #b8c0cc;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+      overflow: hidden;
+    }
+
+    .frame-stage img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: calc(100vh - 94px);
+      object-fit: contain;
+      background: #111;
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      display: block;
+      background: #111;
+      background: transparent;
+    }
+
+    .side {
+      border-left: 1px solid var(--line);
+      background: var(--panel);
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }
+
+    .side-head {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .side-head h1 {
+      font-size: 18px;
+      line-height: 1.25;
+      margin: 0 0 10px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .edit-panel {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 8px;
+    }
+
+    .edit-panel input {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .coords {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .coords input {
+      padding: 0 6px;
+    }
+
+    .zone-list {
+      overflow: auto;
+      padding: 8px;
+    }
+
+    .zone-row {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      align-items: center;
+    }
+
+    .zone-row:hover {
+      background: #f5f8fb;
+    }
+
+    .zone-row.selected {
+      border-color: var(--selected);
+      background: #ebfff8;
+    }
+
+    .num {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .zone-name {
+      font-size: 14px;
+      line-height: 1.25;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .meta {
+      grid-column: 2;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        min-height: 420px;
+        border-left: none;
+        border-top: 1px solid var(--line);
+      }
+
+      .frame-stage {
+        width: 100%;
+        max-height: none;
+      }
+
+      .frame-stage img {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <label for="runSelect">Run</label>
+      <select id="runSelect"></select>
+      <button id="loadBtn">Load</button>
+      <label for="cameraName">Camera</label>
+      <input id="cameraName" placeholder="camera name">
+      <button id="saveBtn" class="primary">Save Zones</button>
+      <div id="status" class="status">Starting editor...</div>
+    </div>
+
+    <main class="workspace">
+      <section class="canvas-wrap">
+        <div class="frame-stage" id="frameStage">
+          <img id="frameImage" alt="camera frame">
+          <canvas id="canvas"></canvas>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="side-head">
+          <h1>Zone Map</h1>
+          <div class="actions">
+            <button id="addBtn">Add Zone</button>
+            <button id="deleteBtn" class="danger">Delete</button>
+          </div>
+        </div>
+
+        <div class="edit-panel">
+          <input id="zoneName" placeholder="Selected zone name">
+          <div class="coords">
+            <input id="x1" title="x1" placeholder="x1">
+            <input id="y1" title="y1" placeholder="y1">
+            <input id="x2" title="x2" placeholder="x2">
+            <input id="y2" title="y2" placeholder="y2">
+          </div>
+        </div>
+
+        <div id="zoneList" class="zone-list"></div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const frameStage = document.getElementById('frameStage');
+    const frameImage = document.getElementById('frameImage');
+    const runSelect = document.getElementById('runSelect');
+    const loadBtn = document.getElementById('loadBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const addBtn = document.getElementById('addBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const statusEl = document.getElementById('status');
+    const cameraNameEl = document.getElementById('cameraName');
+    const zoneListEl = document.getElementById('zoneList');
+    const zoneNameEl = document.getElementById('zoneName');
+    const coordInputs = ['x1', 'y1', 'x2', 'y2'].map(id => document.getElementById(id));
+
+    const image = frameImage;
+    let zones = [];
+    let selectedIndex = -1;
+    let currentRun = null;
+    let framePath = '';
+    let pendingZones = [];
+    let pendingFrame = { width: 0, height: 0 };
+    let drag = null;
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function normalizeBox(box) {
+      const x1 = Math.min(box[0], box[2]);
+      const y1 = Math.min(box[1], box[3]);
+      const x2 = Math.max(box[0], box[2]);
+      const y2 = Math.max(box[1], box[3]);
+      return [x1, y1, x2, y2];
+    }
+
+    function clampBox(box) {
+      const width = image.naturalWidth || pendingFrame.width || canvas.width || 1;
+      const height = image.naturalHeight || pendingFrame.height || canvas.height || 1;
+      return normalizeBox([
+        Math.max(0, Math.min(width, Number(box[0]))),
+        Math.max(0, Math.min(height, Number(box[1]))),
+        Math.max(0, Math.min(width, Number(box[2]))),
+        Math.max(0, Math.min(height, Number(box[3]))),
+      ]);
+    }
+
+    function getScale() {
+      const rect = canvas.getBoundingClientRect();
+      const natW = image.naturalWidth || pendingFrame.width || 1;
+      const natH = image.naturalHeight || pendingFrame.height || 1;
+      return {
+        sx: rect.width / natW,
+        sy: rect.height / natH,
+        invX: natW / Math.max(1, rect.width),
+        invY: natH / Math.max(1, rect.height),
+      };
+    }
+
+    function naturalToDisplayBox(box) {
+      const { sx, sy } = getScale();
+      const [x1, y1, x2, y2] = normalizeBox(box);
+      return [x1 * sx, y1 * sy, x2 * sx, y2 * sy];
+    }
+
+    function syncCanvasSize() {
+      const rect = image.getBoundingClientRect();
+      if (!rect.width || !rect.height) return false;
+      canvas.width = Math.round(rect.width);
+      canvas.height = Math.round(rect.height);
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
+      return true;
+    }
+
+    function draw() {
+      if (!image.complete || !image.naturalWidth) return;
+      if (!syncCanvasSize()) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = Math.max(2, Math.round(canvas.width / 420));
+      ctx.font = `${Math.max(12, Math.round(canvas.width / 70))}px Arial`;
+      ctx.textBaseline = 'top';
+
+      const drawZone = (zone, index) => {
+        const [x1, y1, x2, y2] = naturalToDisplayBox(zone.box);
+        const selected = index === selectedIndex;
+        const focusMode = selectedIndex >= 0;
+        const dimmed = focusMode && !selected;
+        ctx.strokeStyle = selected ? '#00a676' : dimmed ? 'rgba(100, 116, 139, 0.32)' : '#d72638';
+        ctx.fillStyle = selected
+          ? 'rgba(0, 166, 118, 0.18)'
+          : dimmed
+            ? 'rgba(100, 116, 139, 0.035)'
+            : 'rgba(215, 38, 56, 0.06)';
+        ctx.lineWidth = selected ? Math.max(4, Math.round(canvas.width / 250)) : dimmed ? 1 : Math.max(2, Math.round(canvas.width / 420));
+        ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
+
+        const number = String(index + 1);
+        const pad = 6;
+        const textW = ctx.measureText(number).width + pad * 2;
+        const textH = Math.max(24, Math.round(canvas.width / 60));
+        ctx.fillStyle = selected ? '#00a676' : dimmed ? 'rgba(100, 116, 139, 0.55)' : '#d72638';
+        ctx.fillRect(x1, Math.max(0, y1 - textH), textW, textH);
+        ctx.fillStyle = dimmed ? 'rgba(255, 255, 255, 0.72)' : '#fff';
+        ctx.fillText(number, x1 + pad, Math.max(0, y1 - textH) + 2);
+
+        if (selected) drawHandles([x1, y1, x2, y2]);
+      };
+
+      zones.forEach((zone, index) => {
+        if (index !== selectedIndex) drawZone(zone, index);
+      });
+      if (selectedIndex >= 0 && zones[selectedIndex]) {
+        const [sx1, sy1, sx2, sy2] = naturalToDisplayBox(zones[selectedIndex].box);
+        ctx.save();
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.18)';
+        ctx.beginPath();
+        ctx.rect(0, 0, canvas.width, canvas.height);
+        ctx.rect(sx1, sy1, sx2 - sx1, sy2 - sy1);
+        ctx.fill('evenodd');
+        ctx.restore();
+        drawZone(zones[selectedIndex], selectedIndex);
+      }
+    }
+
+    function drawHandles(box) {
+      const size = handleSize();
+      ctx.fillStyle = '#fff';
+      ctx.strokeStyle = '#00a676';
+      for (const [x, y] of handlePoints(box)) {
+        ctx.fillRect(x - size / 2, y - size / 2, size, size);
+        ctx.strokeRect(x - size / 2, y - size / 2, size, size);
+      }
+    }
+
+    function handleSize() {
+      return Math.max(10, Math.round(canvas.width / 110));
+    }
+
+    function handlePoints(box) {
+      const [x1, y1, x2, y2] = box;
+      return [[x1, y1], [x2, y1], [x2, y2], [x1, y2]];
+    }
+
+    function getCanvasPoint(event) {
+      const rect = canvas.getBoundingClientRect();
+      const { invX, invY } = getScale();
+      return {
+        x: (event.clientX - rect.left) * invX,
+        y: (event.clientY - rect.top) * invY,
+      };
+    }
+
+    function hitTest(point) {
+      if (selectedIndex >= 0 && zones[selectedIndex]) {
+        const selectedBox = normalizeBox(zones[selectedIndex].box);
+        const selectedHandle = hitHandle(point, selectedBox);
+        if (selectedHandle !== null) {
+          return { index: selectedIndex, mode: 'resize', handle: selectedHandle };
+        }
+        if (pointInBox(point, selectedBox)) {
+          return { index: selectedIndex, mode: 'move' };
+        }
+      }
+
+      for (let i = 0; i < zones.length; i++) {
+        if (i === selectedIndex) continue;
+        const box = normalizeBox(zones[i].box);
+        const handle = hitHandle(point, box);
+        if (handle !== null) return { index: i, mode: 'resize', handle };
+      }
+
+      const containing = zones
+        .map((zone, index) => ({ index, box: normalizeBox(zone.box) }))
+        .filter(candidate => pointInBox(point, candidate.box))
+        .sort((a, b) => boxArea(a.box) - boxArea(b.box));
+
+      if (containing.length) {
+        return { index: containing[0].index, mode: 'move' };
+      }
+      return null;
+    }
+
+    function pointInBox(point, box) {
+      return point.x >= box[0] && point.x <= box[2] && point.y >= box[1] && point.y <= box[3];
+    }
+
+    function boxArea(box) {
+      return Math.max(0, box[2] - box[0]) * Math.max(0, box[3] - box[1]);
+    }
+
+    function hitHandle(point, box) {
+      const size = handleSize() * 1.6;
+      const { sx, sy } = getScale();
+      const points = handlePoints(box).map(([x, y]) => [x * sx, y * sy]);
+      const displayPoint = [point.x * sx, point.y * sy];
+      for (let i = 0; i < points.length; i++) {
+        const [x, y] = points[i];
+        if (Math.abs(displayPoint[0] - x) <= size && Math.abs(displayPoint[1] - y) <= size) return i;
+      }
+      return null;
+    }
+
+    function selectZone(index) {
+      selectedIndex = index;
+      renderList();
+      renderEditPanel();
+      draw();
+    }
+
+    function renderList() {
+      zoneListEl.innerHTML = '';
+      zones.forEach((zone, index) => {
+        const row = document.createElement('div');
+        row.className = `zone-row ${index === selectedIndex ? 'selected' : ''}`;
+        row.onclick = () => selectZone(index);
+
+        const num = document.createElement('div');
+        num.className = 'num';
+        num.textContent = index + 1;
+
+        const name = document.createElement('div');
+        name.className = 'zone-name';
+        name.textContent = zone.name || `Zone ${index + 1}`;
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = normalizeBox(zone.box).map(v => Math.round(v)).join(', ');
+
+        row.append(num, name, meta);
+        zoneListEl.appendChild(row);
+      });
+    }
+
+    function renderEditPanel() {
+      const zone = zones[selectedIndex];
+      const disabled = !zone;
+      zoneNameEl.disabled = disabled;
+      coordInputs.forEach(input => input.disabled = disabled);
+      deleteBtn.disabled = disabled;
+      if (!zone) {
+        zoneNameEl.value = '';
+        coordInputs.forEach(input => input.value = '');
+        return;
+      }
+      zoneNameEl.value = zone.name || '';
+      normalizeBox(zone.box).forEach((value, index) => {
+        coordInputs[index].value = Math.round(value);
+      });
+    }
+
+    function renumberZones() {
+      zones.forEach((zone, index) => zone.number = index + 1);
+    }
+
+    async function loadRuns() {
+      const response = await fetch('/api/runs');
+      const data = await response.json();
+      runSelect.innerHTML = '';
+      data.runs.forEach(run => {
+        const option = document.createElement('option');
+        option.value = run.name;
+        option.textContent = run.name;
+        runSelect.appendChild(option);
+      });
+      if (data.runs.length) {
+        await loadRun(data.runs[0].name);
+      } else {
+        setStatus('No runs found. Generate a grid map first.');
+      }
+    }
+
+    async function loadRun(runName) {
+      setStatus('Loading run...');
+      const response = await fetch(`/api/load-run?run=${encodeURIComponent(runName)}`);
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      canvas.style.width = '';
+      canvas.style.height = '';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      currentRun = data.run_name;
+      framePath = data.frame_path;
+      pendingFrame = {
+        width: Number(data.frame_width) || 0,
+        height: Number(data.frame_height) || 0,
+      };
+      cameraNameEl.value = data.camera_name || data.run_name;
+      pendingZones = (data.zones || []).map((zone, index) => ({
+        ...zone,
+        number: index + 1,
+      }));
+      image.onload = () => {
+        zones = pendingZones.map(zone => ({ ...zone, box: clampBox(zone.box) }));
+        selectedIndex = zones.length ? 0 : -1;
+        renderList();
+        renderEditPanel();
+        draw();
+        setStatus(`Loaded ${zones.length} zones from ${runName}`);
+      };
+      image.onerror = () => {
+        setStatus(`Could not load frame image for ${runName}`);
+      };
+      image.src = `${data.image_url}&cache=${Date.now()}`;
+    }
+
+    async function saveZones() {
+      if (!cameraNameEl.value.trim()) {
+        setStatus('Camera name is required.');
+        return;
+      }
+      setStatus('Saving zones...');
+      renumberZones();
+      const response = await fetch('/api/save-zones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          run_name: currentRun,
+          camera_name: cameraNameEl.value.trim(),
+          frame_path: framePath,
+          zones,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || data.error) throw new Error(data.error || 'Save failed');
+      setStatus(data.saved_run_path ? `Saved ${data.zone_count} zones to runs folder` : `Saved ${data.zone_count} zones`);
+    }
+
+    canvas.addEventListener('mousedown', event => {
+      const point = getCanvasPoint(event);
+      const hit = hitTest(point);
+      if (!hit) {
+        selectZone(-1);
+        return;
+      }
+      selectZone(hit.index);
+      drag = {
+        ...hit,
+        start: point,
+        original: [...zones[hit.index].box],
+      };
+    });
+
+    window.addEventListener('mousemove', event => {
+      if (!drag) return;
+      const point = getCanvasPoint(event);
+      const dx = point.x - drag.start.x;
+      const dy = point.y - drag.start.y;
+      let box = [...drag.original];
+      if (drag.mode === 'move') {
+        box = [box[0] + dx, box[1] + dy, box[2] + dx, box[3] + dy];
+      } else {
+        if (drag.handle === 0) box = [box[0] + dx, box[1] + dy, box[2], box[3]];
+        if (drag.handle === 1) box = [box[0], box[1] + dy, box[2] + dx, box[3]];
+        if (drag.handle === 2) box = [box[0], box[1], box[2] + dx, box[3] + dy];
+        if (drag.handle === 3) box = [box[0] + dx, box[1], box[2], box[3] + dy];
+      }
+      zones[drag.index].box = clampBox(box);
+      renderEditPanel();
+      renderList();
+      draw();
+    });
+
+    window.addEventListener('mouseup', () => {
+      drag = null;
+    });
+
+    window.addEventListener('resize', () => {
+      draw();
+    });
+
+    zoneNameEl.addEventListener('input', () => {
+      if (selectedIndex < 0) return;
+      zones[selectedIndex].name = zoneNameEl.value;
+      renderList();
+      draw();
+    });
+
+    coordInputs.forEach((input, index) => {
+      input.addEventListener('change', () => {
+        if (selectedIndex < 0) return;
+        const box = normalizeBox(zones[selectedIndex].box);
+        box[index] = Number(input.value);
+        zones[selectedIndex].box = clampBox(box);
+        renderEditPanel();
+        renderList();
+        draw();
+      });
+    });
+
+    addBtn.addEventListener('click', () => {
+      const width = image.naturalWidth || 800;
+      const height = image.naturalHeight || 450;
+      const index = zones.length;
+      const box = [
+        Math.round(width * 0.35),
+        Math.round(height * 0.35),
+        Math.round(width * 0.55),
+        Math.round(height * 0.55),
+      ];
+      zones.push({
+        id: `manual_zone_${Date.now()}`,
+        number: index + 1,
+        name: `New Zone ${index + 1}`,
+        box,
+        points: [],
+        metadata: { source: 'manual_editor' },
+      });
+      selectZone(index);
+    });
+
+    deleteBtn.addEventListener('click', () => {
+      if (selectedIndex < 0) return;
+      zones.splice(selectedIndex, 1);
+      renumberZones();
+      selectZone(Math.min(selectedIndex, zones.length - 1));
+    });
+
+    loadBtn.addEventListener('click', () => {
+      loadRun(runSelect.value).catch(error => setStatus(error.message));
+    });
+
+    saveBtn.addEventListener('click', () => {
+      saveZones().catch(error => setStatus(error.message));
+    });
+
+    loadRuns().catch(error => setStatus(error.message));
+  </script>
+</body>
+</html>

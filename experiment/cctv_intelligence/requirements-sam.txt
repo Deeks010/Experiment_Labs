@@ -1,0 +1,15 @@
+# Optional dependencies for SAM-assisted CCTV map building.
+# Keep this separate from the main project requirements so the experiment can be
+# installed/tested without changing production dependencies.
+torch>=2.5.1
+torchvision>=0.20.1
+opencv-python>=4.8.0
+Pillow>=10.2.0
+numpy>=1.26.0
+matplotlib>=3.8.0
+python-dotenv>=1.2.0
+google-genai>=1.34.0
+openai>=2.0.0
+ultralytics>=8.4.71
+lap>=0.5.12
+sam-2 @ git+https://github.com/facebookresearch/sam2.git

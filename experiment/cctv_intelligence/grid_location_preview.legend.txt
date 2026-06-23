@@ -1,0 +1,10 @@
+1. Moulding Press No.14 cells=C3,D3,E3,C4,D4,E4,C5,D5,E5 center=D4
+2. Moulding Press No.15 cells=G3,H3,I3,G4,H4,I4,G5,H5,I5 center=H4
+3. Moulding Press No.16 cells=M3,N3,O3,M4,N4,O4,M5,N5,O5 center=N4
+4. Moulding Press No.17 cells=R3,S3,T3,R4,S4,T4,R5,S5,T5 center=S4
+5. Left Front Workstation cells=B11,C11,D11,E11,F11,G11,H11,I11,B12,C12,D12,E12,F12,G12,H12,I12,B13,C13,D13,E13,F13,G13,H13,I13,B14,C14,D14,E14,F14,G14,H14,I14,J14,B15,C15,D15,E15,F15,G15,H15,I15,J15,C16,D16,E16,F16,G16,H16,I16,J16 center=E14
+6. Right Front Workstation cells=M10,N10,O10,P10,Q10,R10,S10,T10,U10,M11,N11,O11,P11,Q11,R11,S11,T11,U11,V11,N12,O12,P12,Q12,R12,S12,T12,U12,V12,N13,O13,P13,Q13,R13,S13,T13,U13,V13,N14,O14,P14,Q14,R14,S14,T14,U14,V14,N15,O15,P15,Q15,R15,S15,T15,U15,V15,M16,N16,O16,P16,Q16,R16,S16,T16,U16 center=R14
+7. Center Hanging Control Panel cells=K8,L8,K9,L9,K10 center=K9
+8. Left Machine Control Panel cells=F7,F8,F9 center=F8
+9. Right Machine Control Panel cells=Q7,Q8,Q9 center=Q8
+10. Right Wall Control Panel cells=V5,W5,X5,V6,W6,X6,V7,W7,X7,V8,W8,X8 center=W6
