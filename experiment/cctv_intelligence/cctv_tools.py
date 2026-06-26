@@ -41,6 +41,16 @@ PROXIMITY_BANDS = [
     (12.0, "NEARBY"),
 ]
 
+STITCH_CONFIG = {
+    "direction_points": 8,
+    "max_time_gap_sec": 3.0,
+    "max_distance_px": 260.0,
+    "max_speed_px_sec": 180.0,
+    "max_angle_deg": 110.0,
+    "conflict_radius_px": 130.0,
+    "stationary_direction_px": 18.0,
+}
+
 
 # ─────────────────────────────────────────────────
 # Internal helpers
@@ -74,6 +84,13 @@ def _frame_region(x, y, frame_w, frame_h):
     col = "LEFT" if x < frame_w / 3 else ("CENTER" if x < 2 * frame_w / 3 else "RIGHT")
     row = "UPPER" if y < frame_h / 3 else ("MIDDLE" if y < 2 * frame_h / 3 else "LOWER")
     return f"{col}-{row}"
+
+
+def _friendly_region(region: str) -> str:
+    col, row = region.split("-")
+    col_words = {"LEFT": "left side", "CENTER": "middle", "RIGHT": "right side"}
+    row_words = {"UPPER": "far end", "MIDDLE": "middle stretch", "LOWER": "near end"}
+    return f"{row_words.get(row, row.lower())} of the {col_words.get(col, col.lower())}"
 
 
 def _translate_point(x, y, zones, frame_w, frame_h):
@@ -156,6 +173,260 @@ def _load_segments(camera_id, t_start, t_end, cur):
                     "confidence": sub.get("confidence", 0.0),
                 })
     return segments
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Track stitching / worker consolidation enrichment layer
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _point_distance(a, b):
+    return math.hypot(a[0] - b[0], a[1] - b[1])
+
+
+def _path_distance(points):
+    total = 0.0
+    for (_, x1, y1), (_, x2, y2) in zip(points, points[1:]):
+        total += math.hypot(x2 - x1, y2 - y1)
+    return total
+
+
+def _mean_direction_vector(points):
+    if len(points) < 2:
+        return None
+    angles = []
+    total_move = 0.0
+    for (_, x1, y1), (_, x2, y2) in zip(points, points[1:]):
+        dx = x2 - x1
+        dy = y2 - y1
+        step = math.hypot(dx, dy)
+        if step < 1.0:
+            continue
+        total_move += step
+        angles.append(math.atan2(dy, dx))
+    if not angles or total_move < STITCH_CONFIG["stationary_direction_px"]:
+        return None
+    sin_mean = sum(math.sin(a) for a in angles) / len(angles)
+    cos_mean = sum(math.cos(a) for a in angles) / len(angles)
+    mag = math.hypot(cos_mean, sin_mean)
+    if mag < 0.05:
+        return None
+    return (cos_mean / mag, sin_mean / mag)
+
+
+def _angle_diff_deg(v1, v2):
+    if not v1 or not v2:
+        return None
+    dot = max(-1.0, min(1.0, v1[0] * v2[0] + v1[1] * v2[1]))
+    return math.degrees(math.acos(dot))
+
+
+def _track_position_at(profile, t_sec):
+    pts = profile["points"]
+    if not pts or t_sec < profile["start"] or t_sec > profile["end"]:
+        return None
+    best = min(pts, key=lambda p: abs(p[0] - t_sec))
+    return (best[1], best[2])
+
+
+def _profile_segments(segments):
+    n_dir = STITCH_CONFIG["direction_points"]
+    profiles = {}
+    for seg in segments:
+        pts = sorted(seg["points"], key=lambda p: p[0])
+        if not pts:
+            continue
+        xs = [p[1] for p in pts]
+        ys = [p[2] for p in pts]
+        profiles[seg["segment_id"]] = {
+            "segment_id": seg["segment_id"],
+            "start": pts[0][0],
+            "end": pts[-1][0],
+            "first_xy": (pts[0][1], pts[0][2]),
+            "last_xy": (pts[-1][1], pts[-1][2]),
+            "points": pts,
+            "path_distance": _path_distance(pts),
+            "entry_dir": _mean_direction_vector(pts[:n_dir]),
+            "exit_dir": _mean_direction_vector(pts[-n_dir:]),
+            "bbox": (min(xs), min(ys), max(xs), max(ys)),
+        }
+    return profiles
+
+
+def _evaluate_stitch_pair(a, b, profiles):
+    if b["start"] <= a["end"]:
+        return None, "Gate 1 failed: second path started before first path ended"
+
+    time_gap = b["start"] - a["end"]
+    if time_gap > STITCH_CONFIG["max_time_gap_sec"]:
+        return None, f"Gate 2 failed: time gap {time_gap:.2f}s is too long"
+
+    distance = _point_distance(a["last_xy"], b["first_xy"])
+    if distance > STITCH_CONFIG["max_distance_px"]:
+        return None, f"Gate 3 failed: distance gap {distance:.0f}px is too far"
+
+    speed = distance / max(time_gap, 0.001)
+    if speed > STITCH_CONFIG["max_speed_px_sec"]:
+        return None, f"Gate 4 failed: required speed {speed:.0f}px/s is too fast"
+
+    angle = _angle_diff_deg(a["exit_dir"], b["entry_dir"])
+    if angle is not None and angle > STITCH_CONFIG["max_angle_deg"]:
+        return None, f"Gate 5 failed: direction changed by {angle:.0f} degrees"
+
+    for other_id, other in profiles.items():
+        if other_id in {a["segment_id"], b["segment_id"]}:
+            continue
+        pos = _track_position_at(other, b["start"])
+        if pos and _point_distance(pos, b["first_xy"]) <= STITCH_CONFIG["conflict_radius_px"]:
+            return None, f"Gate 6 failed: another worker was already near the re-entry point"
+
+    distance_score = 1.0 - min(distance / STITCH_CONFIG["max_distance_px"], 1.0)
+    time_score = 1.0 - min(time_gap / STITCH_CONFIG["max_time_gap_sec"], 1.0)
+    if angle is None:
+        angle_score = 0.65
+    else:
+        angle_score = 1.0 - min(angle / STITCH_CONFIG["max_angle_deg"], 1.0)
+    speed_score = 1.0 - min(speed / STITCH_CONFIG["max_speed_px_sec"], 1.0)
+
+    confidence = (
+        0.35 * distance_score +
+        0.25 * time_score +
+        0.25 * angle_score +
+        0.15 * speed_score
+    )
+    return {
+        "from": a["segment_id"],
+        "to": b["segment_id"],
+        "confidence": confidence,
+        "time_gap": time_gap,
+        "distance_px": distance,
+        "speed_px_sec": speed,
+        "angle_deg": angle,
+    }, "passed"
+
+
+def _generate_stitch_candidates(profiles):
+    candidates = []
+    rejected = []
+    ordered = sorted(profiles.values(), key=lambda p: (p["start"], p["end"]))
+    for a in ordered:
+        for b in ordered:
+            if b["start"] <= a["end"]:
+                continue
+            loose_time = b["start"] - a["end"]
+            if loose_time > STITCH_CONFIG["max_time_gap_sec"] * 2:
+                continue
+            loose_dist = _point_distance(a["last_xy"], b["first_xy"])
+            if loose_dist > STITCH_CONFIG["max_distance_px"] * 2:
+                continue
+            candidate, reason = _evaluate_stitch_pair(a, b, profiles)
+            if candidate:
+                candidates.append(candidate)
+            else:
+                rejected.append({
+                    "from": a["segment_id"],
+                    "to": b["segment_id"],
+                    "reason": reason,
+                })
+    return candidates, rejected
+
+
+def _exclusive_stitch_assignment(candidates):
+    by_from = {}
+    for c in candidates:
+        by_from.setdefault(c["from"], []).append(c)
+    rows = sorted(by_from, key=lambda sid: max(c["confidence"] for c in by_from[sid]), reverse=True)
+    for sid in rows:
+        by_from[sid].sort(key=lambda c: c["confidence"], reverse=True)
+
+    best_score = -1.0
+    best_pairs = []
+
+    def search(idx, used_to, chosen, score):
+        nonlocal best_score, best_pairs
+        if idx >= len(rows):
+            if score > best_score:
+                best_score = score
+                best_pairs = list(chosen)
+            return
+        source = rows[idx]
+        search(idx + 1, used_to, chosen, score)
+        for cand in by_from[source]:
+            if cand["to"] in used_to:
+                continue
+            used_to.add(cand["to"])
+            chosen.append(cand)
+            search(idx + 1, used_to, chosen, score + cand["confidence"])
+            chosen.pop()
+            used_to.remove(cand["to"])
+
+    if len(rows) <= 24:
+        search(0, set(), [], 0.0)
+        return best_pairs
+
+    chosen = []
+    used_from = set()
+    used_to = set()
+    for cand in sorted(candidates, key=lambda c: c["confidence"], reverse=True):
+        if cand["from"] in used_from or cand["to"] in used_to:
+            continue
+        chosen.append(cand)
+        used_from.add(cand["from"])
+        used_to.add(cand["to"])
+    return chosen
+
+
+def _build_consolidated_workers(segments):
+    profiles = _profile_segments(segments)
+    candidates, rejected = _generate_stitch_candidates(profiles)
+    assigned = _exclusive_stitch_assignment(candidates)
+
+    parent = {sid: sid for sid in profiles}
+    merge_by_child = {}
+    for pair in assigned:
+        parent[pair["to"]] = pair["from"]
+        merge_by_child[pair["to"]] = pair
+
+    def root_of(sid):
+        seen = set()
+        while parent.get(sid, sid) != sid and sid not in seen:
+            seen.add(sid)
+            sid = parent[sid]
+        return sid
+
+    groups = {}
+    for sid in profiles:
+        groups.setdefault(root_of(sid), []).append(sid)
+
+    workers = []
+    for idx, (root, ids) in enumerate(sorted(groups.items(), key=lambda item: min(profiles[s]["start"] for s in item[1])), 1):
+        ids = sorted(ids, key=lambda sid: profiles[sid]["start"])
+        merges = [merge_by_child[sid] for sid in ids if sid in merge_by_child]
+        min_conf = min([m["confidence"] for m in merges], default=1.0)
+        if min_conf >= 0.75:
+            tier = "High"
+        elif min_conf >= 0.50:
+            tier = "Medium"
+        else:
+            tier = "Low"
+        total_distance = sum(profiles[sid]["path_distance"] for sid in ids)
+        start = min(profiles[sid]["start"] for sid in ids)
+        end = max(profiles[sid]["end"] for sid in ids)
+        all_points = [pt for sid in ids for pt in profiles[sid]["points"]]
+        all_points.sort(key=lambda p: p[0])
+        workers.append({
+            "worker_id": f"worker_{idx}",
+            "root_segment": root,
+            "segments": ids,
+            "start": start,
+            "end": end,
+            "total_distance": total_distance,
+            "points": all_points,
+            "confidence": min_conf,
+            "confidence_tier": tier,
+            "merge_count": len(merges),
+            "merges": merges,
+        })
+    return workers, assigned, rejected, profiles
 
 
 # ─────────────────────────────────────────────────
@@ -816,39 +1087,46 @@ def get_day_summary(camera_name: str, date: str = None) -> str:
         "=" * 72,
         "",
         "HOW TO READ THIS",
-        "  This is position evidence only. It can say a worker was seen near a",
-        "  mapped object or area, but it cannot prove the worker belongs there,",
-        "  operated it, or was doing a specific task.",
+        "  This shows where workers were seen in the camera view.",
+        "  It can show which floor areas were busy, but it cannot prove who",
+        "  the worker was or exactly what job they were doing.",
         "  Use visual frames when the final answer needs behavior or action details.",
         "",
         "VIDEO COVERED",
         f"  From video mark {video_mark(session_start)} to {video_mark(session_end)}",
         f"  Approximate length: {max(1, round(duration / 60, 1))} minute(s)",
-        f"  Tracking records with worker movement: {len(all_tracks)}",
-        "  This is not a confirmed count of unique workers.",
+        f"  Worker visits or movements noticed by the system: {len(all_tracks)}",
+        "  The same person may be counted more than once if they left and came back.",
         "",
         "MAPPED FLOOR OBJECTS / AREAS FOR THIS CAMERA",
     ]
 
     if zones:
         for z in zones:
-            desc = f" - {z['description']}" if z["description"] else ""
+            clean_desc = z["description"]
+            clean_desc = clean_desc.replace("foot position alone", "where a worker was seen")
+            clean_desc = clean_desc.replace("Nearby foot positions", "Workers seen nearby")
+            clean_desc = clean_desc.replace("nearby feet alone", "being seen nearby")
+            clean_desc = clean_desc.replace("Proximity", "Being nearby")
+            clean_desc = clean_desc.replace("proximity", "being nearby")
+            clean_desc = clean_desc.replace("being seen nearby do not", "being seen nearby does not")
+            desc = f" - {clean_desc}" if clean_desc else ""
             lines.append(f"  - {z['name']}{desc}")
     else:
         lines.append("  No mapped floor objects/areas found for this camera.")
 
     lines += [
         "",
-        "POSITION EVIDENCE NEAR MAPPED OBJECTS / AREAS",
+        "WHERE WORKERS WERE SEEN MOST",
+        "  Ranked by how often and how long workers were seen around each area.",
     ]
     if object_evidence:
-        for readings, tracks, name, labels in object_evidence[:8]:
+        for rank, (_readings, _tracks, name, _labels) in enumerate(object_evidence[:8], 1):
             lines.append(
-                f"  - {name}: worker movement was seen nearby in {tracks} tracking record(s) "
-                f"({readings} position reading(s); closeness seen as: {labels})"
+                f"  - #{rank} {name}: workers were seen around this area often"
             )
     else:
-        lines.append("  No worker position readings were close to mapped objects/areas.")
+        lines.append("  Workers were not seen close to the mapped floor objects/areas.")
 
     lines += [
         "",
@@ -857,7 +1135,7 @@ def get_day_summary(camera_name: str, date: str = None) -> str:
     for ta, tb, active, nearby_names in busiest:
         near = ", ".join(nearby_names[:4]) if nearby_names else "no mapped object close enough"
         lines.append(
-            f"  - {video_mark(ta)} to {video_mark(tb)}: {active} active tracking record(s) visible at the same time; nearby: {near}"
+            f"  - {video_mark(ta)} to {video_mark(tb)}: about {active} worker(s) visible at the same time; around: {near}"
         )
 
     lines += [
@@ -867,25 +1145,167 @@ def get_day_summary(camera_name: str, date: str = None) -> str:
     for ta, tb, active, nearby_names in quietest:
         near = ", ".join(nearby_names[:4]) if nearby_names else "no mapped object close enough"
         lines.append(
-            f"  - {video_mark(ta)} to {video_mark(tb)}: {active} active tracking record(s) visible at the same time; nearby: {near}"
+            f"  - {video_mark(ta)} to {video_mark(tb)}: about {active} worker(s) visible at the same time; around: {near}"
         )
 
     if away_regions:
         lines += [
             "",
-            "READINGS NOT CLOSE TO A MAPPED OBJECT / AREA",
+            "WORKERS SEEN AWAY FROM MAPPED OBJECTS / AREAS",
         ]
         for region, count in away_regions:
             pct = (count / total_readings) * 100
-            lines.append(f"  - {friendly_region(region)}: {pct:.1f}% of position readings")
+            lines.append(f"  - {friendly_region(region)}: about {pct:.1f}% of worker sightings")
 
     lines += [
         "",
         "LIMITS FOR THE AGENT",
         "  - Do not say a worker was inside or assigned to a mapped object/area.",
         "  - Do not say what a worker was doing unless visual evidence is checked.",
-        "  - Tracking records are not unique people; re-entry can create another record.",
+        "  - Worker visits/movements are not unique people; re-entry can be counted again.",
         "  - Video marks are relative to the footage, not factory clock time.",
+        "=" * 72,
+    ]
+    return "\n".join(lines)
+
+
+def get_worker_movement_summary(
+    camera_name: str,
+    t_start_sec: float = None,
+    t_end_sec: float = None,
+    focus: str = "movement",
+) -> str:
+    """
+    Enrichment-layer worker movement summary.
+
+    This does not modify raw tracker data. It reads fragmented tracking segments,
+    stitches likely continuations into consolidated worker records, and reports
+    movement/stillness metrics with confidence.
+    """
+    conn = _db()
+    cur = conn.cursor()
+    camera_id = _get_camera(camera_name, cur)
+    if not camera_id:
+        conn.close()
+        return f"Camera '{camera_name}' not found."
+
+    zones = _load_zones(camera_id, cur)
+    frame_w, frame_h = _infer_frame_dims(zones)
+    t_s = t_start_sec if t_start_sec is not None else 0.0
+    t_e = t_end_sec if t_end_sec is not None else 999999.0
+    segments = _load_segments(camera_id, t_s, t_e, cur)
+    conn.close()
+
+    if not segments:
+        return f"No worker movement data for camera '{camera_name}' in the requested time range."
+
+    actual_start = min(seg["start"] for seg in segments)
+    actual_end = max(seg["end"] for seg in segments)
+    if t_end_sec is None:
+        t_e = actual_end
+
+    workers, assigned, rejected, _profiles = _build_consolidated_workers(segments)
+    focus_norm = (focus or "movement").lower()
+
+    def main_area(worker):
+        hits = {}
+        for _, x, y in worker["points"]:
+            region, nearby = _translate_point(x, y, zones, frame_w, frame_h)
+            if nearby:
+                name = nearby[0].split(" (", 1)[0]
+            else:
+                name = _friendly_region(region)
+            hits[name] = hits.get(name, 0) + 1
+        if not hits:
+            return "an unmapped part of the camera view"
+        return max(hits.items(), key=lambda item: item[1])[0]
+
+    def stationary_score(worker):
+        duration = max(worker["end"] - worker["start"], 0.1)
+        return worker["total_distance"] / duration
+
+    def sample_times(worker):
+        start = worker["start"]
+        end = worker["end"]
+        mid = start + ((end - start) / 2.0)
+        values = []
+        for t in (start, mid, end):
+            if not values or abs(t - values[-1]) >= 1.0:
+                values.append(t)
+        return values
+
+    if "still" in focus_norm or "stand" in focus_norm or "stationary" in focus_norm or "idle" in focus_norm:
+        ranked = sorted(workers, key=lambda w: (stationary_score(w), -len(w["points"])))
+        ranking_label = "least movement / most stationary"
+    else:
+        ranked = sorted(workers, key=lambda w: w["total_distance"], reverse=True)
+        ranking_label = "most movement"
+
+    lines = [
+        "=" * 72,
+        "CONSOLIDATED WORKER MOVEMENT SUMMARY",
+        f"Camera: {camera_name}",
+        f"Time window: {t_s:.1f}s to {t_e:.1f}s",
+        "=" * 72,
+        "",
+        "HOW THIS WAS BUILT",
+        "  Raw tracker segments were not changed.",
+        "  The enrichment layer linked likely broken paths when time, distance,",
+        "  speed, direction, and nearby-worker checks all passed.",
+        "  Consolidated worker IDs below are analysis labels, not employee names.",
+        "",
+        f"RANKING: {ranking_label}",
+    ]
+
+    for idx, worker in enumerate(ranked[:8], 1):
+        area = main_area(worker)
+        duration = max(worker["end"] - worker["start"], 0.0)
+        lines.append(
+            f"  #{idx} {worker['worker_id']}: around {area}; "
+            f"seen from {worker['start']:.1f}s to {worker['end']:.1f}s "
+            f"({duration:.1f}s); movement distance ~{worker['total_distance']:.0f}px; "
+            f"confidence {worker['confidence_tier']}"
+        )
+        lines.append(
+            "      visual-check timestamps: "
+            + ", ".join(f"{t:.1f}s" for t in sample_times(worker))
+        )
+        if worker["merge_count"]:
+            lines.append(
+                f"      stitched from {len(worker['segments'])} broken camera path(s); "
+                f"weakest merge confidence {worker['confidence']:.2f}"
+            )
+
+    lines += [
+        "",
+        "MERGE AUDIT",
+    ]
+    if assigned:
+        for pair in sorted(assigned, key=lambda p: (p["from"], p["to"]))[:12]:
+            lines.append(
+                f"  - Combined one broken path into another: gap {pair['time_gap']:.2f}s, "
+                f"distance {pair['distance_px']:.0f}px, speed {pair['speed_px_sec']:.0f}px/s, "
+                f"confidence {pair['confidence']:.2f}"
+            )
+    else:
+        lines.append("  No broken paths were confidently stitched in this window.")
+
+    if rejected:
+        lines += [
+            "",
+            "REJECTED MERGE EXAMPLES",
+        ]
+        for item in rejected[:6]:
+            lines.append(f"  - Not combined: {item['reason']}")
+
+    lines += [
+        "",
+        "IMPORTANT FOR THE AI",
+        "  Use these consolidated worker records for movement/stillness questions.",
+        "  Do not expose raw segment names in owner-facing answers.",
+        "  For 'which worker' answers, call get_visual_grid at representative",
+        "  timestamps and describe the worker by visible clothing/location.",
+        "  If confidence is Medium or Low, say the relevant time window should be reviewed.",
         "=" * 72,
     ]
     return "\n".join(lines)
@@ -962,7 +1382,7 @@ def get_activity_table(camera_name: str, t_start_sec: float, t_end_sec: float) -
     in the given time range.
 
     Each row contains:
-      - segment     : tracking episode ID (not a unique person)
+      - segment     : internal tracking episode ID (not a unique person)
       - t_sec       : time in video (seconds from start)
       - frame_region: where on the camera frame (3×3 grid label)
       - nearby_objects: static objects within 12% of frame width from foot
@@ -970,6 +1390,8 @@ def get_activity_table(camera_name: str, t_start_sec: float, t_end_sec: float) -
     STRICT POLICY:
       - No zone assignments are made.
       - No conclusions about what the person was doing.
+      - Segment IDs are only internal clues for analysis. They must not be
+        shown to the owner as worker identities.
       - 'nearby_objects' lists objects that were spatially close — the AI
         should decide what that means based on context.
       - Proximity labels: RIGHT NEXT TO (0-2%) | VERY CLOSE (2-6%) | NEARBY (6-12%)
@@ -999,6 +1421,8 @@ def get_activity_table(camera_name: str, t_start_sec: float, t_end_sec: float) -
         f"  Frame size  : ~{int(frame_w)} × {int(frame_h)} px",
         f"",
         f"COLUMN DEFINITIONS:",
+        f"  IMPORTANT   - segment names are internal clues, not worker identities",
+        f"                do not show them to the owner as person names",
         f"  segment      — tracking episode (NOT a unique person; same person may = multiple segments)",
         f"  t_sec        — seconds from start of video",
         f"  frame_region — 3×3 grid position: [LEFT|CENTER|RIGHT]-[UPPER|MIDDLE|LOWER]",
@@ -1007,6 +1431,7 @@ def get_activity_table(camera_name: str, t_start_sec: float, t_end_sec: float) -
         f"                   Empty = no mapped object within that range",
         f"",
         f"NO ZONE ASSIGNMENTS ARE MADE. These are spatial facts only.",
+        f"For person-level answers, use video frames and describe visible clothing/location.",
         f"",
         f"{'segment':<28} {'t_sec':>6}  {'frame_region':<22} nearby_objects",
         f"{'─'*28} {'─'*6}  {'─'*22} {'─'*45}",
@@ -1172,6 +1597,10 @@ def get_visual_grid(
         f"Question: {question}\n\n"
         f"Answer based only on what you can actually see in the images. "
         f"Be specific about which timestamp(s) support your answer. "
+        f"If the question asks which worker/person, describe them by visible clothing, color, "
+        f"hat/helmet, position, and nearby machine/workstation. Do not invent names or identities. "
+        f"If the same person cannot be confidently followed across frames because they are blocked, "
+        f"blurred, or leave the view, say that clearly. "
         f"If something is unclear or not visible, say so."
     )
 
@@ -1223,6 +1652,11 @@ if __name__ == "__main__":
         print(get_day_summary(camera))
     elif tool == "table":
         print(get_activity_table(camera, 0, 30))
+    elif tool == "workers":
+        focus = sys.argv[3] if len(sys.argv) > 3 else "movement"
+        start = float(sys.argv[4]) if len(sys.argv) > 4 else 0.0
+        end = float(sys.argv[5]) if len(sys.argv) > 5 else None
+        print(get_worker_movement_summary(camera, start, end, focus))
     elif tool == "frame":
         t = float(sys.argv[3]) if len(sys.argv) > 3 else 10.0
         print(get_video_frame(camera, t))

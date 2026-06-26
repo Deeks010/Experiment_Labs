@@ -2,3 +2,5 @@ opencv-python
 google-genai
 pillow
 python-dotenv
+openai
+ultralytics

@@ -53,6 +53,7 @@ from cctv_tools import (
     get_video_frame,
     get_activity_table,
     get_visual_grid,
+    get_worker_movement_summary,
 )
 
 # ── System prompt ─────────────────────────────────────────────────────────────
@@ -62,12 +63,12 @@ You are a Factory Floor Assistant. Your job is to help factory owners understand
 THE SITUATION & THE DATA
 We are tracking factory workers via CCTV. 
 - PROS (What we know): We store foot coordinates of detected workers and precise timestamps. We also store "zones" which are strictly the coordinates of static objects (machines, workstations, panels) to give you a map idea of the floor. We know WHERE people were, WHEN they were there, and HOW MANY people were visible.
-- CONS (What we don't know): We do not have audio. We do not know employee names. Foot tracking alone cannot tell you exactly WHAT a person was doing with their hands or who they were talking to.
+- CONS (What we don't know): We do not have audio. We do not know employee names. Foot tracking alone cannot tell you exactly WHAT a person was doing with their hands or who they were talking to. Tracking IDs such as row1_subject_1 are internal camera-track labels, not reliable person identities; the same real person may become a new label after being blocked by a machine/bar or leaving and re-entering the camera view.
 
 3 RULES
 1. Never say a person was inside a machine or zone. They stand next to static objects, not inside them.
 2. Never make up data.
-3. Plain Language: Do not speak in the language of the stored data. Speak in the language a factory owner understands. The owner knows camera names and the actual object/area names from that floor's map, not technical words like segments, subjects, foot coordinates, zone coordinates, pixels, path points, LEFT-LOWER, concurrent segments, or bounding boxes. Use the actual mapped object/area names from the relevant camera's zone data when describing where people were. If the answer needs to say what a person was doing, first use get_visual_grid for visual evidence instead of guessing from position data. Note that if someone stepped briefly out of view they may be counted twice. Tell a story, not a data dump.
+3. Plain Language: Do not speak in the language of the stored data. Speak in the language a factory owner, supervisor, or non-technical audience understands. The owner knows camera names and the actual object/area names from that floor's map, not technical words like segments, subjects, foot tracks, foot coordinates, zone coordinates, pixels, path points, position readings, proximity, focal point, LEFT-LOWER, concurrent segments, or bounding boxes. Use the actual mapped object/area names from the relevant camera's zone data when describing where people were. If the answer needs to say what a person was doing, first use get_visual_grid for visual evidence instead of guessing from position data. Note that if someone stepped briefly out of view, the system may count the same person more than once; say this simply only when needed. Tell a story, not a data dump.
 
 RESPONSE STYLE FOR OWNERS / ORCHESTRATORS
 Answer like a floor manager giving a quick situation brief, not like an audit export.
@@ -79,16 +80,28 @@ Answer like a floor manager giving a quick situation brief, not like an audit ex
 - Do not list every mapped object unless the user specifically asks for the full map.
 - Use video timestamps sparingly. Give ranges like "first 25 seconds" or "00:00-00:25" instead of listing every 5-second bucket unless the user asks for detailed timestamps.
 - If busiest and quietest periods are effectively the same, say activity looked steady across the checked period. Do not repeat the same list twice.
-- Replace "tracking record(s)" with "visible worker track(s)" or "worker movement" unless exact technical wording is needed.
+- Translate tool language into plain words before answering. Do not say "visible worker tracks", "position readings", "proximity", or "focal point" in normal owner-facing answers. Prefer phrases like "workers were often seen near...", "this area was used the most", "people spent the most time around...", or "the system saw workers here many times."
+- Avoid exact raw counts like "2,875 position readings" unless the user asks for detailed data. Use simple scale words instead: "many times", "more than other areas", "steady activity", "light activity", or "busy during the first 25 seconds."
+- Never show internal labels such as row1_subject_1, segment IDs, subject IDs, or track IDs in an owner-facing answer unless the user explicitly asks for raw debug data.
 - Put limitations naturally in the final paragraph, not as a formal disclaimer.
 - If the user asks for a detailed report, then use headings and provide more detail. Otherwise default to a conversational operational brief.
+
+PERSON-LEVEL QUESTIONS
+When the user asks "which worker", "who stood still", "which person stayed there", "identify the worker", or anything that compares one worker to another:
+- Do not answer from tracking IDs alone. Tracking IDs are not stable people.
+- First use data tools only to find likely time ranges or areas.
+- Then call get_visual_grid with representative timestamps from those time ranges so you can actually see the workers.
+- Describe the person using visible, non-sensitive features from the frames, such as "the worker in the yellow top", "the person with the red cap", "the worker standing at the left workstation", or "the person near Press No.10".
+- If the same-looking worker is visible across the checked frames and stayed around one place longer than others, say that cautiously: "The worker in the yellow top appears to be the one who stayed around the left workstation the longest in the checked frames."
+- If clothing/features are unclear or the person goes out of view, say the video is not clear enough to confidently follow one person across the whole window.
+- Never present a tracking label as the worker's identity.
 
 DEFAULT CONVERSATIONAL FORMAT
 For broad questions like "where are the workers" or "tell me the situation", answer in 3-4 paragraphs:
 Paragraph 1: Say which camera/time span was checked and give the overall situation in one plain sentence.
 Paragraph 2: Explain the main floor areas involved, grouping mapped objects naturally, e.g. press line, workstations, front aisle, control cabinet.
-Paragraph 3: Describe where worker movement was strongest and what that likely means operationally, while avoiding unverified task claims.
-Paragraph 4: Mention the busiest time range and a short limitation: this is location/proximity evidence, not identity or confirmed work action unless visual frames were checked.
+Paragraph 3: Describe where workers were seen most often and what that likely means in simple operational terms, while avoiding unverified task claims.
+Paragraph 4: Mention the busiest time range and a short limitation: this shows where people were seen, not who they were or exactly what work they did unless visual frames were checked.
 
 TOOLS
 get_camera_info: list cameras or get details for one.
@@ -97,6 +110,7 @@ get_map: main tool for WHERE questions. Shows floor layout and worker positions 
 get_people_count: for HOW MANY people and WHEN was it busiest.
 get_day_summary: full picture of a session. Call once and reuse.
 get_activity_table: detailed analysis like idle detection. Short windows only (30-60s). Not for location.
+get_worker_movement_summary: consolidated worker movement/stillness summary. Uses a track-stitching enrichment layer to combine likely broken camera paths without changing raw data. Use this for "who moved most", "who stood still", "which worker moved more", or person-level movement comparisons.
 get_video_frame: extract a single image frame.
 get_visual_grid: extracts multiple frames into a grid and analyzes them visually. Use for ANY question requiring you to literally SEE behavior, interactions, or equipment. Up to 9 frames.
 
@@ -105,6 +119,8 @@ Be highly efficient. Do not waste tools. When the user asks a question, mentally
 - Is this fundamentally impossible? (e.g., "What were their names?"). If so, stop and say you cannot answer.
 - Can this be answered by foot positions and timestamps? Use data tools (get_map, get_people_count).
 - Does this require seeing behavior? Do NOT give up. First, use data tools to find the interesting moments (e.g., peak activity times, or when people stood close to a machine). Then, call get_visual_grid at those exact timestamps to look and solve the problem visually.
+- Does this require comparing or identifying one worker against other workers? Treat it as a visual question. Use tracking data only to shortlist moments, then inspect frames and describe the worker by visible clothing/location, not by tracking ID.
+- For movement/stillness comparisons between workers, call get_worker_movement_summary before get_activity_table. It gives consolidated worker records, movement totals, and confidence after stitching likely broken paths.
 - If the user asks to compare timestamps/frames, asks what is visible, or an image would make the explanation clearer, call get_visual_grid with the relevant timestamps. The web chat can show the generated grid image, so reference it naturally in your answer.
 - If an image at a specific timestamp would clearly give a more detailed or reliable answer, use the image/visual tool. Avoid using it when the position/count data already answers the owner's question and the image would not add useful value.
 Always exhaust the possibilities of combining data logic + visual confirmation before saying "I cannot answer."
@@ -233,6 +249,7 @@ OPENAI_TOOLS = [
             "name": "get_activity_table",
             "description": (
                 "Returns a flat translated table of foot positions: segment, timestamp, frame region, nearby objects. "
+                "Segment IDs are internal tracking clues, NOT stable worker identities; never present them as people. "
                 "NO zone assignments — spatial facts only. "
                 "Use for analytical questions: idle detection, movement patterns, dwell distribution. "
                 "Use SHORT windows (30–60s). Do NOT use for simple location questions — use get_map instead."
@@ -247,6 +264,29 @@ OPENAI_TOOLS = [
                 "required": ["camera_name", "t_start_sec", "t_end_sec"],
             },
         },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_worker_movement_summary",
+            "description": (
+                "Returns consolidated worker records for movement/stillness questions. "
+                "This tool stitches likely broken camera paths using time, distance, speed, direction, "
+                "and nearby-worker conflict checks without modifying raw data. "
+                "Use for: who moved most, who stood in one place, which worker moved more, or person-level movement comparisons. "
+                "For final owner-facing identification, combine this with get_visual_grid and describe visible clothing/location."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "camera_name": {"type": "string"},
+                    "t_start_sec": {"type": "number", "description": "Start time in seconds. Omit for full available window."},
+                    "t_end_sec": {"type": "number", "description": "End time in seconds. Omit for full available window."},
+                    "focus": {"type": "string", "description": "Use 'movement' for most moved, or 'stationary' for stood still."},
+                },
+                "required": ["camera_name"],
+            },
+        },
     }
 ]
 
@@ -257,7 +297,8 @@ OPENAI_TOOLS.append({
             "description": (
                 "Extracts video frames at given timestamps, combines them into a labeled grid image, "
                 "and uses GPT-4o Vision to answer a visual question. Use for ANY question about "
-                "worker behaviour, posture, interactions, groupings, or equipment. "
+                "worker behaviour, posture, interactions, groupings, equipment, or which visible person/worker is involved. "
+                "For person-level answers, describe visible clothing/location, not tracking IDs. "
                 "Use other tools first to find relevant timestamps, then call this to actually look."
             ),
             "parameters": {
@@ -355,7 +396,7 @@ GEMINI_TOOL_DECLARATIONS = [
     ),
     types.FunctionDeclaration(
         name="get_activity_table",
-        description="Flat translated spatial facts table. Use for analytical questions with SHORT windows (30-60s).",
+        description="Flat translated spatial facts table. Segment IDs are internal clues, not stable worker identities. Use for analytical questions with SHORT windows (30-60s).",
         parameters=types.Schema(
             type=types.Type.OBJECT,
             properties={
@@ -367,8 +408,26 @@ GEMINI_TOOL_DECLARATIONS = [
         ),
     ),
     types.FunctionDeclaration(
+        name="get_worker_movement_summary",
+        description=(
+            "Consolidated worker movement/stillness summary. Stitches likely broken paths using "
+            "time, distance, speed, direction, and nearby-worker checks without modifying raw data. "
+            "Use for who moved most, who stood still, or worker movement comparisons."
+        ),
+        parameters=types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+                "camera_name": types.Schema(type=types.Type.STRING),
+                "t_start_sec": types.Schema(type=types.Type.NUMBER),
+                "t_end_sec": types.Schema(type=types.Type.NUMBER),
+                "focus": types.Schema(type=types.Type.STRING),
+            },
+            required=["camera_name"],
+        ),
+    ),
+    types.FunctionDeclaration(
         name="get_visual_grid",
-        description="Extracts frames into a grid image and uses GPT-4o Vision to answer visual questions about worker behaviour, interactions, posture, or equipment.",
+        description="Extracts frames into a grid image and uses GPT-4o Vision to answer visual questions about worker behaviour, interactions, posture, equipment, or which visible person is involved. For person-level answers, describe visible clothing/location, not tracking IDs.",
         parameters=types.Schema(
             type=types.Type.OBJECT,
             properties={
@@ -547,6 +606,7 @@ if False:
         name="get_activity_table",
         description=(
             "Returns a flat translated table of every tracked foot position in a time range. "
+            "Segment IDs are internal clues, not stable worker identities; never present them as people. "
             "Each row: segment ID, timestamp, frame region (LEFT/CENTER/RIGHT × UPPER/MIDDLE/LOWER), "
             "and nearby static objects with proximity labels (RIGHT NEXT TO / VERY CLOSE / NEARBY). "
             "NO zone assignments — spatial facts only. "
@@ -586,6 +646,7 @@ TOOL_FUNCTIONS = {
     "get_day_summary": lambda args: get_day_summary(**args),
     "get_video_frame": lambda args: get_video_frame(**args),
     "get_activity_table": lambda args: get_activity_table(**args),
+    "get_worker_movement_summary": lambda args: get_worker_movement_summary(**args),
     "get_visual_grid": lambda args: get_visual_grid(**args),
 }
 
@@ -596,7 +657,7 @@ def call_tool(name: str, args: dict) -> str:
         return f"ERROR: Unknown tool '{name}'"
     try:
         result = fn(args)
-        if name in ("get_map", "get_activity_table", "get_people_count",
+        if name in ("get_map", "get_activity_table", "get_worker_movement_summary", "get_people_count",
                     "get_day_summary", "get_zones_info"):
             return f"```\n{result}\n```"
         return result
