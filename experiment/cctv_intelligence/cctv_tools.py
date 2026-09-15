@@ -44,11 +44,15 @@ PROXIMITY_BANDS = [
 STITCH_CONFIG = {
     "direction_points": 8,
     "max_time_gap_sec": 3.0,
+    "max_time_gap_sec_with_appearance": 30.0,
     "max_distance_px": 260.0,
+    "max_distance_px_with_appearance": 620.0,
     "max_speed_px_sec": 180.0,
     "max_angle_deg": 110.0,
     "conflict_radius_px": 130.0,
     "stationary_direction_px": 18.0,
+    "min_appearance_similarity": 0.72,
+    "strong_appearance_similarity": 0.72,
 }
 
 
@@ -59,6 +63,7 @@ STITCH_CONFIG = {
 def _db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
 
@@ -171,6 +176,7 @@ def _load_segments(camera_id, t_start, t_end, cur):
                     "end": pts[-1][0],
                     "points": pts,
                     "confidence": sub.get("confidence", 0.0),
+                    "appearance_signature": sub.get("appearance_signature"),
                 })
     return segments
 
@@ -220,6 +226,53 @@ def _angle_diff_deg(v1, v2):
     return math.degrees(math.acos(dot))
 
 
+def _hist_similarity(a, b):
+    if not a or not b or len(a) != len(b):
+        return None
+    return sum(min(float(x), float(y)) for x, y in zip(a, b))
+
+
+def _appearance_similarity(a, b):
+    sig_a = a.get("appearance_signature") or {}
+    sig_b = b.get("appearance_signature") or {}
+    scores = []
+    weights = []
+    for key, weight in [
+        ("upper_hsv_hist", 0.45),
+        ("full_hsv_hist", 0.35),
+        ("lower_hsv_hist", 0.20),
+    ]:
+        score = _hist_similarity(sig_a.get(key), sig_b.get(key))
+        if score is not None:
+            scores.append(score * weight)
+            weights.append(weight)
+    if not weights:
+        return None
+    score = sum(scores) / sum(weights)
+    if sig_a.get("upper_color") and sig_a.get("upper_color") == sig_b.get("upper_color"):
+        score = min(1.0, score + 0.04)
+    if sig_a.get("lower_color") and sig_a.get("lower_color") == sig_b.get("lower_color"):
+        score = min(1.0, score + 0.02)
+    return score
+
+
+def _representative_appearance(signatures):
+    signatures = [sig for sig in signatures if sig]
+    if not signatures:
+        return None
+
+    def mode(key):
+        values = [sig.get(key) for sig in signatures if sig.get(key)]
+        return max(set(values), key=values.count) if values else None
+
+    return {
+        "upper_color": mode("upper_color"),
+        "lower_color": mode("lower_color"),
+        "sample_count": sum(int(sig.get("sample_count") or 0) for sig in signatures),
+        "note": "day-level clothing appearance only; not a permanent identity",
+    }
+
+
 def _track_position_at(profile, t_sec):
     pts = profile["points"]
     if not pts or t_sec < profile["start"] or t_sec > profile["end"]:
@@ -248,6 +301,7 @@ def _profile_segments(segments):
             "entry_dir": _mean_direction_vector(pts[:n_dir]),
             "exit_dir": _mean_direction_vector(pts[-n_dir:]),
             "bbox": (min(xs), min(ys), max(xs), max(ys)),
+            "appearance_signature": seg.get("appearance_signature"),
         }
     return profiles
 
@@ -257,15 +311,25 @@ def _evaluate_stitch_pair(a, b, profiles):
         return None, "Gate 1 failed: second path started before first path ended"
 
     time_gap = b["start"] - a["end"]
-    if time_gap > STITCH_CONFIG["max_time_gap_sec"]:
-        return None, f"Gate 2 failed: time gap {time_gap:.2f}s is too long"
+    appearance = _appearance_similarity(a, b)
+    has_strong_appearance = appearance is not None and appearance >= STITCH_CONFIG["strong_appearance_similarity"]
+    max_time_gap = STITCH_CONFIG["max_time_gap_sec_with_appearance"] if has_strong_appearance else STITCH_CONFIG["max_time_gap_sec"]
+    if time_gap > max_time_gap:
+        detail = " for this appearance match" if has_strong_appearance else ""
+        return None, f"Gate 2 failed: time gap {time_gap:.2f}s is too long{detail}"
 
     distance = _point_distance(a["last_xy"], b["first_xy"])
-    if distance > STITCH_CONFIG["max_distance_px"]:
-        return None, f"Gate 3 failed: distance gap {distance:.0f}px is too far"
+    max_distance = STITCH_CONFIG["max_distance_px_with_appearance"] if has_strong_appearance else STITCH_CONFIG["max_distance_px"]
+    if distance > max_distance:
+        detail = " for this appearance match" if has_strong_appearance else ""
+        return None, f"Gate 3 failed: distance gap {distance:.0f}px is too far{detail}"
 
     speed = distance / max(time_gap, 0.001)
-    if speed > STITCH_CONFIG["max_speed_px_sec"]:
+    if has_strong_appearance and time_gap <= 2.0:
+        max_speed = STITCH_CONFIG["max_speed_px_sec"] * 2.5
+    else:
+        max_speed = STITCH_CONFIG["max_speed_px_sec"] * (1.75 if has_strong_appearance else 1.0)
+    if speed > max_speed:
         return None, f"Gate 4 failed: required speed {speed:.0f}px/s is too fast"
 
     angle = _angle_diff_deg(a["exit_dir"], b["entry_dir"])
@@ -280,18 +344,20 @@ def _evaluate_stitch_pair(a, b, profiles):
             return None, f"Gate 6 failed: another worker was already near the re-entry point"
 
     distance_score = 1.0 - min(distance / STITCH_CONFIG["max_distance_px"], 1.0)
-    time_score = 1.0 - min(time_gap / STITCH_CONFIG["max_time_gap_sec"], 1.0)
+    time_score = 1.0 - min(time_gap / max_time_gap, 1.0)
     if angle is None:
         angle_score = 0.65
     else:
         angle_score = 1.0 - min(angle / STITCH_CONFIG["max_angle_deg"], 1.0)
-    speed_score = 1.0 - min(speed / STITCH_CONFIG["max_speed_px_sec"], 1.0)
+    speed_score = 1.0 - min(speed / max_speed, 1.0)
+    appearance_score = appearance if appearance is not None else 0.65
 
     confidence = (
-        0.35 * distance_score +
-        0.25 * time_score +
-        0.25 * angle_score +
-        0.15 * speed_score
+        0.25 * distance_score +
+        0.20 * time_score +
+        0.20 * angle_score +
+        0.10 * speed_score +
+        0.25 * appearance_score
     )
     return {
         "from": a["segment_id"],
@@ -301,6 +367,8 @@ def _evaluate_stitch_pair(a, b, profiles):
         "distance_px": distance,
         "speed_px_sec": speed,
         "angle_deg": angle,
+        "appearance_similarity": appearance,
+        "appearance_used": bool(has_strong_appearance),
     }, "passed"
 
 
@@ -313,10 +381,10 @@ def _generate_stitch_candidates(profiles):
             if b["start"] <= a["end"]:
                 continue
             loose_time = b["start"] - a["end"]
-            if loose_time > STITCH_CONFIG["max_time_gap_sec"] * 2:
+            if loose_time > STITCH_CONFIG["max_time_gap_sec_with_appearance"]:
                 continue
             loose_dist = _point_distance(a["last_xy"], b["first_xy"])
-            if loose_dist > STITCH_CONFIG["max_distance_px"] * 2:
+            if loose_dist > STITCH_CONFIG["max_distance_px_with_appearance"]:
                 continue
             candidate, reason = _evaluate_stitch_pair(a, b, profiles)
             if candidate:
@@ -413,6 +481,7 @@ def _build_consolidated_workers(segments):
         end = max(profiles[sid]["end"] for sid in ids)
         all_points = [pt for sid in ids for pt in profiles[sid]["points"]]
         all_points.sort(key=lambda p: p[0])
+        appearance = _representative_appearance([profiles[sid].get("appearance_signature") for sid in ids])
         workers.append({
             "worker_id": f"worker_{idx}",
             "root_segment": root,
@@ -425,6 +494,7 @@ def _build_consolidated_workers(segments):
             "confidence_tier": tier,
             "merge_count": len(merges),
             "merges": merges,
+            "appearance": appearance,
         })
     return workers, assigned, rejected, profiles
 
@@ -1251,7 +1321,7 @@ def get_worker_movement_summary(
         "HOW THIS WAS BUILT",
         "  Raw tracker segments were not changed.",
         "  The enrichment layer linked likely broken paths when time, distance,",
-        "  speed, direction, and nearby-worker checks all passed.",
+        "  speed, direction, appearance, and nearby-worker checks all passed.",
         "  Consolidated worker IDs below are analysis labels, not employee names.",
         "",
         f"RANKING: {ranking_label}",
@@ -1270,6 +1340,10 @@ def get_worker_movement_summary(
             "      visual-check timestamps: "
             + ", ".join(f"{t:.1f}s" for t in sample_times(worker))
         )
+        if worker.get("appearance"):
+            upper = worker["appearance"].get("upper_color") or "unknown"
+            lower = worker["appearance"].get("lower_color") or "unknown"
+            lines.append(f"      appearance cue: upper clothing {upper}, lower clothing {lower}")
         if worker["merge_count"]:
             lines.append(
                 f"      stitched from {len(worker['segments'])} broken camera path(s); "
@@ -1282,10 +1356,12 @@ def get_worker_movement_summary(
     ]
     if assigned:
         for pair in sorted(assigned, key=lambda p: (p["from"], p["to"]))[:12]:
+            appearance = pair.get("appearance_similarity")
+            appearance_text = f", appearance similarity {appearance:.2f}" if appearance is not None else ""
             lines.append(
                 f"  - Combined one broken path into another: gap {pair['time_gap']:.2f}s, "
                 f"distance {pair['distance_px']:.0f}px, speed {pair['speed_px_sec']:.0f}px/s, "
-                f"confidence {pair['confidence']:.2f}"
+                f"confidence {pair['confidence']:.2f}{appearance_text}"
             )
     else:
         lines.append("  No broken paths were confidently stitched in this window.")
@@ -1305,9 +1381,136 @@ def get_worker_movement_summary(
         "  Do not expose raw segment names in owner-facing answers.",
         "  For 'which worker' answers, call get_visual_grid at representative",
         "  timestamps and describe the worker by visible clothing/location.",
+        "  Appearance cues are clothing/day-level labels, not permanent identity.",
         "  If confidence is Medium or Low, say the relevant time window should be reviewed.",
         "=" * 72,
     ]
+    return "\n".join(lines)
+
+
+def get_identity_profile_summary(camera_name: str, run_name: str = None) -> str:
+    """
+    Return the latest day/session identity profiles built by identity_profile_builder.py.
+
+    These profiles are an evidence layer over raw tracker rows. They do not modify
+    floor_data and they are not permanent human identities.
+    """
+    conn = _db()
+    cur = conn.cursor()
+    camera_id = _get_camera(camera_name, cur)
+    if not camera_id:
+        conn.close()
+        return f"Camera '{camera_name}' not found."
+
+    identity_tables_exist = cur.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='worker_identity_runs'"
+    ).fetchone()
+    if not identity_tables_exist:
+        conn.close()
+        return f"No identity profile run found for camera '{camera_name}'. Run identity_profile_builder.py first."
+
+    if run_name:
+        run = cur.execute(
+            """
+            SELECT * FROM worker_identity_runs
+            WHERE camera_id=? AND run_name=?
+            ORDER BY id DESC LIMIT 1
+            """,
+            (camera_id, run_name),
+        ).fetchone()
+    else:
+        run = cur.execute(
+            """
+            SELECT * FROM worker_identity_runs
+            WHERE camera_id=?
+            ORDER BY id DESC LIMIT 1
+            """,
+            (camera_id,),
+        ).fetchone()
+    if not run:
+        conn.close()
+        return f"No identity profile run found for camera '{camera_name}'. Run identity_profile_builder.py first."
+
+    profiles = cur.execute(
+        """
+        SELECT * FROM worker_profiles
+        WHERE identity_run_id=?
+        ORDER BY start_time_sec, id
+        """,
+        (run["id"],),
+    ).fetchall()
+    links = cur.execute(
+        """
+        SELECT wps.*, wp.profile_label
+        FROM worker_profile_segments wps
+        JOIN worker_profiles wp ON wp.id=wps.profile_id
+        WHERE wps.identity_run_id=?
+        ORDER BY wp.id, wps.id
+        """,
+        (run["id"],),
+    ).fetchall()
+    samples = cur.execute(
+        """
+        SELECT profile_id, COUNT(*) AS sample_count, AVG(quality) AS avg_quality, MAX(quality) AS best_quality
+        FROM worker_profile_samples
+        WHERE identity_run_id=?
+        GROUP BY profile_id
+        """,
+        (run["id"],),
+    ).fetchall()
+    conn.close()
+
+    sample_stats = {
+        row["profile_id"]: {
+            "count": int(row["sample_count"] or 0),
+            "avg": float(row["avg_quality"] or 0.0),
+            "best": float(row["best_quality"] or 0.0),
+        }
+        for row in samples
+    }
+    links_by_profile = {}
+    for link in links:
+        links_by_profile.setdefault(link["profile_id"], []).append(link)
+
+    lines = [
+        "=" * 72,
+        "DAY / SESSION WORKER IDENTITY PROFILES",
+        f"Camera: {camera_name}",
+        f"Identity run: {run['run_name']} (id={run['id']})",
+        f"Video: {run['video_path']}",
+        f"Profiles: {len(profiles)}",
+        "",
+        "IMPORTANT",
+        "  These are visible-worker profiles for this camera/session only.",
+        "  They are not employee identities and do not overwrite raw tracker rows.",
+        "  Use confirmed/probable links as evidence, then visually verify important answers.",
+        "",
+    ]
+    for profile in profiles:
+        data = json.loads(profile["profile_json"] or "{}")
+        stats = sample_stats.get(profile["id"], {"count": 0, "avg": 0.0, "best": 0.0})
+        lines.append(
+            f"- {profile['profile_label']}: {profile['start_time_sec']:.1f}s to {profile['end_time_sec']:.1f}s; "
+            f"{profile['segment_count']} raw segment(s); samples={stats['count']} "
+            f"(avg quality {stats['avg']:.2f}, best {stats['best']:.2f}); "
+            f"appearance cue upper={data.get('upper_color')}, lower={data.get('lower_color')}"
+        )
+        for link in links_by_profile.get(profile["id"], []):
+            reason = json.loads(link["link_reason_json"] or "[]")
+            reason_text = ""
+            if reason:
+                first = reason[0]
+                reason_text = (
+                    f"; link score {float(first.get('link_score') or 0.0):.2f}, "
+                    f"appearance {float(first.get('appearance') or 0.0):.2f}, "
+                    f"gap {float(first.get('time_gap') or 0.0):.1f}s, "
+                    f"distance {float(first.get('distance_px') or 0.0):.0f}px"
+                )
+            lines.append(
+                f"    row {link['floor_data_id']} {link['subject_ref']}: "
+                f"{link['link_status']} confidence {link['link_confidence']:.2f}{reason_text}"
+            )
+    lines.append("=" * 72)
     return "\n".join(lines)
 
 
@@ -1657,6 +1860,9 @@ if __name__ == "__main__":
         start = float(sys.argv[4]) if len(sys.argv) > 4 else 0.0
         end = float(sys.argv[5]) if len(sys.argv) > 5 else None
         print(get_worker_movement_summary(camera, start, end, focus))
+    elif tool == "identity":
+        run = sys.argv[3] if len(sys.argv) > 3 else None
+        print(get_identity_profile_summary(camera, run))
     elif tool == "frame":
         t = float(sys.argv[3]) if len(sys.argv) > 3 else 10.0
         print(get_video_frame(camera, t))

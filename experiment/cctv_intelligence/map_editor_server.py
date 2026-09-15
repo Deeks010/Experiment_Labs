@@ -14,6 +14,10 @@ BASE_DIR = Path(__file__).resolve().parent
 RUNS_DIR = BASE_DIR / "runs"
 DB_PATH = BASE_DIR / "cctv_maps.sqlite3"
 EDITOR_HTML = BASE_DIR / "map_editor_ui.html"
+EDITOR_FRAME_CACHE = BASE_DIR / "editor_frame_cache"
+FALLBACK_FRAME = BASE_DIR / "extracted_frame.jpg"
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+VIDEO_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv", ".webm"}
 
 
 def now_iso() -> str:
@@ -87,20 +91,106 @@ def require_local_path(raw_path: str) -> Path:
     base = BASE_DIR.resolve()
     if candidate == base or base in candidate.parents:
         return candidate
+    if is_known_camera_source(candidate):
+        return candidate
     raise ValueError("Path is outside cctv_intelligence folder")
+
+
+def is_known_camera_source(path: Path) -> bool:
+    with connect_db() as conn:
+        rows = conn.execute("SELECT source_path FROM cameras WHERE source_path IS NOT NULL").fetchall()
+    candidate = path.resolve()
+    for row in rows:
+        source_path = row["source_path"]
+        if source_path and Path(source_path).expanduser().resolve() == candidate:
+            return True
+    return False
+
+
+def image_size(path: Path) -> tuple[int | None, int | None]:
+    try:
+        from PIL import Image
+
+        with Image.open(path) as image:
+            return image.size
+    except Exception:
+        return None, None
+
+
+def extract_video_frame(video_path: Path, camera_name: str) -> Path | None:
+    if not video_path.exists():
+        return None
+    try:
+        import cv2
+
+        EDITOR_FRAME_CACHE.mkdir(parents=True, exist_ok=True)
+        frame_path = EDITOR_FRAME_CACHE / f"{camera_name}_frame.jpg"
+        if frame_path.exists() and frame_path.stat().st_mtime >= video_path.stat().st_mtime:
+            return frame_path
+
+        capture = cv2.VideoCapture(str(video_path))
+        try:
+            ok, frame = capture.read()
+            if not ok or frame is None:
+                return None
+            if not cv2.imwrite(str(frame_path), frame):
+                return None
+            return frame_path
+        finally:
+            capture.release()
+    except Exception:
+        return None
+
+
+def frame_path_for_camera(camera: sqlite3.Row) -> Path | None:
+    raw_source = camera["source_path"] or ""
+    source_path = Path(raw_source).expanduser() if raw_source else None
+    if source_path and source_path.suffix.lower() in IMAGE_EXTENSIONS and source_path.exists():
+        return source_path
+    if source_path and source_path.suffix.lower() in VIDEO_EXTENSIONS:
+        frame_path = extract_video_frame(source_path, camera["name"])
+        if frame_path:
+            return frame_path
+    if FALLBACK_FRAME.exists():
+        return FALLBACK_FRAME
+    return None
 
 
 def list_runs() -> list[dict]:
     runs = []
+    with connect_db() as conn:
+        cameras = conn.execute(
+            """
+            SELECT c.*, COUNT(z.id) AS zone_count
+            FROM cameras c
+            LEFT JOIN camera_zones z ON z.camera_id = c.id
+            GROUP BY c.id
+            ORDER BY c.id DESC
+            """
+        ).fetchall()
+    for camera in cameras:
+        runs.append(
+            {
+                "name": camera["name"],
+                "map_path": "sqlite:camera_zones",
+                "frame_path": camera["source_path"] or "",
+                "source": "db",
+                "zone_count": camera["zone_count"],
+            }
+        )
+
     if not RUNS_DIR.exists():
         return runs
     # Sort by modification time, descending (newest first)
     dirs = sorted(RUNS_DIR.iterdir(), key=lambda d: d.stat().st_mtime if d.is_dir() else 0, reverse=True)
+    existing_names = {run["name"] for run in runs}
     for item in dirs:
         map_path = item / "grid_camera_map.json"
         frame_path = item / "extracted_frame.jpg"
+        if item.name in existing_names:
+            continue
         if item.is_dir() and map_path.exists() and frame_path.exists():
-            runs.append({"name": item.name, "map_path": str(map_path), "frame_path": str(frame_path)})
+            runs.append({"name": item.name, "map_path": str(map_path), "frame_path": str(frame_path), "source": "run"})
     return runs
 
 
@@ -216,7 +306,26 @@ def load_saved_camera(camera_name: str) -> dict | None:
                 "db_id": row["id"],
             }
         )
-    return {"camera": dict(camera), "zones": zones}
+    frame_path = frame_path_for_camera(camera)
+    frame_width, frame_height = image_size(frame_path) if frame_path else (None, None)
+    return {
+        "run_name": None,
+        "camera_name": camera["name"],
+        "camera": dict(camera),
+        "frame_width": frame_width,
+        "frame_height": frame_height,
+        "frame_path": str(frame_path.resolve()) if frame_path else "",
+        "image_url": path_to_url(frame_path) if frame_path else "",
+        "zones": zones,
+        "source": "db",
+    }
+
+
+def load_camera_or_run(name: str) -> dict:
+    saved = load_saved_camera(name)
+    if saved:
+        return saved
+    return load_run(name)
 
 
 def save_camera_zones(payload: dict) -> dict:
@@ -304,7 +413,7 @@ class MapEditorHandler(BaseHTTPRequestHandler):
                 self.send_json({"runs": list_runs()})
             elif parsed.path == "/api/load-run":
                 run = parse_qs(parsed.query).get("run", [""])[0]
-                self.send_json(load_run(run))
+                self.send_json(load_camera_or_run(run))
             elif parsed.path == "/api/load-saved":
                 camera = parse_qs(parsed.query).get("camera", [""])[0]
                 data = load_saved_camera(camera)

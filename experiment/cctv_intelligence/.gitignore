@@ -1,0 +1,15 @@
+.env
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.mp4
+*.avi
+*.mov
+models/
+_vendor/
+activity_runs/
+map_analytics/
+identity_samples/
+external_samples/
+editor_frame_cache/
+runs/

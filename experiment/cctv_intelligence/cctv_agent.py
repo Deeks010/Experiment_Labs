@@ -54,6 +54,7 @@ from cctv_tools import (
     get_activity_table,
     get_visual_grid,
     get_worker_movement_summary,
+    get_identity_profile_summary,
 )
 
 # ── System prompt ─────────────────────────────────────────────────────────────
@@ -110,7 +111,8 @@ get_map: main tool for WHERE questions. Shows floor layout and worker positions 
 get_people_count: for HOW MANY people and WHEN was it busiest.
 get_day_summary: full picture of a session. Call once and reuse.
 get_activity_table: detailed analysis like idle detection. Short windows only (30-60s). Not for location.
-get_worker_movement_summary: consolidated worker movement/stillness summary. Uses a track-stitching enrichment layer to combine likely broken camera paths without changing raw data. Use this for "who moved most", "who stood still", "which worker moved more", or person-level movement comparisons.
+get_worker_movement_summary: consolidated worker movement/stillness summary. Uses a track-stitching enrichment layer to combine likely broken camera paths without changing raw data. When available, it also uses day-level clothing appearance cues. Use this for "who moved most", "who stood still", "which worker moved more", or person-level movement comparisons.
+get_identity_profile_summary: reads the persisted day/session visible-worker identity profiles created by identity_profile_builder.py. Use this when the user asks for unique visible workers, whether one person was cut and re-added, or profile-to-segment identity links.
 get_video_frame: extract a single image frame.
 get_visual_grid: extracts multiple frames into a grid and analyzes them visually. Use for ANY question requiring you to literally SEE behavior, interactions, or equipment. Up to 9 frames.
 
@@ -272,7 +274,8 @@ OPENAI_TOOLS = [
             "description": (
                 "Returns consolidated worker records for movement/stillness questions. "
                 "This tool stitches likely broken camera paths using time, distance, speed, direction, "
-                "and nearby-worker conflict checks without modifying raw data. "
+                "nearby-worker conflict checks, and day-level clothing appearance cues when available, "
+                "without modifying raw data. "
                 "Use for: who moved most, who stood in one place, which worker moved more, or person-level movement comparisons. "
                 "For final owner-facing identification, combine this with get_visual_grid and describe visible clothing/location."
             ),
@@ -283,6 +286,26 @@ OPENAI_TOOLS = [
                     "t_start_sec": {"type": "number", "description": "Start time in seconds. Omit for full available window."},
                     "t_end_sec": {"type": "number", "description": "End time in seconds. Omit for full available window."},
                     "focus": {"type": "string", "description": "Use 'movement' for most moved, or 'stationary' for stood still."},
+                },
+                "required": ["camera_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_identity_profile_summary",
+            "description": (
+                "Returns persisted day/session visible-worker identity profiles built from raw tracking rows, "
+                "quality-scored appearance samples, motion continuity, and segment-to-profile links. "
+                "Use for unique visible worker questions, cut/re-added person questions, and identity audit. "
+                "These are not employee identities and should be visually verified for important answers."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "camera_name": {"type": "string"},
+                    "run_name": {"type": "string", "description": "Optional identity run name. Omit to use latest."},
                 },
                 "required": ["camera_name"],
             },
@@ -411,7 +434,8 @@ GEMINI_TOOL_DECLARATIONS = [
         name="get_worker_movement_summary",
         description=(
             "Consolidated worker movement/stillness summary. Stitches likely broken paths using "
-            "time, distance, speed, direction, and nearby-worker checks without modifying raw data. "
+            "time, distance, speed, direction, nearby-worker checks, and day-level clothing appearance "
+            "cues when available without modifying raw data. "
             "Use for who moved most, who stood still, or worker movement comparisons."
         ),
         parameters=types.Schema(
@@ -421,6 +445,22 @@ GEMINI_TOOL_DECLARATIONS = [
                 "t_start_sec": types.Schema(type=types.Type.NUMBER),
                 "t_end_sec": types.Schema(type=types.Type.NUMBER),
                 "focus": types.Schema(type=types.Type.STRING),
+            },
+            required=["camera_name"],
+        ),
+    ),
+    types.FunctionDeclaration(
+        name="get_identity_profile_summary",
+        description=(
+            "Persisted day/session visible-worker identity profiles built from raw tracking rows, "
+            "quality-scored appearance samples, motion continuity, and segment-to-profile links. "
+            "Use for unique visible worker questions, cut/re-added person questions, and identity audit."
+        ),
+        parameters=types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+                "camera_name": types.Schema(type=types.Type.STRING),
+                "run_name": types.Schema(type=types.Type.STRING),
             },
             required=["camera_name"],
         ),
@@ -647,6 +687,7 @@ TOOL_FUNCTIONS = {
     "get_video_frame": lambda args: get_video_frame(**args),
     "get_activity_table": lambda args: get_activity_table(**args),
     "get_worker_movement_summary": lambda args: get_worker_movement_summary(**args),
+    "get_identity_profile_summary": lambda args: get_identity_profile_summary(**args),
     "get_visual_grid": lambda args: get_visual_grid(**args),
 }
 
@@ -657,7 +698,7 @@ def call_tool(name: str, args: dict) -> str:
         return f"ERROR: Unknown tool '{name}'"
     try:
         result = fn(args)
-        if name in ("get_map", "get_activity_table", "get_worker_movement_summary", "get_people_count",
+        if name in ("get_map", "get_activity_table", "get_worker_movement_summary", "get_identity_profile_summary", "get_people_count",
                     "get_day_summary", "get_zones_info"):
             return f"```\n{result}\n```"
         return result
