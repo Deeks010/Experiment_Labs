@@ -54,8 +54,9 @@ python experiment/cctv_intelligence/prepare_public_tracking_workspace.py `
 
 ## Accuracy experiment
 
-1. Confirm CUDA is actually used and record the GPU, library version, model, tracker,
-   input size, thresholds, and run time.
+1. Confirm hardware acceleration is actually used and record the GPU, library version,
+   model, tracker, input size, thresholds, and run time. On Apple Silicon use `mps`;
+   on NVIDIA use device `0` or `cuda`.
 2. Process every frame. Start at 4 seconds. Do not reduce quality for real-time speed.
 3. Test stronger person or pose detectors that fit the GPU. Begin with medium, then
    large or extra-large when memory permits.
@@ -78,14 +79,16 @@ python experiment/cctv_intelligence/floor_activity_tracker.py EPFL_C0 `
   demo_assets/public_samples/epfl_6person_indoor/6p-c0.avi `
   --db experiment/cctv_intelligence/activity_runs/epfl_gpu_test/observations.sqlite3 `
   --output-dir experiment/cctv_intelligence/activity_runs/epfl_gpu_test/tracking `
-  --source-kind real --device 0 --model yolo11m-pose.pt `
+  --source-kind real --device mps --model yolo11m-pose.pt `
   --tracker experiment/cctv_intelligence/botsort_reid_accuracy.yaml `
   --imgsz 640 --frame-stride 1 --start-sec 4 --end-sec 118.2 `
   --conf 0.2 --save-preview-video
 ```
 
+The example targets an Apple Silicon MacBook Pro. For NVIDIA, replace `mps` with `0`.
 The model name may download automatically. If it does not, place the downloaded model
-outside Git and pass its local path through `--model`.
+outside Git and pass its local path through `--model`. If ReID fails on an unsupported
+MPS operation, record the error and test that ReID step on CPU rather than disabling it.
 
 ## Required evaluation
 
