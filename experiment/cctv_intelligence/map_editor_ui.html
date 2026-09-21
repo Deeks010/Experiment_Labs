@@ -634,7 +634,7 @@
           run_name: currentRun,
           camera_name: cameraNameEl.value.trim(),
           frame_path: framePath,
-          zones,
+          zones: zones.map(zone => ({...zone, shape: 'box'})),
         }),
       });
       const data = await response.json();

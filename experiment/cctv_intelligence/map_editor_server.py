@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import math
 import json
 import mimetypes
+import os
 import sqlite3
 import time
+from contextlib import closing, contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -12,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 
 BASE_DIR = Path(__file__).resolve().parent
 RUNS_DIR = BASE_DIR / "runs"
-DB_PATH = BASE_DIR / "cctv_maps.sqlite3"
+DB_PATH = Path(os.environ.get("CCTV_DB_PATH", BASE_DIR / "cctv_maps.sqlite3"))
 EDITOR_HTML = BASE_DIR / "map_editor_ui.html"
 EDITOR_FRAME_CACHE = BASE_DIR / "editor_frame_cache"
 FALLBACK_FRAME = BASE_DIR / "extracted_frame.jpg"
@@ -24,10 +28,12 @@ def now_iso() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%S%z")
 
 
-def connect_db() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+@contextmanager
+def connect_db(db_path=None):
+    with closing(sqlite3.connect(db_path or DB_PATH)) as conn:
+        conn.row_factory = sqlite3.Row
+        with conn:
+            yield conn
 
 
 def init_db() -> None:
@@ -124,7 +130,8 @@ def extract_video_frame(video_path: Path, camera_name: str) -> Path | None:
         import cv2
 
         EDITOR_FRAME_CACHE.mkdir(parents=True, exist_ok=True)
-        frame_path = EDITOR_FRAME_CACHE / f"{camera_name}_frame.jpg"
+        source_key = hashlib.sha256(str(video_path.resolve()).encode()).hexdigest()[:16]
+        frame_path = EDITOR_FRAME_CACHE / f"{source_key}_frame.jpg"
         if frame_path.exists() and frame_path.stat().st_mtime >= video_path.stat().st_mtime:
             return frame_path
 
@@ -151,6 +158,8 @@ def frame_path_for_camera(camera: sqlite3.Row) -> Path | None:
         frame_path = extract_video_frame(source_path, camera["name"])
         if frame_path:
             return frame_path
+    if raw_source:
+        return None
     if FALLBACK_FRAME.exists():
         return FALLBACK_FRAME
     return None
@@ -253,7 +262,9 @@ def get_or_create_camera(conn: sqlite3.Connection, name: str, source_path: str |
 
 
 def load_run(run_name: str) -> dict:
-    run_dir = RUNS_DIR / run_name
+    run_dir = (RUNS_DIR / run_name).resolve()
+    if run_dir.parent != RUNS_DIR.resolve():
+        raise ValueError('Invalid run name.')
     map_path = run_dir / "grid_camera_map.json"
     if not map_path.exists():
         raise FileNotFoundError(f"No grid_camera_map.json found for run {run_name}")
@@ -281,8 +292,8 @@ def load_run(run_name: str) -> dict:
     }
 
 
-def load_saved_camera(camera_name: str) -> dict | None:
-    with connect_db() as conn:
+def load_saved_camera(camera_name: str, db_path=None) -> dict | None:
+    with connect_db(db_path) as conn:
         camera = conn.execute("SELECT * FROM cameras WHERE name = ?", (camera_name,)).fetchone()
         if not camera:
             return None
@@ -301,6 +312,7 @@ def load_saved_camera(camera_name: str) -> dict | None:
                 "number": index + 1,
                 "name": row["zone_name"],
                 "box": box,
+                "shape": geometry.get('shape', 'box'),
                 "points": geometry.get("points", []),
                 "metadata": metadata,
                 "db_id": row["id"],
@@ -318,7 +330,69 @@ def load_saved_camera(camera_name: str) -> dict | None:
         "image_url": path_to_url(frame_path) if frame_path else "",
         "zones": zones,
         "source": "db",
+        "revision": map_revision(zones),
     }
+
+
+def map_revision(zones):
+    from workflow_knowledge import map_version
+    return map_version([{'name': z['name'], 'kind': z.get('metadata', {}).get('kind', 'static_object'),
+        'description': z.get('metadata', {}).get('description', ''),
+        'category': z.get('metadata', {}).get('category', ''),
+        'geometry': {'shape': z.get('shape','box'), 'box': z['box'], 'points': z.get('points',[])}}
+        for z in zones])
+
+
+def normalize_zones(zones, width, height):
+    import cv2
+    import numpy as np
+    if not isinstance(zones, list) or len(zones)>256:
+        raise ValueError('Supply at most 256 objects or areas.')
+    result, names = [], set()
+    for index, source in enumerate(zones):
+        name = str(source.get('name','')).strip()
+        if not name or len(name)>100 or name.casefold() in names:
+            raise ValueError('Every object needs a unique name of 1-100 characters.')
+        names.add(name.casefold())
+        shape = source.get('shape','box')
+        if shape not in {'box','polygon'}:
+            raise ValueError('Choose a rectangle or polygon.')
+        if shape == 'box':
+            x1,y1,x2,y2 = map(float, source['box'])
+            points = [[min(x1,x2),min(y1,y2)],[max(x1,x2),min(y1,y2)],
+                      [max(x1,x2),max(y1,y2)],[min(x1,x2),max(y1,y2)]]
+        else:
+            points = source.get('points', [])
+        if not 3 <= len(points) <= 64 or any(len(p)!=2 for p in points):
+            raise ValueError('A polygon needs 3-64 vertices.')
+        points = [[float(x),float(y)] for x,y in points]
+        if any(not math.isfinite(v) for p in points for v in p):
+            raise ValueError('Coordinates must be finite.')
+        if any(not (0<=x<=width and 0<=y<=height) for x,y in points):
+            raise ValueError('Keep all vertices inside the camera image.')
+        if len(set(map(tuple,points))) != len(points) or cv2.contourArea(np.asarray(points,np.float32)) < 4:
+            raise ValueError('The shape has duplicate vertices or no usable area.')
+        def cross(a,b,c): return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+        for i,a in enumerate(points):
+            b=points[(i+1)%len(points)]
+            for j in range(i+1,len(points)):
+                if j in {(i+1)%len(points)} or (j+1)%len(points)==i:
+                    continue
+                c,d=points[j],points[(j+1)%len(points)]
+                if cross(a,b,c)*cross(a,b,d)<=0 and cross(c,d,a)*cross(c,d,b)<=0 and \
+                   max(min(a[0],b[0]),min(c[0],d[0]))<=min(max(a[0],b[0]),max(c[0],d[0])) and \
+                   max(min(a[1],b[1]),min(c[1],d[1]))<=min(max(a[1],b[1]),max(c[1],d[1])):
+                    raise ValueError('Polygon edges must not cross.')
+        metadata = dict(source.get('metadata') or {})
+        metadata.setdefault('kind','static_object')
+        if metadata['kind'] not in {'static_object','floor_area'}:
+            raise ValueError('Choose static object or floor area.')
+        metadata['description'] = str(metadata.get('description',''))[:2000]
+        metadata['category'] = str(metadata.get('category',''))[:100]
+        xs,ys=zip(*points)
+        result.append({'name':name,'number':index+1,'shape':shape,'points':points,
+                       'box':[min(xs),min(ys),max(xs),max(ys)],'metadata':metadata})
+    return result
 
 
 def load_camera_or_run(name: str) -> dict:
@@ -328,65 +402,48 @@ def load_camera_or_run(name: str) -> dict:
     return load_run(name)
 
 
-def save_camera_zones(payload: dict) -> dict:
-    camera_name = (payload.get("camera_name") or payload.get("run_name") or "").strip()
+def save_camera_zones(payload: dict, db_path=None) -> dict:
+    camera_name = str(payload.get('camera_name') or payload.get('run_name') or '').strip()
     if not camera_name:
-        raise ValueError("camera_name is required")
-
-    zones = payload.get("zones")
-    if not isinstance(zones, list):
-        raise ValueError("zones must be a list")
-
-    saved_run_path = None
-    run_name = (payload.get("run_name") or "").strip()
-    if run_name:
-        run_dir = (RUNS_DIR / run_name).resolve()
-        if RUNS_DIR.resolve() not in run_dir.parents:
-            raise ValueError("run_name resolves outside runs folder")
-        run_dir.mkdir(parents=True, exist_ok=True)
-        saved_run_path = run_dir / "edited_zones.json"
-        run_payload = {
-            "camera_name": camera_name,
-            "run_name": run_name,
-            "frame_path": payload.get("frame_path"),
-            "updated_at": now_iso(),
-            "zones": [zone_to_serializable(zone, index) for index, zone in enumerate(zones)],
-        }
-        saved_run_path.write_text(json.dumps(run_payload, indent=2), encoding="utf-8")
-
-    with connect_db() as conn:
-        camera_id = get_or_create_camera(conn, camera_name, payload.get("source_path") or payload.get("frame_path"))
-        conn.execute("DELETE FROM camera_zones WHERE camera_id = ?", (camera_id,))
-        timestamp = now_iso()
+        raise ValueError('camera_name is required')
+    saved = load_saved_camera(camera_name, db_path)
+    new_camera = saved is None
+    if not saved:
+        saved = load_run(str(payload.get('run_name') or camera_name))
+    width, height = saved.get('frame_width'), saved.get('frame_height')
+    if not width or not height:
+        raise ValueError('The camera frame is unavailable. No annotations were changed.')
+    zones = normalize_zones(payload.get('zones'), width, height)
+    revision = map_revision(zones)
+    with connect_db(db_path) as conn:
+        from site_context import init_site_tables
+        init_site_tables(conn)
+        conn.execute('BEGIN IMMEDIATE')
+        camera_id = get_or_create_camera(conn, camera_name,
+            saved.get('frame_path') if new_camera else None)
+        current = conn.execute('SELECT * FROM camera_zones WHERE camera_id=? ORDER BY id', (camera_id,)).fetchall()
+        existing = [{'name':r['zone_name'], **json.loads(r['geometry_json']),
+                     'metadata':json.loads(r['metadata_json'])} for r in current]
+        if 'expected_revision' in payload and payload['expected_revision'] != map_revision(existing):
+            raise ValueError('Map changed since loading. Reload before saving.')
+        conn.execute('DELETE FROM camera_zones WHERE camera_id=?', (camera_id,))
         for zone in zones:
-            name = (zone.get("name") or "Unnamed zone").strip()
-            box = zone.get("box") or [0, 0, 100, 100]
-            geometry = {
-                "shape": "box",
-                "box": [float(box[0]), float(box[1]), float(box[2]), float(box[3])],
-                "points": zone.get("points") or [
-                    [float(box[0]), float(box[1])],
-                    [float(box[2]), float(box[1])],
-                    [float(box[2]), float(box[3])],
-                    [float(box[0]), float(box[3])],
-                ],
-            }
-            metadata = zone.get("metadata") or {}
-            metadata["editor_number"] = zone.get("number")
-            conn.execute(
-                """
-                INSERT INTO camera_zones
-                    (camera_id, zone_name, geometry_json, metadata_json, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (camera_id, name, json.dumps(geometry), json.dumps(metadata), timestamp, timestamp),
-            )
-    return {
-        "ok": True,
-        "camera_name": camera_name,
-        "zone_count": len(zones),
-        "saved_run_path": str(saved_run_path) if saved_run_path else None,
-    }
+            geometry = {k:zone[k] for k in ('shape','points','box')}
+            conn.execute('''INSERT INTO camera_zones
+                (camera_id,zone_name,geometry_json,metadata_json,created_at,updated_at)
+                VALUES (?,?,?,?,?,?)''', (camera_id,zone['name'],json.dumps(geometry),
+                json.dumps(zone['metadata']),now_iso(),now_iso()))
+        conn.execute('DELETE FROM camera_map_reviews WHERE camera_name=?', (camera_name,))
+        if payload.get('reviewed'):
+            if not zones:
+                raise ValueError('Add at least one object or area before confirming the map.')
+            conn.execute('INSERT INTO camera_map_reviews VALUES (?,?,?)', (camera_name,revision,now_iso()))
+    saved_run_path = None
+    if saved.get('run_name'):
+        saved_run_path = (RUNS_DIR / saved['run_name'] / 'edited_zones.json').resolve()
+        saved_run_path.write_text(json.dumps({'camera_name':camera_name,'zones':zones}, indent=2), encoding='utf-8')
+    return {'ok':True,'camera_name':camera_name,'zone_count':len(zones),'revision':revision,
+            'reviewed':bool(payload.get('reviewed')), 'saved_run_path':str(saved_run_path) if saved_run_path else None}
 
 
 class MapEditorHandler(BaseHTTPRequestHandler):

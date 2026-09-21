@@ -1,0 +1,63 @@
+{
+  "site": {
+    "schema_version": 1,
+    "name": "EPFL camera 01 identity accuracy test",
+    "timezone": "Asia/Kolkata",
+    "provenance": "public_research_dataset",
+    "description": "Single-camera crowded tracking benchmark with six labelled people.",
+    "rooms": [
+      {
+        "id": "epfl_lab",
+        "name": "EPFL indoor laboratory",
+        "description": "One shared indoor room used only for tracking evaluation.",
+        "position": [0.5, 0.5]
+      }
+    ],
+    "cameras": [
+      {
+        "name": "EPFL_C0",
+        "label": "EPFL 01 - Laboratory camera 0",
+        "room_id": "epfl_lab",
+        "coverage": "One fixed view of the shared laboratory.",
+        "blind_spots": "Outside the frame and behind furniture or people.",
+        "normal_activity": "No operating baseline supplied. This is an identity benchmark."
+      }
+    ],
+    "routes": [],
+    "workflows": [],
+    "exceptions": []
+  },
+  "sources": [
+    {
+      "camera": "EPFL_C0",
+      "video": "demo_assets/public_samples/epfl_6person_indoor/6p-c0.avi",
+      "zones": [
+        {
+          "name": "Right hand side bench with chairs",
+          "kind": "static_object",
+          "points": [[207.0406602255476, 24.992333675300422], [352.9918779351031, 64.53648707498594], [349.8698930620867, 118.64953724655908], [190.65039773814811, 59.8536227976974]]
+        },
+        {
+          "name": "Small table near projector screen with chairs",
+          "kind": "static_object",
+          "points": [[108.69919069844183, 35.39056341619021], [162.81299400913989, 23.691535765650485], [176.601629760916, 59.85361987003624], [125.34959712210744, 72.0810903586019]]
+        },
+        {
+          "name": "Projector screen and some chairs kept infront temporarily",
+          "kind": "static_object",
+          "points": [[27.528456455369387, 0.017068264519064562], [41.05691313844897, 99.13762129971077], [119.3658415772015, 75.20299597324606], [123.00811432275019, 1.5780327824857552]]
+        },
+        {
+          "name": "Patterned mat put in hall",
+          "kind": "floor_area",
+          "points": [[6.195122493122176, 135.29970394026594], [131.85366396116592, 89.51173931129212], [193.7723591895443, 113.18618924645662], [51.20324686765106, 179.00640596657342]]
+        },
+        {
+          "name": "Big blue mat put in the room floor",
+          "kind": "floor_area",
+          "points": [[20.504066611348268, 213.86770240812328], [234.617861464239, 110.06429680628764], [354.55281181756067, 163.39687350186088], [354.2926913029148, 236.50153275259922], [317.60972622468074, 286.1918589062502], [64.7317094061357, 286.972349948217]]
+        }
+      ]
+    }
+  ]
+}

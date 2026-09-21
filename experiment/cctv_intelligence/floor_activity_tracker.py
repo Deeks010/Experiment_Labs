@@ -3,11 +3,14 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sqlite3
 import threading
 import time
 import webbrowser
+import uuid
 from dataclasses import dataclass, field
+from contextlib import closing, contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -15,9 +18,14 @@ from typing import Any
 import cv2
 import numpy as np
 
+try:
+    from .workflow_observations import init_observations
+except ImportError:
+    from workflow_observations import init_observations
+
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "cctv_maps.sqlite3"
+DB_PATH = Path(os.environ.get("CCTV_DB_PATH", BASE_DIR / "cctv_maps.sqlite3"))
 OUTPUT_DIR = BASE_DIR / "activity_runs"
 
 
@@ -25,13 +33,16 @@ def now_iso() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%S%z")
 
 
-def connect_db() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+@contextmanager
+def connect_db():
+    with closing(sqlite3.connect(DB_PATH)) as conn:
+        conn.row_factory = sqlite3.Row
+        with conn:
+            yield conn
 
 
 def init_db() -> None:
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with connect_db() as conn:
         conn.executescript(
             """
@@ -69,6 +80,7 @@ def init_db() -> None:
             );
             """
         )
+        init_observations(conn)
         columns = {row["name"] for row in conn.execute("PRAGMA table_info(floor_data)").fetchall()}
         # Older experimental DBs had these columns. Leaving them is harmless; new inserts do not use them.
         if "zone_context_json" in columns or "change_reason" in columns:
@@ -125,15 +137,18 @@ def save_subject_group(
     run_dir: Path,
     saved_count: int,
     metadata: dict[str, Any],
+    frame_time_sec: float | None = None,
 ) -> tuple[int | None, int]:
     if not subjects:
         return None, saved_count
     segment = {"subjects": [subject.to_json() for subject in subjects]}
     evidence = {"frames": []}
     if frame is not None:
-        evidence_path = run_dir / f"evidence_{saved_count + 1:04d}_{int(max(s.last_time for s in subjects) * 1000)}.jpg"
+        if frame_time_sec is None:
+            raise ValueError("A saved evidence frame requires its actual source timestamp.")
+        evidence_path = run_dir / f"evidence_{saved_count + 1:04d}_{int(frame_time_sec * 1000)}.jpg"
         cv2.imwrite(str(evidence_path), frame)
-        evidence["frames"].append({"time_sec": round(max(s.last_time for s in subjects), 3), "path": str(evidence_path)})
+        evidence["frames"].append({"time_sec": round(frame_time_sec, 3), "path": str(evidence_path)})
     row_id = insert_floor_segment(camera_id=camera_id, segment=segment, evidence=evidence, metadata=metadata)
     return row_id, saved_count + 1
 
@@ -704,7 +719,7 @@ class ActiveSubject:
         quality = "good"
         if self.uncertain_notes:
             quality = "uncertain"
-        if len(self.points) < 2 or self.path_distance_px() < 20:
+        if not self.uncertain_notes and (len(self.points) < 2 or self.path_distance_px() < 20):
             quality = "low_motion"
         upper_color = mode_text([sample.get("upper_color") for sample in self.appearance_samples if sample.get("upper_color")])
         lower_color = mode_text([sample.get("lower_color") for sample in self.appearance_samples if sample.get("lower_color")])
@@ -874,14 +889,16 @@ def extract_detections(result: Any) -> list[dict[str, Any]]:
     return detections
 
 
-def process_video(args: argparse.Namespace) -> None:
+def process_video(args: argparse.Namespace) -> dict[str, Any]:
     init_db()
     video_path = Path(args.video).resolve()
     if not video_path.exists():
         raise FileNotFoundError(f"Video not found: {video_path}")
 
     camera_id = get_or_create_camera(args.camera, str(video_path))
-    run_dir = OUTPUT_DIR / f"{args.camera}_{int(time.time())}"
+    if args.frame_stride < 1 or args.start_sec < 0:
+        raise ValueError("Frame stride must be positive and start time must be nonnegative.")
+    run_dir = OUTPUT_DIR / f"{args.camera}_{int(time.time())}_{uuid.uuid4().hex[:8]}"
     run_id = run_dir.name
     run_dir.mkdir(parents=True, exist_ok=True)
 
@@ -889,6 +906,9 @@ def process_video(args: argparse.Namespace) -> None:
     print(f"Video: {video_path}")
     print(f"Output: {run_dir}")
     print(f"Loading model: {args.model}")
+    if str(args.device) == "cpu":
+        import torch
+        torch.set_num_threads(getattr(args, "cpu_threads", 4))
     model = load_yolo(args.model)
 
     cap = cv2.VideoCapture(str(video_path))
@@ -899,6 +919,18 @@ def process_video(args: argparse.Namespace) -> None:
     if args.start_sec:
         cap.set(cv2.CAP_PROP_POS_FRAMES, int(args.start_sec * fps))
     end_sec = args.end_sec if args.end_sec is not None else (total_frames / fps if total_frames else None)
+    if total_frames:
+        end_sec = min(end_sec, total_frames / fps)
+    if end_sec is None or not math.isfinite(end_sec) or end_sec <= args.start_sec:
+        cap.release()
+        raise ValueError("Video must have a finite, nonempty processing range.")
+    config = {**vars(args), "fps": fps, "end_sec": end_sec,
+              "width": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+              "height": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))}
+    with connect_db() as conn:
+        conn.execute("INSERT INTO tracking_runs (run_id,camera_id,source_path,source_kind,config_json,status) VALUES (?,?,?,?,?,?)",
+                     (run_id, camera_id, str(video_path), getattr(args, "source_kind", "unknown"),
+                      json.dumps(config, default=str), "processing"))
 
     preview_state = PreviewState()
     preview_server = None
@@ -916,15 +948,25 @@ def process_video(args: argparse.Namespace) -> None:
     frame_idx = int(cap.get(cv2.CAP_PROP_POS_FRAMES) or 0)
     last_log = time.time()
     tracker_arg = args.tracker if args.tracker != "none" else None
+    writer = None
+    observation_batch = []
+    processed_frames = 0
+    processing_started = time.perf_counter()
+
+    def flush_observations():
+        if observation_batch:
+            with connect_db() as conn:
+                conn.executemany("INSERT INTO frame_observations VALUES (?,?,?,?)", observation_batch)
+            observation_batch.clear()
 
     try:
         while True:
             ok, frame = cap.read()
             if not ok:
                 break
-            frame_idx = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+            frame_idx = int(cap.get(cv2.CAP_PROP_POS_FRAMES)) - 1
             t_sec = frame_idx / fps
-            if end_sec is not None and t_sec > end_sec:
+            if t_sec >= end_sec:
                 break
             if frame_idx % args.frame_stride != 0:
                 continue
@@ -1025,6 +1067,15 @@ def process_video(args: argparse.Namespace) -> None:
                 )
                 drawn_detections.append({**det, "subject_ref": subject.subject_ref})
 
+            observation_batch.append((run_id, frame_idx, t_sec, json.dumps([
+                {"subject_ref": det["subject_ref"], "tracker_id": det["internal_id"],
+                 "foot": list(active[det["internal_id"]].last_smoothed), "raw_foot": list(det["foot"]),
+                 "bbox": det["bbox"], "confidence": det["conf"], "foot_source": det["foot_source"]}
+                for det in drawn_detections])))
+            processed_frames += 1
+            if len(observation_batch) >= 32:
+                flush_observations()
+
             stale_ids = []
             for internal_id, subject in active.items():
                 missing_sec = (frame_idx - subject.last_seen_frame) / fps
@@ -1058,6 +1109,7 @@ def process_video(args: argparse.Namespace) -> None:
                     frame=frame,
                     run_dir=run_dir,
                     saved_count=saved_count,
+                    frame_time_sec=t_sec,
                     metadata={
                         "run_id": run_id,
                         "video_path": str(video_path),
@@ -1089,22 +1141,27 @@ def process_video(args: argparse.Namespace) -> None:
                 preview_state.update(preview, f"t={t_sec:.2f}s saved={saved_count}")
             if args.save_preview_video:
                 # Lazy-create the writer after the first preview frame.
-                if not hasattr(process_video, "_writer"):
+                if writer is None:
                     h, w = preview.shape[:2]
                     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-                    process_video._writer = cv2.VideoWriter(str(run_dir / "preview.mp4"), fourcc, max(1.0, fps / args.frame_stride), (w, h))
-                process_video._writer.write(preview)
+                    writer = cv2.VideoWriter(str(run_dir / "preview.mp4"), fourcc, fps / args.frame_stride, (w, h))
+                    if not writer.isOpened():
+                        raise RuntimeError("Could not create tracking preview video.")
+                writer.write(preview)
 
             if time.time() - last_log > 2.0:
                 print(f"[{t_sec:8.2f}s] active={len(active)} lost={len(lost)} detections={len(detections)} saved={saved_count}")
                 last_log = time.time()
 
+    except Exception as exc:
+        with connect_db() as conn:
+            conn.execute("UPDATE tracking_runs SET status='failed',error=?,finished_at=CURRENT_TIMESTAMP WHERE run_id=?", (str(exc), run_id))
+        raise
     finally:
+        flush_observations()
         cap.release()
-        writer = getattr(process_video, "_writer", None)
         if writer is not None:
             writer.release()
-            delattr(process_video, "_writer")
         if preview_server is not None:
             preview_server.shutdown()
 
@@ -1146,6 +1203,16 @@ def process_video(args: argparse.Namespace) -> None:
         )
         print(f"FINAL SAVE row={row_id} subjects={len(final_subjects)}")
     print(f"Done. Saved {saved_count} floor_data rows.")
+    elapsed = time.perf_counter() - processing_started
+    config.update({"processed_frames": processed_frames, "elapsed_sec": elapsed,
+                   "processing_fps": processed_frames / max(elapsed, 1e-9)})
+    with connect_db() as conn:
+        conn.execute("UPDATE tracking_runs SET status='complete',config_json=?,finished_at=CURRENT_TIMESTAMP WHERE run_id=?",
+                     (json.dumps(config, default=str), run_id))
+    result = {"camera": args.camera, "run_id": run_id, "run_dir": str(run_dir.resolve()),
+              "processed_frames": processed_frames, "elapsed_sec": elapsed}
+    (run_dir / "run.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    return result
 
 
 def default_model_path() -> str:
@@ -1160,12 +1227,17 @@ def default_model_path() -> str:
 
 
 def main() -> None:
+    global DB_PATH, OUTPUT_DIR
     parser = argparse.ArgumentParser(description="Read CCTV video, smooth YOLO pose detections, and store floor activity segments.")
     parser.add_argument("camera", help="Camera/source name, for example D23")
     parser.add_argument("video", help="Video path")
     parser.add_argument("--model", default=default_model_path(), help="YOLO pose model path")
+    parser.add_argument("--db", type=Path, default=DB_PATH)
+    parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
+    parser.add_argument("--source-kind", choices=["real", "synthetic", "unknown"], default="unknown")
     parser.add_argument("--tracker", default="botsort.yaml", help="Ultralytics tracker config: botsort.yaml, bytetrack.yaml, or none")
     parser.add_argument("--device", default="cpu", help="cpu, cuda, 0, etc.")
+    parser.add_argument("--cpu-threads", type=int, default=4, help="Limit CPU thread oversubscription")
     parser.add_argument("--conf", type=float, default=0.35)
     parser.add_argument("--imgsz", type=int, default=640)
     parser.add_argument("--frame-stride", type=int, default=3, help="Process every Nth frame")
@@ -1188,6 +1260,7 @@ def main() -> None:
     parser.add_argument("--open-browser", action="store_true")
     parser.add_argument("--save-preview-video", action="store_true")
     args = parser.parse_args()
+    DB_PATH, OUTPUT_DIR = args.db.resolve(), args.output_dir.resolve()
     process_video(args)
 
 
