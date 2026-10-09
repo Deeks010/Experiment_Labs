@@ -1,0 +1,9 @@
+{"q1":{"count":5,"note":"The people-in-frame count for 10:01:01–10:02:41 is 5. Per-second counts are the most reliable data (about ±1)."},
+ "q2":{"max":5,"from":"10:01:01","to":"10:02:41","note":"The count of 5 was never exceeded. It was also reached during 10:04:50–10:04:55, 10:05:03–10:05:37 and 10:06:20–10:07:56; 10:01:01–10:02:41 is the longest of these periods."},
+ "q3":{"answer":"no","note":"The zone data shows Op 16 empty from 10:08:06 to 10:09:18, while Op 17 held 2 persons. The Op 16 person seems to have moved into Op 17, but that is based only on foot-point zone mapping."},
+ "q4":{"zones":[{"zone":"Op 14","from":"10:01:42","to":"10:04:25"},{"zone":"Op 16","from":"10:08:06","to":"10:09:18"}],"note":"These are the only operator-zone gaps longer than 1 minute; all other gaps were about 10–12 s. During the Op 16 gap, a second person was counted in Op 17."},
+ "q5":{"entered_west":2,"entered_east":2,"left_west":1,"left_east":3,"note":"Counted from the edge-crossing list: 4 entries and 4 exits. That matches 4 people in view at the start and 4 at the end."},
+ "q6":{"answer":"unknown","note":"People are not identified. The track at Op 14 at 10:06 starts at 10:05:12 inside the view and cannot be linked to the person at Op 14 at 10:01."},
+ "q7":{"answer":"empty","note":"Op 14 was empty from 10:01:42 to 10:04:25 according to the zone states."},
+ "q8":{"zones":["Op 14","Bench L","Passage","Yellow aisle"],"edge":"east","time_out_of_view":"10:02:41","note":"This is one continuous track from Op 14 to the east edge. Another person left Op 16 around 10:02, but that track breaks at 10:02:01, so its link to the 10:03:17 east exit is uncertain."},
+ "q9":{"best":null,"min":5,"max":8,"note":"There were 4 people at the start plus 4 entries, so at most 8. At least 5 were seen at the same time. People are not identified, so re-entries cannot be ruled out and an exact number cannot be given."}}

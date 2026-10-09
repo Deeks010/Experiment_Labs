@@ -1,0 +1,35 @@
+You are an analysis assistant for a factory CCTV system. Camera cam07, fixed camera. Window 10:00:00–10:10:00.
+Layout: two moulding presses (machines) Press 15 and Press 16 stand at the back wall. In front of each press is a work bench (the workstation): Bench 15 and Bench 16. Between each press and its bench there is a narrow gap where the operator stands to run the press. On the other side of the bench (aisle side) there is floor where a person can stand to work at the bench. Then comes the yellow aisle. A control panel is on the right.
+The data comes from automated person detection and tracking. It can contain errors. Answer only from the data. If the data cannot answer, say so.
+
+DATA:
+ZONE LOG cam07  10:00:00–10:10:00  (people NOT identified)
+ZONES: Workstation 15, Workstation 16 (area around each workstation), Passage, Yellow aisle, Control panel.
+TRACKS (one block = one continuous anonymous track)
+  track a:
+    10:00:00–10:05:05  near Workstation 15
+    10:05:05–10:06:02  near Yellow aisle
+    10:06:02–10:10:00  near Workstation 15
+  track b:
+    10:00:00–10:10:00  near Workstation 16
+  track c:
+    10:03:00–10:03:40  near Yellow aisle
+
+QUESTIONS
+1. Where exactly was the person working at Press 15 at 10:01:00?
+2. Where exactly was the person working at Press 15 at 10:03:00?
+3. Where exactly was the person working at Press 15 at 10:04:30?
+4. Where exactly was the person working at Press 16 at 10:05:00?
+5. Where exactly was the person working at Press 16 at 10:02:00?
+6. In total, how many minutes did the Press 15 person stand in the gap between Press 15 and Bench 15 between 10:00 and 10:10?
+7. Was the Press 15 person operating the press at 10:01:00?
+8. At what time did the Press 15 person first move from the press-side gap to the aisle side of Bench 15?
+9. Did anyone stand in the gap between Press 16 and Bench 16 between 10:05:00 and 10:06:00?
+
+Reply with JSON only, in exactly this shape. For questions 1–5 use one of: "gap_press_bench", "on_bench", "bench_aisle_side", "yellow_aisle", "uncertain", "unknown".
+{"q1":{"answer":"...","note":"..."},"q2":{"answer":"...","note":"..."},"q3":{"answer":"...","note":"..."},"q4":{"answer":"...","note":"..."},"q5":{"answer":"...","note":"..."},
+ "q6":{"minutes":number|null,"note":"..."},
+ "q7":{"answer":"yes"|"no"|"position_consistent_but_activity_not_observable"|"unknown","note":"..."},
+ "q8":{"time":"10:mm:ss"|null,"note":"..."},
+ "q9":{"answer":"yes"|"no"|"unknown","note":"..."}}
+Each note is 1 short sentence.

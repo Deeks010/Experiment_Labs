@@ -1,0 +1,5 @@
+{"q1":{"answer":"gap_press_bench","note":"Stay a1 (00:00–02:04) has its median foot point in the gap between Press 15 and Bench 15."},"q2":{"answer":"bench_aisle_side","note":"Stay a2 (02:04–03:34) is in the front-of-bench area on the aisle side."},"q3":{"answer":"uncertain","note":"Stay a3 (03:34–05:05) has its feet hidden by the bench, so the true spot may be in the gap."},"q4":{"answer":"bench_aisle_side","note":"Stay b2 (04:05–07:05) is on the aisle side of Bench 16."},"q5":{"answer":"gap_press_bench","note":"Stay b1 (00:00–04:05) is in the gap between Press 16 and Bench 16."},
+ "q6":{"minutes":5.98,"note":"Confirmed gap stays a1 (2:04) plus a5 (3:55) total 5:59; up to 1:31 more if the hidden stay a3 was also in the gap."},
+ "q7":{"answer":"position_consistent_but_activity_not_observable","note":"The track was in the gap, but the data shows only position, not whether the press was being operated."},
+ "q8":{"time":"10:02:04","note":"Stay a1 in the gap ends and stay a2 on the aisle side begins at 02:04."},
+ "q9":{"answer":"no","note":"Track b was on the aisle side (b2, 04:05–07:05), and no other track appears in the Press 16 gap during that minute."}}

@@ -1,0 +1,20 @@
+DWELL OVERVIEW cam07 09:00–10:00 (all people together; no identities; no time order)
+TIME PER FLOOR CELL (minutes):
+  Gap Press 15 ↔ Bench 15             35.0
+  Gap Press 16 ↔ Bench 16             30.0
+  Front of Bench 15 (aisle side)      10.0
+  Front of Bench 16 (aisle side)       8.0
+  Yellow aisle                         6.1
+  Other floor                          4.9
+  Front of Control panel               4.0
+  Passage between benches              3.0
+  On/over Bench 16                     0.1
+  On/over Bench 15                     0.0
+HOTSPOTS (connected areas with ≥1.5 min; centre position described relative to objects):
+  H1   34.2 min  press side of Bench 15, 75% along it; nearest Bench 15 (0.6 m)  xy=(7.5,2.6)
+  H2   29.1 min  press side of Bench 16, 17% along it; nearest Bench 16 (0.6 m)  xy=(11.2,2.6)
+  H3    9.3 min  aisle side of Bench 15, 37% along it; nearest Bench 15 (0.6 m)  xy=(6.0,4.8)
+  H4    7.2 min  aisle side of Bench 16, 50% along it; nearest Bench 16 (0.7 m)  xy=(12.5,4.9)
+  H5    4.0 min  beyond RIGHT end of Bench 16; nearest Bench 16 (0.4 m)  xy=(14.9,3.7)
+  H6    3.4 min  nearest Control panel (0.7 m)  xy=(16.6,4.6)
+  H7    2.2 min  beyond RIGHT end of Bench 15; nearest Bench 15 (0.8 m)  xy=(9.0,4.8)

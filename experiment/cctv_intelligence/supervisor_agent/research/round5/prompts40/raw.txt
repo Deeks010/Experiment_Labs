@@ -1,0 +1,60 @@
+You are an analysis assistant for a factory CCTV system. Camera cam07, top-view floor plan in metres.
+Press 15 and Press 16 are machines at the back wall. Bench 15 and Bench 16 are work benches in front of them. The operator runs a press from the gap between press and bench. The yellow aisle runs along the front.
+Answer only from the data.
+
+DATA:
+OBJECTS (rectangles, metres, x0,y0 – x1,y1; y grows from back wall toward the aisle):
+  Press 15: 5,0 – 8,2
+  Bench 15: 4.5,3.2 – 8.5,4.2
+  Press 16: 11,0 – 14,2
+  Bench 16: 10.5,3.2 – 14.5,4.2
+  Control panel: 17,1 – 19,4
+  Yellow aisle: 0,5.5 – 20,7.0
+STAYS (anonymous; median foot point, metres)
+  s1  10:00:00  x=7.79 y=5.10
+  s2  10:00:15  x=8.89 y=5.96
+  s3  10:00:30  x=8.54 y=5.87
+  s4  10:00:45  x=3.99 y=3.93
+  s5  10:01:00  x=9.84 y=4.71
+  s6  10:01:15  x=9.57 y=2.43
+  s7  10:01:30  x=6.80 y=3.00
+  s8  10:01:45  x=7.28 y=4.39
+  s9  10:02:00  x=3.88 y=2.87
+  s10 10:02:15  x=5.59 y=5.84
+  s11 10:02:30  x=8.70 y=2.63
+  s12 10:02:45  x=8.90 y=2.54
+  s13 10:03:00  x=7.75 y=2.49
+  s14 10:03:15  x=3.81 y=5.65
+  s15 10:03:30  x=5.14 y=2.87
+  s16 10:03:45  x=10.09 y=5.66
+  s17 10:04:00  x=5.65 y=6.04
+  s18 10:04:15  x=7.25 y=4.83
+  s19 10:04:30  x=5.11 y=5.95
+  s20 10:04:45  x=8.22 y=6.06
+  s21 10:05:00  x=9.52 y=3.22
+  s22 10:05:15  x=6.11 y=2.66
+  s23 10:05:30  x=4.73 y=2.23
+  s24 10:05:45  x=5.73 y=4.51
+  s25 10:06:00  x=3.82 y=4.83
+  s26 10:06:15  x=9.04 y=3.99
+  s27 10:06:30  x=8.31 y=2.19
+  s28 10:06:45  x=10.04 y=2.05
+  s29 10:07:00  x=8.60 y=5.54
+  s30 10:07:15  x=3.92 y=5.30
+  s31 10:07:30  x=6.14 y=4.41
+  s32 10:07:45  x=3.86 y=2.15
+  s33 10:08:00  x=4.96 y=6.01
+  s34 10:08:15  x=5.06 y=5.16
+  s35 10:08:30  x=9.75 y=5.95
+  s36 10:08:45  x=7.16 y=5.25
+  s37 10:09:00  x=4.49 y=5.13
+  s38 10:09:15  x=8.90 y=5.60
+  s39 10:09:30  x=4.03 y=5.97
+  s40 10:09:45  x=4.38 y=3.40
+
+QUESTIONS. For EACH stay s1–s40 answer:
+ nearest: which object was the person closest to? one of "Press 15","Bench 15","Press 16","Bench 16","Control panel"
+ side: where relative to Bench 15? one of "press_side","aisle_side","on_bench","beyond_left_end","beyond_right_end"
+ reach: was the person within 0.8 m of the front face of Press 15 (and in front of it, not beside it)? "yes"/"no"
+ part: which part of Bench 15's length were they level with? "left_third","middle_third","right_third","outside_length"
+Reply with JSON only: {"s1":{"nearest":"...","side":"...","reach":"...","part":"..."}, ... ,"s40":{...}}

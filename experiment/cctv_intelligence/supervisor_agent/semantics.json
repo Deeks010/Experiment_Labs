@@ -1,0 +1,69 @@
+{
+  "_doc": "Semantic layer. One place for every definition and threshold. Tools and the agent prompt read this file. Distances use BODY HEIGHTS (bh) measured from the person's bounding box at that spot, so they work in perspective camera pixels without calibration. 1 bh is about 1.7 m.",
+  "version": 1,
+  "body_height_m": 1.7,
+  "sampling": {
+    "resample_hz": 1,
+    "coast_sec": 2,
+    "count_median_sec": 5,
+    "min_track_sec": 3,
+    "min_run_sec_station": 5,
+    "min_run_sec_other": 3,
+    "offline_gap_sec": 3
+  },
+  "zone_roles": {
+    "_doc": "Optional metadata key 'role' on camera_zones. Unknown roles are treated as 'other'.",
+    "operator_station": "Floor area where an operator stands to run a machine. Used for absence.",
+    "work_surface": "Bench or table (static object). Short visits from a station are normal work.",
+    "walkway": "Aisle or passage for walking.",
+    "exit": "Floor area at a door or image edge where people enter or leave the view.",
+    "restricted": "Area where presence is always reported.",
+    "control": "Control panel or cabinet."
+  },
+  "definitions": {
+    "absence": "An operator_station zone is empty for longer than absence_min_sec. The interval may include camera-offline seconds; 'unknown_sec' says how many. Absence says the zone was empty; it does not say why.",
+    "short_visit": "A person leaves a station zone, stays in another zone for at most short_visit_max_sec, and returns to the same station zone.",
+    "long_stationary": "One track stays within stationary_radius_bh for at least stationary_min_sec. Possible rest or sleep. ALWAYS check frames before saying 'sleeping'.",
+    "close_pair": "Two people within close_pair_bh of each other for at least close_pair_min_sec. Possible conversation (chit-chat candidate). Distance only, no audio.",
+    "crowding": "At least crowd_min_people people within crowd_radius_bh of each other for at least crowd_min_sec. Includes groups walking together.",
+    "fast_movement": "A track moves faster than fast_bh_per_sec for at least fast_min_sec. Possible running or hurry.",
+    "outside_work_area_dwell": "Someone stays at least outside_dwell_min_sec within about 1 body height of one spot that is not an operator_station, work_surface or walkway zone (ID-free).",
+    "restricted_presence": "Any presence in a 'restricted' zone.",
+    "loitering": "Reserved for the main detector system. Imported events keep their own definition."
+  },
+  "thresholds": {
+    "absence_min_sec": 60,
+    "short_visit_max_sec": 25,
+    "stationary_radius_bh": 0.35,
+    "stationary_min_sec": 180,
+    "close_pair_bh": 0.9,
+    "close_pair_min_sec": 45,
+    "crowd_min_people": 3,
+    "crowd_radius_bh": 1.0,
+    "crowd_min_sec": 20,
+    "fast_bh_per_sec": 1.6,
+    "fast_min_sec": 2,
+    "outside_dwell_min_sec": 90,
+    "edge_margin_frac": 0.04,
+    "hotspot_min_sec": 90,
+    "dwell_cell_px": 32
+  },
+  "shifts": [
+    {
+      "name": "A",
+      "start": "06:00",
+      "end": "14:00"
+    },
+    {
+      "name": "B",
+      "start": "14:00",
+      "end": "22:00"
+    },
+    {
+      "name": "C",
+      "start": "22:00",
+      "end": "06:00"
+    }
+  ],
+  "limits_text": "Position is the foot point in camera pixels. Distances are approximate (body heights). People are NOT identified: a track is 'a person', never a named worker. Counts per second are the most reliable data (about ±1 for a few seconds in crowds). Nothing is known while the camera is offline or a person is not observed. Position does not prove activity (being in front of a press does not prove the person ran it)."
+}

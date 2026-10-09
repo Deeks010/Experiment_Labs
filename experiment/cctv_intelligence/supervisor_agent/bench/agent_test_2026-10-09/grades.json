@@ -1,0 +1,18 @@
+{"grades":[
+{"id":"q01","score":2,"invented":false,"note":"Says 7 at 10:03, correct."},
+{"id":"q02","score":2,"invented":false,"note":"Clear no, correct times, mentions 40 s offline unknown."},
+{"id":"q03","score":2,"invented":false,"note":"Only Op 15, 10:03:20-10:07:40 with offline gap; others short step-aways."},
+{"id":"q04","score":2,"invented":false,"note":"5 entries, east 3 / west 2, times correct; extras flagged as uncertain."},
+{"id":"q05","score":2,"invented":false,"note":"Offline 10:05:45-10:06:25, correct."},
+{"id":"q06","score":2,"invented":false,"note":"Probably different, clothing difference from frames, uncertainty stated; no exit/entry mention."},
+{"id":"q07","score":2,"invented":false,"note":"Fast movement in yellow aisle ~10:08:42; hedged 'possibly', direction missing."},
+{"id":"q08","score":2,"invented":false,"note":"Control panel crowd 10:02:16-10:05:45 within 60 s, plus Op 16/17 group."},
+{"id":"q09","score":2,"invented":false,"note":"Still person near notice board with times; sleep not supported, frames checked."},
+{"id":"q10","score":2,"invented":false,"note":"Empty 10:01:42-10:04:24, east exit path, return identity uncertain."},
+{"id":"q11","score":1,"invented":false,"note":"Numbers right but says 'about as busy', not busier; differences correct."},
+{"id":"q12","score":2,"invented":false,"note":"Close pair at Op 17 with times; says talking not proven."},
+{"id":"q13","score":2,"invented":false,"note":"Bench R right end / notice board spot, ~4.7 min hotspot."},
+{"id":"q14","score":2,"invented":true,"note":"Between Press 15 and Bench L, but 'well away from Bench L' contradicts ~0.5 bh."},
+{"id":"q15","score":2,"invented":false,"note":"Station empty, activity unknown; no guessed reason."},
+{"id":"q16","score":2,"invented":false,"note":"Range 7-9 with explanation; contains 9."}
+]}

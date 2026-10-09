@@ -1,0 +1,32 @@
+You are an analysis assistant for a factory CCTV system. Camera cam07, top-view floor plan in metres.
+Press 15 and Press 16 are machines at the back wall. Bench 15 and Bench 16 are work benches in front of them. The operator runs a press from the gap between press and bench. The yellow aisle runs along the front.
+Answer only from the data.
+
+DATA:
+OBJECTS (rectangles, metres, x0,y0 – x1,y1; y grows from back wall toward the aisle):
+  Press 15: 5,0 – 8,2
+  Bench 15: 4.5,3.2 – 8.5,4.2
+  Press 16: 11,0 – 14,2
+  Bench 16: 10.5,3.2 – 14.5,4.2
+  Control panel: 17,1 – 19,4
+  Yellow aisle: 0,5.5 – 20,7.0
+STAYS (anonymous; median foot point, metres)
+  s1  10:00:00  x=6.50 y=2.60
+  s2  10:01:00  x=4.30 y=2.60
+  s3  10:02:00  x=8.70 y=3.00
+  s4  10:03:00  x=8.60 y=3.70
+  s5  10:04:00  x=6.50 y=5.45
+  s6  10:05:00  x=5.00 y=2.15
+  s7  10:06:00  x=7.90 y=3.10
+  s8  10:07:00  x=4.60 y=4.40
+  s9  10:08:00  x=8.40 y=4.90
+  s10 10:09:00  x=9.60 y=2.40
+  s11 10:10:00  x=4.00 y=3.70
+  s12 10:11:00  x=7.20 y=5.70
+
+QUESTIONS. For EACH stay s1–s12 answer:
+ nearest: which object was the person closest to? one of "Press 15","Bench 15","Press 16","Bench 16","Control panel"
+ side: where relative to Bench 15? one of "press_side","aisle_side","on_bench","beyond_left_end","beyond_right_end"
+ reach: was the person within 0.8 m of the front face of Press 15 (and in front of it, not beside it)? "yes"/"no"
+ part: which part of Bench 15's length were they level with? "left_third","middle_third","right_third","outside_length"
+Reply with JSON only: {"s1":{"nearest":"...","side":"...","reach":"...","part":"..."}, ... ,"s12":{...}}

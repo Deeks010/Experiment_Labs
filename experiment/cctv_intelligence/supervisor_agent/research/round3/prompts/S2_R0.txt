@@ -1,0 +1,157 @@
+You are an analysis assistant for a factory CCTV system.
+Camera: cam07 "Moulding press 14–17". Fixed overhead camera. Window: 10:00:00 to 10:10:00.
+Static zones mapped on this camera:
+- Op 14, Op 15, Op 16, Op 17: standing area in front of each moulding press where its operator works.
+- Bench L (in front of Op 14 and Op 15) and Bench R (in front of Op 16 and Op 17): work benches.
+- Passage: gap between Bench L and Bench R that leads to the yellow aisle.
+- Control panel: electrical control cabinet on the right side.
+- Yellow aisle: walkway along the front; it leads out of the camera view at the west edge and the east edge.
+- Unmapped floor: any floor area not in a named zone.
+The data below comes from automated person detection and tracking. It can contain errors.
+Answer only from the data. If the data cannot answer a question, say so (use null or "unknown").
+
+DATA:
+CAMERA HEALTH: online 100% of window, no blockage, no blur.
+SYSTEM LIMITS: Position is the foot point mapped to zones. Hands and objects are not visible. Tracker IDs are about 80% reliable: one person can get several IDs, and IDs can swap when people are close. Detections in crowds can be missed; short false detections occur. Nothing is known while the camera is offline or a person is NOT OBSERVED.
+
+RAW TRACKER OUTPUT (zone visits per tracker ID; IDs are assigned by the tracker)
+Track ID 1 (first seen 10:00:00, last seen 10:02:41)
+  10:00:00–10:00:42  Op 14
+  10:00:42–10:00:53  Bench L
+  10:00:53–10:01:42  Op 14
+  10:01:42–10:01:57  Bench L
+  10:01:57–10:02:15  Passage
+  10:02:15–10:02:41  Yellow aisle
+Track ID 2 (first seen 10:00:00, last seen 10:03:42)
+  10:00:00–10:01:12  Op 15
+  10:01:12–10:01:24  Bench L
+  10:01:24–10:02:42  Op 15
+  10:02:42–10:02:54  Bench L
+  10:02:54–10:03:42  Op 15
+Track ID 3 (first seen 10:00:00, last seen 10:02:01)
+  10:00:00–10:00:27  Op 16
+  10:00:27–10:00:38  Bench R
+  10:00:38–10:01:57  Op 16
+  10:01:59–10:02:01  Bench R
+Track ID 4 (first seen 10:00:00, last seen 10:05:23)
+  10:00:00–10:00:27  Op 17
+  10:00:27–10:00:38  Bench R
+  10:00:38–10:01:57  Op 17
+  10:01:57–10:02:08  Bench R
+  10:02:08–10:03:27  Op 17
+  10:03:27–10:03:39  Bench R
+  10:03:39–10:04:58  Op 17
+  10:04:58–10:05:09  Bench R
+  10:05:09–10:05:23  Op 17
+Track ID 5 (first seen 10:00:30, last seen 10:00:33)
+  10:00:30–10:00:33  Passage
+Track ID 6 (first seen 10:01:01, last seen 10:05:55)
+  10:01:01–10:01:20  Yellow aisle
+  10:01:20–10:01:28  Passage
+  10:01:28–10:02:08  Bench R
+  10:02:09–10:03:27  Op 16
+  10:03:27–10:03:39  Bench R
+  10:03:39–10:04:57  Op 16
+  10:04:57–10:05:09  Bench R
+  10:05:09–10:05:55  Op 16
+Track ID 7 (first seen 10:01:35, last seen 10:01:37)
+  10:01:35–10:01:37  Passage
+Track ID 8 (first seen 10:02:00, last seen 10:02:03)
+  10:02:00–10:02:03  Unmapped floor
+Track ID 9 (first seen 10:02:04, last seen 10:03:17)
+  10:02:04–10:02:36  Bench R
+  10:02:36–10:02:44  Passage
+  10:02:44–10:03:17  Yellow aisle
+Track ID 10 (first seen 10:02:50, last seen 10:02:54)
+  10:02:50–10:02:54  Passage
+Track ID 11 (first seen 10:03:42, last seen 10:04:23)
+  10:03:42–10:04:12  Op 15
+  10:04:12–10:04:23  Bench L
+Track ID 12 (first seen 10:03:48, last seen 10:04:54)
+  10:03:48–10:04:13  Yellow aisle
+  10:04:13–10:04:20  Passage
+  10:04:20–10:04:24  Bench L
+  10:04:24–10:04:54  Op 15
+Track ID 13 (first seen 10:03:53, last seen 10:03:55)
+  10:03:53–10:03:55  Passage
+Track ID 14 (first seen 10:04:23, last seen 10:04:25)
+  10:04:23–10:04:25  Bench L
+Track ID 15 (first seen 10:04:25, last seen 10:05:09)
+  10:04:25–10:05:09  Op 14
+Track ID 16 (first seen 10:04:50, last seen 10:04:55)
+  10:04:50–10:04:55  Passage
+Track ID 17 (first seen 10:04:54, last seen 10:07:52)
+  10:04:54–10:05:42  Op 15
+  10:05:42–10:05:54  Bench L
+  10:05:54–10:07:12  Op 15
+  10:07:12–10:07:24  Bench L
+  10:07:24–10:07:52  Op 15
+Track ID 18 (first seen 10:05:03, last seen 10:05:29)
+  10:05:03–10:05:29  Yellow aisle
+Track ID 19 (first seen 10:05:12, last seen 10:09:59)
+  10:05:12–10:05:24  Bench L
+  10:05:24–10:06:43  Op 14
+  10:06:43–10:06:54  Bench L
+  10:06:54–10:08:12  Op 14
+  10:08:12–10:08:23  Bench L
+  10:08:23–10:09:42  Op 14
+  10:09:42–10:09:53  Bench L
+  10:09:53–10:09:59  Op 14
+Track ID 20 (first seen 10:05:23, last seen 10:10:00)
+  10:05:23–10:06:27  Op 17
+  10:06:27–10:06:39  Bench R
+  10:06:39–10:10:00  Op 17
+Track ID 21 (first seen 10:05:29, last seen 10:05:37)
+  10:05:29–10:05:37  Yellow aisle
+Track ID 22 (first seen 10:05:55, last seen 10:10:00)
+  10:05:55–10:06:27  Op 16
+  10:06:27–10:06:39  Bench R
+  10:06:39–10:08:05  Op 16
+  10:08:06–10:09:18  Op 17
+  10:09:18–10:10:00  Op 16
+Track ID 23 (first seen 10:05:55, last seen 10:05:57)
+  10:05:55–10:05:57  Passage
+Track ID 24 (first seen 10:06:20, last seen 10:07:09)
+  10:06:20–10:06:42  Yellow aisle
+  10:06:42–10:06:49  Passage
+  10:06:49–10:07:09  Bench L
+Track ID 25 (first seen 10:07:00, last seen 10:07:03)
+  10:07:00–10:07:03  Passage
+Track ID 26 (first seen 10:07:09, last seen 10:07:56)
+  10:07:09–10:07:24  Bench L
+  10:07:24–10:07:26  Unmapped floor
+  10:07:26–10:07:31  Passage
+  10:07:31–10:07:56  Yellow aisle
+Track ID 27 (first seen 10:07:50, last seen 10:07:52)
+  10:07:50–10:07:52  Unmapped floor
+Track ID 28 (first seen 10:07:52, last seen 10:08:20)
+  10:07:52–10:08:20  Op 15
+Track ID 29 (first seen 10:08:20, last seen 10:10:00)
+  10:08:20–10:08:42  Op 15
+  10:08:43–10:08:54  Bench L
+  10:08:54–10:10:00  Op 15
+Track ID 30 (first seen 10:08:50, last seen 10:08:54)
+  10:08:50–10:08:54  Passage
+
+QUESTIONS
+1. How many people were in the camera view at 10:01:30?
+2. What was the largest number of people in view at the same time, and in which period?
+3. Was Op 16 occupied between 10:08:10 and 10:09:00?
+4. Which operator zones (Op 14–17) were empty for more than 1 minute, and when?
+5. How many times did a person enter the camera view, and how many times did a person leave it, at each edge (west/east)?
+6. Is the person working at Op 14 at 10:06 the same person who worked at Op 14 at 10:01?
+7. Was Op 14 occupied at 10:03:00?
+8. Around 10:02 a person left the operator area. In which zones did they move, in order, by which edge did they leave the camera view, and at what time?
+9. How many different people appeared in this camera between 10:00 and 10:10?
+
+Reply with JSON only, in exactly this shape (use null when the data cannot answer; times as "10:mm:ss"):
+{"q1":{"count":int|null,"note":"..."},
+ "q2":{"max":int|null,"from":"10:mm:ss"|null,"to":"10:mm:ss"|null,"note":"..."},
+ "q3":{"answer":"yes"|"no"|"partly"|"unknown","note":"..."},
+ "q4":{"zones":[{"zone":"Op 1x","from":"10:mm:ss","to":"10:mm:ss"}],"note":"..."},
+ "q5":{"entered_west":int|null,"entered_east":int|null,"left_west":int|null,"left_east":int|null,"note":"..."},
+ "q6":{"answer":"same"|"different"|"unknown","note":"..."},
+ "q7":{"answer":"occupied"|"empty"|"unknown","note":"..."},
+ "q8":{"zones":["..."],"edge":"west"|"east"|null,"time_out_of_view":"10:mm:ss"|null,"note":"..."},
+ "q9":{"best":int|null,"min":int|null,"max":int|null,"note":"..."}}
+Each "note" is 1–2 short sentences explaining the answer and its certainty.

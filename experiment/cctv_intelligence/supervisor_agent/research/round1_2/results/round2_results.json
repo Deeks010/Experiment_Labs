@@ -1,0 +1,1589 @@
+{
+ "method": "Tested by fresh subagents (claude-opus-5-5) that saw only the brief + format + questions; graded by a separate fresh subagent per run with the page rubric. n=2 per format.",
+ "runs": [
+  {
+   "format": "F5",
+   "run": 1,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "4 people. The 10:01:00–10:01:30 bin averages 4.0 people in frame, and the tracks show Persons A, B, C and D, with Person E not yet in view."
+    },
+    {
+     "q": 2,
+     "answer": "All four operators left their zones together at 10:00:54. A and B went to Bench L and C and D went to Bench R, and they returned to Op 14–17 between 10:01:04 and 10:01:08. This fits a regular pattern of short (about 10–14 s) bench visits about every 1.5–2 minutes. The data cannot show what they did at the bench, because hands and held items are not visible."
+    },
+    {
+     "q": 3,
+     "answer": "No. Op 15 occupancy is 0.0 in every bin from 10:03:30 to 10:07:00. Person B left by the Passage and yellow aisle at 10:03:10 and was out of view from 10:03:56 to 10:07:06, so nobody was detected in Op 15 during that time."
+    },
+    {
+     "q": 4,
+     "answer": "Yes, Person E (confidence 0.90) was at the Control panel from 10:02:26 to 10:06:04. E came in from the east edge of the yellow aisle at 10:02:02 and crossed unmapped floor to reach the panel. E then left the same way and was out of view at the east edge at 10:06:34. The data cannot show what E did at the panel."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty from 10:03:10 to about 10:07:50–10:07:52, about 4 min 40 s. Op 16 was empty from 10:05:10 to about 10:07:05–10:07:06, about 2 min, while its operator was tracked in Op 17 (who was who after junction J1 may be swapped, but the zone was empty either way). Op 14 had only a 20 s unobserved gap and Op 17 was never empty."
+    },
+    {
+     "q": 6,
+     "answer": "No one was detected. Yellow aisle occupancy is 0.0 in every bin from 10:04:00 to 10:05:30, Person E entered the aisle only at 10:06:16, and Person B was outside the camera view from 10:03:56 to 10:07:06."
+    },
+    {
+     "q": 7,
+     "answer": "Most likely 5 different people: the four operators (A–D) plus Person E, which matches the peak of about 5 in frame. Track 12 was a false detection. It could be 6 if the person who came back at 10:07:06 is not actually B, since that match has only 0.70 confidence."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. At 10:05 the Op 15 operator (Person B) was outside the camera view, last seen leaving at the west edge of the yellow aisle at 10:03:56, and nothing is known about a person while not observed."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct count of 4 with accurate supporting detail."
+    },
+    {
+     "q": 2,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Four operators, short bench visits, correct bench assignments."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no, times consistent with truth."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, correct times, came and left via yellow aisle east."
+    },
+    {
+     "q": 5,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Op 15 and Op 16 with correct times; no extras."
+    },
+    {
+     "q": 6,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says no one was in the aisle."
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Best estimate 5 with honest caveat about re-identification."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says unknown; operator out of view."
+    }
+   ]
+  },
+  {
+   "format": "F5",
+   "run": 2,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "About 4 people. The 10:01:00–10:01:30 bin shows 4.0 people in frame, and these are tracked Persons A, B, C and D."
+    },
+    {
+     "q": 2,
+     "answer": "Around 10:01, A and B were at Bench L and C and D were at Bench R. All four had left their operator zones (Op 14 to Op 17) at about 10:00:54 and went back between 10:01:04 and 10:01:08. The four operators moved together from their operator zones to the benches and back, and this repeats about every 1.5 to 2 minutes, which looks like a work cycle. The system cannot see hands, so the data cannot confirm what they did at the benches."
+    },
+    {
+     "q": 3,
+     "answer": "No. Op 15 shows 0.0 occupancy in every bin from 10:04:00 to 10:07:30. Person B, who normally works there, was out of camera view from 10:03:56 to 10:07:06 and only got back to Op 15 at 10:07:52 (absence event E2)."
+    },
+    {
+     "q": 4,
+     "answer": "Yes, one person (Person E, not an operator). E entered at the east edge of the yellow aisle at 10:02:02, crossed unmapped floor and stood at the control panel from 10:02:26 to 10:06:04. E then left the same way and was out of view at the east edge at 10:06:34. The data cannot show what E did at the panel or who E is, and the 'loitering' label (E1) comes only from position and time."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty from about 10:03:10 to 10:07:50 (about 4 min 40 s). Op 16 was empty from about 10:05:10 to 10:07:05 (about 1 min 55 s); its occupant went to Op 17, where 2 people were present. The tracker may have swapped C and D, but that does not change the fact that Op 16 was empty. Op 14 was unobserved for only 20 s (10:04:02–10:04:22), and Op 17 was never empty."
+    },
+    {
+     "q": 6,
+     "answer": "No one was detected in the visible part of the yellow aisle at that time. The yellow aisle shows 0.0 occupancy from 10:04:00 to 10:06:00, and the camera was fully healthy. Person B had left view at 10:03:56 and Person E did not reach the aisle until 10:06:16. The aisle continues out of view on both sides, so the data cannot cover those parts."
+    },
+    {
+     "q": 7,
+     "answer": "Most likely 5 (A, B, C, D, E), and at least 5 because 5 people were in frame at once around 10:02:30–10:03:30. It could be 6 if the person who came back at 10:07:06 was not B; that re-entry was matched by appearance with only 0.70 confidence. Track 12 was dropped as a false detection and is not counted."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. The operator of Press 15 (Person B, who works in Op 15) left camera view at the west edge of the yellow aisle at 10:03:56 and was not observed until 10:07:06. Nothing is known about them during that gap."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct count of 4 people."
+    },
+    {
+     "q": 2,
+     "score": 2,
+     "hallucinated": true,
+     "note": "Pattern correct; added 1.5-2 min repeat cycle not in truth."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no; times consistent with truth."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, correct times, from east yellow aisle, left same way."
+    },
+    {
+     "q": 5,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Both zones with correct times; Op 14/17 correctly excluded."
+    },
+    {
+     "q": 6,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct no, with appropriate coverage caveat."
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Best estimate 5 with honest uncertainty; false track excluded."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says unknown; operator out of view."
+    }
+   ]
+  },
+  {
+   "format": "V1",
+   "run": 1,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "Four people: A at Op 14, B at Op 15, C at Op 16 and D at Op 17. Person E did not enter until 10:02:02."
+    },
+    {
+     "q": 2,
+     "answer": "Each of the four people was in their own operator zone: A at Op 14, B at Op 15, C at Op 16 and D at Op 17. The dense dots show they mostly stayed at their stations. C also has a few back-and-forth moves toward the Op 16/Op 17 boundary, but the image gives no times for those moves."
+    },
+    {
+     "q": 3,
+     "answer": "No. Person B, the person at Op 15, walked down the Passage and along the yellow aisle, then left the view at the west edge. B was not observed from 10:03:56 to 10:07:06, and nobody else is shown in Op 15 during that time."
+    },
+    {
+     "q": 4,
+     "answer": "Yes. Person E entered from the east edge at 10:02:02, came along the yellow aisle and went up into the control panel area, then went back out the east edge at 10:06:34. The image does not show the exact time E was at the panel, only that it was within that window."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty for more than 1 minute. B was out of view from 10:03:56 to 10:07:06, which is about 3 minutes, and Op 15 may have been empty earlier while B walked to the exit. A's gap at Op 14 (10:04:02–10:04:22) was only 20 seconds and caused by occlusion, and the data shows no other operator zone empty for over a minute."
+    },
+    {
+     "q": 6,
+     "answer": "The data cannot answer this. Only E could have been there: E was in view from 10:02:02 to 10:06:34 and used the yellow aisle on the way in and out, but the image has no times for when E was in the aisle versus at the control panel. B was out of view, and the 10:04:10 detection was in the Passage and was marked false."
+    },
+    {
+     "q": 7,
+     "answer": "Five different people (A–E). The possible C/D identity swap at 10:05:10 and 10:07:00 does not change the count. The count assumes B's exit and return are the same person, as the stitching shows (conf 0.70), and it leaves out the false detection at 10:04:10."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot say. Person B, who works at Press 15, was out of camera view at 10:05: B left at the west edge and was not observed from 10:03:56 to 10:07:06."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct count of four; E entry caveat is consistent with truth."
+    },
+    {
+     "q": 2,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Count right but misses the short bench visits pattern."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no; Op 15 empty during window."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, from east via yellow aisle, times within one minute."
+    },
+    {
+     "q": 5,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Op 15 correct; misses Op 16 empty 10:05-10:07."
+    },
+    {
+     "q": 6,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Did not answer no; implied E may have been there."
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct: five different people."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says unknown, operator out of view."
+    }
+   ]
+  },
+  {
+   "format": "V1",
+   "run": 2,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "Four people were in view at about 10:01: A, B, C and D. E did not enter until 10:02:02. Tracking confidence is lower for B (0.70) and for C and D (0.60)."
+    },
+    {
+     "q": 2,
+     "answer": "A was in Op 14, B in Op 15, C in Op 16 and D in Op 17. Their paths show dense dots, which means each one stayed at their own work station and barely moved. The data has no exact timestamps along the paths, so it cannot show finer movement at 10:01."
+    },
+    {
+     "q": 3,
+     "answer": "Op 15 was most likely empty for that whole period. B, the Op 15 operator, walked from Op 15 down the passage to the yellow aisle and left at the west edge, and was not observed from 10:03:56 to 10:07:06. No one else's path enters Op 15."
+    },
+    {
+     "q": 4,
+     "answer": "Yes, Person E (conf 0.90) went to the control panel area. E entered at the east edge at 10:02:02 and walked from the yellow aisle up to the control panel. E then left the same way at the east edge at 10:06:34. The exact arrival and leaving times at the panel are not given."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty for about 3 minutes, from about 10:03:56 to 10:07:06, while B was out of view. A's gap in Op 14 (10:04:02–10:04:22) is only 20 seconds and was due to occlusion, so it does not count. C's path moves toward Op 17, and C and D may have swapped identities at 10:05:10 and 10:07:00, so it cannot be determined from the data whether Op 16 or Op 17 was empty for more than a minute."
+    },
+    {
+     "q": 6,
+     "answer": "The data cannot answer this for certain. B had already left the view, and the 10:04:10 detection in the passage was a false detection. E was in view until 10:06:34 and crossed the yellow aisle on the way in and out, but there are no timestamps along E's path. It is not known whether E was in the aisle or at the control panel during 10:04:15–10:06:00."
+    },
+    {
+     "q": 7,
+     "answer": "Five different people (A–E) appear in the stitched data. This assumes B's exit and return are the same person and that the possible C/D identity swap did not create or merge any people."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. At 10:05 the Press 15 operator (B) was outside the camera view, having left at the west edge, and was not observed from 10:03:56 to 10:07:06."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct count of 4; confidence caveats are not wrong."
+    },
+    {
+     "q": 2,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Count right, but misses the short bench visits and says they barely moved."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no; Op 15 empty, times close to truth."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, from east aisle, times within one minute."
+    },
+    {
+     "q": 5,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Op 15 correct; Op 16 gap not identified, called undeterminable."
+    },
+    {
+     "q": 6,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Hedges as unknown instead of no; does not say yes."
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct: five different people."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says not observed, out of view."
+    }
+   ]
+  },
+  {
+   "format": "V2",
+   "run": 1,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "Four people. IDs 3, 5, 16 and 17 were active at 10:01, and ID 9 did not appear until 10:02:02."
+    },
+    {
+     "q": 2,
+     "answer": "ID 5 was at Op 15, ID 17 at Op 16 and ID 16 at Op 17. Each track is a dense stationary cluster, so these operators stayed at their positions. ID 3 was active, but its track cannot be seen in the image (it may be hidden under ID 11's track at Op 14), so its location cannot be confirmed."
+    },
+    {
+     "q": 3,
+     "answer": "The data shows no track in Op 15 during this window. ID 5 had walked from Op 15 down the Passage and its track ended at 10:03:56. ID 14 did not appear until 10:07:06, so Op 15 appears empty, though a missed detection cannot be ruled out."
+    },
+    {
+     "q": 4,
+     "answer": "Yes, ID 9 went to the control panel. It appeared at 10:02:02 at the east edge of the yellow aisle, walked up to the control panel, stayed there a while, then went back along the aisle to the east edge. Its track ended at 10:06:34, and from the 4-second dot spacing it reached the panel at roughly 10:02:30–10:03."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty from about 10:03:56 until ID 14 reached it some time after 10:07:06, which is over 3 minutes. Op 16 was empty from about 10:05 to about 10:07, because its operator (ID 17, then ID 18, then ID 20, which look like ID switches) moved toward Op 17 and came back. Op 14 had only a 20-second gap (ID 3 ended 10:04:02, ID 11 started 10:04:22), and Op 17 stayed occupied the whole time."
+    },
+    {
+     "q": 6,
+     "answer": "No aisle detections are shown in that window. The only active tracks were ID 9, which by its dot count was at the control panel until about 10:06 and walked back through the aisle after that, and ID 12, a brief detection near the top of the Passage at 10:04:10–10:04:16. ID 5 ended at 10:03:56 and ID 14 started at 10:07:06."
+    },
+    {
+     "q": 7,
+     "answer": "The tracker used 12 IDs, but they are not 12 people because several are ID switches: 3→11, 17→18→20 and 16→19→21. The likely count is about 5–6 people: the operators at Op 14, Op 15, Op 16 and Op 17, the control-panel visitor ID 9, and possibly ID 14 if it is not the Op 15 operator coming back. ID 12 lasted only 6 seconds and is likely a spurious or fragment detection, so the exact number cannot be confirmed."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. There was no track at Op 15 at 10:05. The last Op 15 track (ID 5) went down the Passage to the yellow aisle and ended at 10:03:56, so this person's location and activity at 10:05 are unknown."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct count of 4; the ID 9 caveat is accurate"
+    },
+    {
+     "q": 2,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Count roughly right but misses bench visits, calls operators stationary"
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no, with a reasonable caveat"
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, from east aisle, times within one minute"
+    },
+    {
+     "q": 5,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Op 15 and Op 16 correct within tolerance; Op 14/17 correctly excluded"
+    },
+    {
+     "q": 6,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct no"
+    },
+    {
+     "q": 7,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Range 5-6 includes 5 but best estimate not 4-5"
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says unknown, operator not in view"
+    }
+   ]
+  },
+  {
+   "format": "V2",
+   "run": 2,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "4 people. At 10:01 four tracker IDs were active: ID 3, ID 5, ID 16 and ID 17. ID 9 did not appear until 10:02:02."
+    },
+    {
+     "q": 2,
+     "answer": "There was one person at each operator station: ID 3 at Op 14, ID 5 at Op 15, ID 17 at Op 16 and ID 16 at Op 17. Each track is a short tight cluster at its press, so all four were standing still and working at their stations, not moving around."
+    },
+    {
+     "q": 3,
+     "answer": "No tracked person was in Op 15 between 10:04 and 10:07. ID 5 left Op 15 through the Passage and its track ended at the yellow aisle at 10:03:56. The next person at Op 15 was ID 14, who entered at the west edge at 10:07:06 and reached Op 15 about a minute later. The brief ID 12 detection (10:04:10–10:04:16) was on unmapped floor near the Passage, not in Op 15, and lasted only 6 seconds, so it is probably a false detection."
+    },
+    {
+     "q": 4,
+     "answer": "Yes, ID 9 did. It entered from the east edge of the yellow aisle at 10:02:02, walked a short way west along the aisle, then went up into the control panel area and arrived around 10:03. It stayed there until about 10:05–10:06, then went back to the aisle and its track ended at 10:06:34 near the east edge. The arrival and departure times are estimates from counting the 4-second dots."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty from about 10:03:40 (ID 5 left; its track ended 10:03:56) until about 10:08, when ID 14 arrived. Op 16 was empty from about 10:05:10 to about 10:07:15: the Op 16 operator (ID 17, then ID 18) moved to the Op 16/Op 17 boundary and came back as ID 20. Op 14 had only a 20-second gap (10:04:02–10:04:22) and Op 17 always had someone in it."
+    },
+    {
+     "q": 6,
+     "answer": "No, not according to the tracks. ID 5 had ended at 10:03:56 and ID 14 did not start until 10:07:06. ID 9 was in the control panel area and, going by the dot count, only reached the aisle after about 10:06 on its way out. Exact times are approximate and the tracker can miss people."
+    },
+    {
+     "q": 7,
+     "answer": "There were 12 tracker IDs, but they most likely belong to 5 or 6 people. The Op 14 operator is IDs 3 and 11. The Op 16 operator is IDs 17, 18 and 20, and the Op 17 operator is IDs 16, 19 and 21; these IDs changed when the two operators came close to each other. The other people are ID 5, the visitor ID 9, and ID 14, who may be ID 5 coming back, and the data cannot tell which. ID 12 lasted only 6 seconds and is probably a false detection."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. The Press 15 operator (ID 5) left Op 15 and their track ended at the yellow aisle at 10:03:56. No track places them anywhere at 10:05, so they were apparently out of view or not detected."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct count of 4 with consistent IDs."
+    },
+    {
+     "q": 2,
+     "score": 1,
+     "hallucinated": true,
+     "note": "Count right, but says all stationary; misses the short bench visits."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no, timings consistent with truth."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, from east aisle, times within one minute."
+    },
+    {
+     "q": 5,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Op 15 and Op 16 with correct times, no extra zones."
+    },
+    {
+     "q": 6,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct no, with appropriate caveats."
+    },
+    {
+     "q": 7,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Range 5-6 includes 5 but best estimate not 4-5."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says unknown, operator out of view."
+    }
+   ]
+  },
+  {
+   "format": "V3",
+   "run": 1,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "The data cannot give a reliable count. The image is a cumulative plot with no identities, and the dots in the four operator zones are stacked on top of each other, so the later (light) dots hide the earlier ones. The dark dots near 10:01 show at least one moving person near the control panel route, and possibly another in the passage, but the operator zones cannot be confirmed for that minute."
+    },
+    {
+     "q": 2,
+     "answer": "The dark (early) dots that are visible form a path from the east end of the yellow aisle up to the control panel. There is also a line of dark dots down the passage toward the aisle. The operator zones probably had people at their stations, but overplotting hides the early dots, so this cannot be confirmed from the image."
+    },
+    {
+     "q": 3,
+     "answer": "This cannot be determined. Dots stacked in Op 15 hide each other, so the colour scale cannot show whether Op 15 had detections from 10:04 to 10:07. A trail of tan (mid-window) dots runs from Op 15 through the passage to the aisle, which suggests someone moved out of that area around then, but timing and identity are uncertain."
+    },
+    {
+     "q": 4,
+     "answer": "Yes. There are two separate trips along the same route into the control panel area: one with dark dots (about 10:01–10:03) and one with tan dots (about 10:06–10:07). Both use the yellow aisle on the east side, near the east edge exit. Within each trip the dot colours are too similar to tell whether the person arrived from the east edge or left toward it."
+    },
+    {
+     "q": 5,
+     "answer": "This cannot be determined. All detections are plotted in one image, and the stationary dots in each operator zone overlap and hide one another. Gaps in occupancy, and how long they lasted, are not visible."
+    },
+    {
+     "q": 6,
+     "answer": "Possibly. There are tan dots in the yellow aisle, both west of the passage and near the east end, whose colour matches roughly 10:05–10:07. However, the colour bar cannot resolve times as precise as 10:04:15–10:06:00, so presence in that exact window cannot be confirmed."
+    },
+    {
+     "q": 7,
+     "answer": "This cannot be determined, because the detections have no identities. Four occupied operator positions plus the walking trails suggest at least about 4–6 people, but one person could make several trails and tracking can contain errors."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. It shows only detection positions, not activities. It also cannot confirm who the Press 15 operator was or whether they were in Op 15 at 10:05, although a trail of tan dots leaves the Op 15 area through the passage at about that time."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 0,
+     "hallucinated": true,
+     "note": "No count given; claims moving person near control panel at 10:01, false."
+    },
+    {
+     "q": 2,
+     "score": 0,
+     "hallucinated": true,
+     "note": "No count of 4; invents control-panel path at 10:01; no bench pattern."
+    },
+    {
+     "q": 3,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Says undeterminable; does not give the correct 'no'."
+    },
+    {
+     "q": 4,
+     "score": 1,
+     "hallucinated": true,
+     "note": "Yes and from aisle, but invents two separate trips; one visit."
+    },
+    {
+     "q": 5,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Says cannot be determined; neither Op 15 nor Op 16 identified."
+    },
+    {
+     "q": 6,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Answers 'possibly', leaning yes; truth is no one present."
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Honest uncertainty, range 4-6 includes 5, reasonable estimate."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says data cannot show activity or presence."
+    }
+   ]
+  },
+  {
+   "format": "V3",
+   "run": 2,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "The image can't give an exact count for 10:01. Dots at all four operator zones (Op 14 to 17) start dark, so those positions were probably occupied from 10:00. There are also dark dots on the path to the control panel and in the passage, which suggests about 4 to 6 people. On a 10-minute colour scale, one minute is too small a step to resolve, and dots at the same spot cover each other."
+    },
+    {
+     "q": 2,
+     "answer": "Around 10:00 to 10:01 there were stationary detections at Op 14, Op 15, Op 16 and Op 17. Dark dots run from the yellow aisle near the east edge up to the control panel, which suggests someone walked in from the east toward the panel. More dark dots in the passage show movement between the yellow aisle and the press area, but the colour alone does not show which way that person walked."
+    },
+    {
+     "q": 3,
+     "answer": "The data cannot answer this reliably. Op 15 has one column of overlapping dots in all colours, so a gap between 10:04 and 10:07 would be hidden under later dots. Tan dots leading from Op 15 toward the passage around 10:05 to 10:06 suggest someone may have left the zone in that period, but this cannot be confirmed."
+    },
+    {
+     "q": 4,
+     "answer": "Yes. Dark dots, about 10:00 to 10:01, lead from the yellow aisle near the east edge north to the control panel, where a cluster runs from dark to tan, suggesting someone stayed there until about 10:06. Tan dots on the same path and along the east part of the aisle suggest a later trip, probably leaving toward the east edge around 10:06 to 10:07. The direction of that later trip can only be inferred."
+    },
+    {
+     "q": 5,
+     "answer": "The data cannot answer this. Each operator zone is one stack of overlapping dots, so the image cannot show gaps longer than one minute. Without per-zone timelines, I can't say whether any zone was empty."
+    },
+    {
+     "q": 6,
+     "answer": "The data cannot answer this reliably. The dots in the yellow aisle (on both the west and east sides) have tan or gold colours that roughly match 10:05 to 10:08. The colour bar can't be read precisely enough to say whether any of them fall between 10:04:15 and 10:06:00."
+    },
+    {
+     "q": 7,
+     "answer": "The data cannot give this number because the detections have no identities. At least the four operator positions plus at least one or two people moving to the control panel and through the passage or aisle appear, so at least about 5 to 6 people. The real number could be different, and tracking errors make it less certain."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. It only shows person detections at positions. The Op 15 detections show someone was probably at or near Op 15, and maybe moving toward the passage, around then, but they say nothing about what that person was doing."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Gives hedged range 4-6, not a definite 4."
+    },
+    {
+     "q": 2,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Implies extra people (panel walker, passage); misses bench visits."
+    },
+    {
+     "q": 3,
+     "score": 0,
+     "hallucinated": false,
+     "note": "No clear no; says cannot answer reliably."
+    },
+    {
+     "q": 4,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Yes and east aisle correct; arrival 10:00-10:01 too early."
+    },
+    {
+     "q": 5,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Says cannot answer; neither zone identified."
+    },
+    {
+     "q": 6,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Says cannot answer reliably; no clear no."
+    },
+    {
+     "q": 7,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Range 5-6 includes 5 but leans higher, not 4-5."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Says activity unknown; wrongly hints Op 15 occupied, hedged."
+    }
+   ]
+  },
+  {
+   "format": "V4",
+   "run": 1,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "I can't tell from this data. The heatmap adds up presence over the whole 10:00–10:10 window and has no timestamps, so it can't give a head count at any moment."
+    },
+    {
+     "q": 2,
+     "answer": "I can't tell from this data, because there is no time information. Over the full window, presence is concentrated in Op 14, Op 15, Op 16 and Op 17, with spots of roughly 60–138 s each. Faint trails run along the yellow aisle, up through the Passage toward Op 15/Op 16, between Op 16 and Op 17, and from the aisle near the east edge up into the Control panel zone. None of these trails can be tied to 10:01."
+    },
+    {
+     "q": 3,
+     "answer": "I can't tell from this data. Op 15 shows about 60–90 s of total presence across the whole window, but the heatmap has no times, so I can't say whether that falls between 10:04 and 10:07."
+    },
+    {
+     "q": 4,
+     "answer": "Yes. There is presence inside the Control panel zone, up to about 90–138 s at one spot. A faint trail links it to the yellow aisle near the east edge. The heatmap shows neither time nor direction of travel, so I can't say when the visit happened or whether the person arrived along that trail or left by it."
+    },
+    {
+     "q": 5,
+     "answer": "I can't tell from this data. The heatmap shows only total seconds per spot, not when anyone was present, so it can't show how long or when any operator zone was empty."
+    },
+    {
+     "q": 6,
+     "answer": "I can't tell from this data. The yellow aisle shows light presence (about 2–10 s per spot) across the whole window, but there are no timestamps, so I can't say whether any of it was between 10:04:15 and 10:06:00."
+    },
+    {
+     "q": 7,
+     "answer": "I can't tell from this data. The heatmap has no identities, so I can't count distinct people."
+    },
+    {
+     "q": 8,
+     "answer": "I can't tell from this data. The heatmap has no time or identity information. It shows only that someone spent about 60–90 s total in Op 15, mostly at its edge next to Bench L."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Declined to count; truth is 4."
+    },
+    {
+     "q": 2,
+     "score": 0,
+     "hallucinated": false,
+     "note": "No count or 10:01 pattern; only aggregate zone presence."
+    },
+    {
+     "q": 3,
+     "score": 0,
+     "hallucinated": false,
+     "note": "No clear no; declined to answer."
+    },
+    {
+     "q": 4,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Yes and plausible aisle link, but no time or direction."
+    },
+    {
+     "q": 5,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Named neither Op 15 nor Op 16 gaps."
+    },
+    {
+     "q": 6,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Did not say no; declined."
+    },
+    {
+     "q": 7,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Said undeterminable but gave no range or estimate."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says activity cannot be known; no speculation."
+    }
+   ]
+  },
+  {
+   "format": "V4",
+   "run": 2,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "The data cannot answer this. The heatmap totals presence over the whole 10:00–10:10 window and has no time information, so it cannot give a head count at 10:01."
+    },
+    {
+     "q": 2,
+     "answer": "The data cannot show where people were at 10:01 or how they moved, because it has no time. Over the whole window it shows the most time at Op 14, Op 15, Op 16, Op 17 and near the control panel. It also shows lighter trails from Op 15 through the Passage to the yellow aisle, between Op 16 and Op 17, and from the east end of the yellow aisle up to the control panel."
+    },
+    {
+     "q": 3,
+     "answer": "The data cannot answer this. Op 15 shows a lot of total presence, about 60–90 s at its hottest spot, but the heatmap has no time information for 10:04–10:07."
+    },
+    {
+     "q": 4,
+     "answer": "Yes, someone spent time in the control panel area, up to about 90–138 s at its hottest spot. A trail runs up to it from the yellow aisle near the east edge, which suggests an approach from that side, but the order of movement cannot be confirmed. The heatmap has no time information, so it cannot say when."
+    },
+    {
+     "q": 5,
+     "answer": "The data cannot answer this. The heatmap only shows total time per spot over the whole window, so it cannot show when any operator zone was empty or for how long."
+    },
+    {
+     "q": 6,
+     "answer": "The data cannot answer this. The yellow aisle shows light presence of about 2–10 s at several spots, but the heatmap has no time information, so it cannot say whether that was between 10:04:15 and 10:06:00."
+    },
+    {
+     "q": 7,
+     "answer": "The data cannot answer this. The heatmap has no identities, so it cannot count distinct people."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. The heatmap has no time or identity, so it cannot say what Press 15's operator was doing at 10:05. It only shows that Op 15 had substantial total presence over the window."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Declined to answer; did not give 4."
+    },
+    {
+     "q": 2,
+     "score": 0,
+     "hallucinated": false,
+     "note": "No count or movement pattern at 10:01 given."
+    },
+    {
+     "q": 3,
+     "score": 0,
+     "hallucinated": false,
+     "note": "No clear no; declined to answer."
+    },
+    {
+     "q": 4,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Yes and from east aisle, but no time given."
+    },
+    {
+     "q": 5,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Declined; neither Op 15 nor Op 16 identified."
+    },
+    {
+     "q": 6,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Declined; did not answer no."
+    },
+    {
+     "q": 7,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Says cannot determine but gives no range or estimate."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says activity cannot be known from data."
+    }
+   ]
+  },
+  {
+   "format": "V5",
+   "run": 1,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "In the 10:00:00–10:02:30 slice, four people (A, B, C and D) are shown standing at their operator zones the whole time, so at least 4 were in view. Person E also appears in that slice, walking in from the aisle, but the image gives no exact timestamps along E's path, so it can't confirm whether E was in view at exactly 10:01. The answer is 4 or 5. C and D are low-confidence tracks (0.60)."
+    },
+    {
+     "q": 2,
+     "answer": "A was at Op 14, B at Op 15, C at Op 16 and D at Op 17. All four show short, nearly stationary tracks at the bench edge, which fits operators working in place. E (conf 0.90) is the only one moving: E enters from the right end of the yellow aisle, walks left along it, then turns up past the notice board into the control panel area."
+    },
+    {
+     "q": 3,
+     "answer": "Not for most of that time. In the 10:02:30–10:05:00 slice, B leaves Op 15, walks through the passage into the yellow aisle and heads left out of view. In the 10:05:00–10:07:30 slice, nobody is at Op 15 and B is in the aisle. The exact time B left in the 10:02:30–10:05:00 slice is not given, so the data can't say whether Op 15 was empty between 10:04 and 10:05."
+    },
+    {
+     "q": 4,
+     "answer": "Yes, person E. E arrived during 10:00:00–10:02:30, coming from the right side of the yellow aisle (from off-camera to the right), and walked up into the control panel area. E stayed there through the 10:02:30–10:05:00 slice. During 10:05:00–10:07:30, E went back down to the aisle and left the view to the right."
+    },
+    {
+     "q": 5,
+     "answer": "Only Op 15 was clearly empty for more than 1 minute. It was empty for the whole 10:05:00–10:07:30 slice, and probably also for part of the slices on either side: B left at some point in 10:02:30–10:05:00 and came back up the passage at some point in 10:07:30–10:10:00. In 10:05:00–10:07:30, C's track moves from Op 16 into Op 17, so Op 16 may have been empty for part of that slice, but the data has no timing to show whether that lasted over a minute. Op 14 and Op 17 were occupied in every slice."
+    },
+    {
+     "q": 6,
+     "answer": "Probably yes, but the exact window can't be confirmed. B was in the yellow aisle at some point in 10:02:30–10:05:00 and again in 10:05:00–10:07:30, and E crossed the aisle in 10:05:00–10:07:30. The slices give no timestamps within them, so the data can't show that anyone was in the aisle specifically between 10:04:15 and 10:06:00."
+    },
+    {
+     "q": 7,
+     "answer": "Five stitched IDs appear (A, B, C, D and E). This assumes the stitching is correct. B left the view and came back under the same ID, and C and D have low confidence (0.60), so stitching or tracking errors are possible."
+    },
+    {
+     "q": 8,
+     "answer": "Assuming B, who is the person at Op 15, is Press 15's operator, B was away from the press at 10:05. B was in or near the yellow aisle, having walked out through the passage and to the left, and may briefly have been out of view. The data shows only where B was, not what B was doing."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Gives 4 but wrongly hedges '4 or 5' including E"
+    },
+    {
+     "q": 2,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Includes E in view around 10:01; bench-visit pattern missing"
+    },
+    {
+     "q": 3,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Leans no but hedges; not a clear no"
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, one person, from right aisle, times consistent"
+    },
+    {
+     "q": 5,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Op 15 correct; Op 16 only speculative, no times"
+    },
+    {
+     "q": 6,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Says probably yes; truth is no"
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Five people, with appropriate caveats"
+    },
+    {
+     "q": 8,
+     "score": 1,
+     "hallucinated": false,
+     "note": "No activity claimed, but wrongly places B in aisle at 10:05"
+    }
+   ]
+  },
+  {
+   "format": "V5",
+   "run": 2,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "At least 4 people, A, B, C and D, who stay in view for the whole 10:00:00–10:02:30 slice. Person E also appears in this slice, but E's path has only about 8 dots (roughly 30 seconds), so the data cannot show whether E was in view at exactly 10:01. The answer is 4 or 5."
+    },
+    {
+     "q": 2,
+     "answer": "A, B, C and D were standing still at Op 14, Op 15, Op 16 and Op 17, one at each press, which looks like normal operator positions. During this slice, E came in from the right end of the yellow aisle, walked left along it and then went up toward the control panel and notice board, but the exact time within the slice is unknown."
+    },
+    {
+     "q": 3,
+     "answer": "Op 15 was empty from 10:05 to 10:07. B was in the yellow aisle and near the passage then, and nobody else was in Op 15. B left Op 15 at some point in the 10:02:30–10:05:00 slice, through the passage to the yellow aisle and out of view on the left. The exact time is not shown, so it is unclear whether Op 15 was empty for all of 10:04–10:05, though no one appears there."
+    },
+    {
+     "q": 4,
+     "answer": "Yes. Person E (conf 0.90) came in from the right side along the yellow aisle and walked up to the control panel during the 10:00:00–10:02:30 slice. E was at the control panel in the 10:02:30–10:05:00 slice and went back down to the yellow aisle and out to the right in the 10:05:00–10:07:30 slice."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty for more than 1 minute. B left during the 10:02:30–10:05:00 slice and came back during the 10:07:30–10:10:00 slice, so Op 15 was empty for at least all of 10:05:00–10:07:30. In the 10:05:00–10:07:30 slice, C moved from Op 16 toward Op 17, so Op 16 may have been empty for part of that time, but the data cannot show whether that lasted more than 1 minute. Op 14 (A) and Op 17 (D) were occupied in every slice."
+    },
+    {
+     "q": 6,
+     "answer": "Probably yes, but the image only gives 2.5-minute slices, so exact times inside that window cannot be confirmed. B walked out along the yellow aisle in the 10:02:30–10:05:00 slice and came back along it from the left in the 10:05:00–10:07:30 slice. E came down to the aisle and left to the right in the 10:05:00–10:07:30 slice."
+    },
+    {
+     "q": 7,
+     "answer": "There were 5 tracked identities, A to E. B, C and D have lower stitching confidence (0.70, 0.60 and 0.60), so tracking errors could change the true count. For example, the B who returned may not be the same person who left."
+    },
+    {
+     "q": 8,
+     "answer": "B appears to be the Press 15 operator. Around 10:05, B was away from Op 15: B had left through the passage to the yellow aisle and then re-entered along the aisle from the left during the 10:05:00–10:07:30 slice. The data only shows position, so it cannot say what B was actually doing."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Gives 4 but hedges to 4 or 5 with wrong caveat about E."
+    },
+    {
+     "q": 2,
+     "score": 1,
+     "hallucinated": true,
+     "note": "Count right but says standing still; misses bench visits pattern."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Effectively no; Op 15 empty, hedged only on slice boundaries."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, from right aisle, slice timings consistent with truth."
+    },
+    {
+     "q": 5,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Op 15 correct; Op 16 not confirmed, only hedged."
+    },
+    {
+     "q": 6,
+     "score": 0,
+     "hallucinated": false,
+     "note": "Says probably yes; truth is nobody in aisle."
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Five identities with honest uncertainty caveats."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Says absent and activity cannot be known from data."
+    }
+   ]
+  },
+  {
+   "format": "V6",
+   "run": 1,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "About 4 people. The 10:01:00 bin shows 4.0 people in frame, and so do the bins on either side of it."
+    },
+    {
+     "q": 2,
+     "answer": "Most of the occupancy was in the four operator zones (Op 14: 0.9, Op 15: 0.7, Op 16: 0.7, Op 17: 0.7 at 10:01:00), with some on Bench L (0.4) and Bench R (0.5). This fits operators moving between their press position and the bench in front of it. The data are 30-second zone averages without track IDs, so individual paths cannot be confirmed."
+    },
+    {
+     "q": 3,
+     "answer": "No. Op 15 shows no occupancy in every bin from 10:03:30 through 10:07:00. It only shows 0.3 again at 10:07:30 and 1.0 from 10:08:00."
+    },
+    {
+     "q": 4,
+     "answer": "Yes. The control panel was occupied from about 10:02 (0.1) to about 10:06 (0.1), and was at about 1.0 from 10:02:30 to 10:05:30. In the 10:02:00 bin the frame count rose to 4.9, with 0.5 in the yellow aisle and 0.3 on unmapped floor, which suggests an extra person came in from the yellow aisle across unmapped floor. The data cannot show which end of the aisle (left or right) they came from."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty from about 10:03:30 to 10:07:30, roughly 4 minutes. Op 16 was empty from about 10:05:30 to 10:07:00, roughly 1.5 minutes. Op 14 and Op 17 were never empty."
+    },
+    {
+     "q": 6,
+     "answer": "No detections. The yellow aisle shows zero in every bin covering 10:04:15 to 10:06:00 (the 10:04:00, 10:04:30, 10:05:00 and 10:05:30 bins). The next yellow-aisle reading is 0.5 in the bin starting at 10:06:00, which begins at the end of the window. Detection errors cannot be ruled out."
+    },
+    {
+     "q": 7,
+     "answer": "The data cannot give an exact number because there are no track IDs. The highest count in frame at once was about 5, so there were at least 5 different people. Entries and exits through the yellow aisle (around 10:03:30 and 10:07:00) could be the same people returning or new people."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. Op 15 was empty at 10:05 and the data does not identify people, so the operator's location and activity are unknown. They may have been out of view after the Op 15 → passage → yellow aisle movement seen around 10:03–10:03:30, or the 2.0 in Op 17 from 10:05:00 to 10:06:30 may include someone from another zone, but neither can be confirmed."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly gives 4 people with no wrong caveat."
+    },
+    {
+     "q": 2,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Four operator zones with brief bench visits; same people, correctly hedged."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no, times consistent with truth."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, times within a minute, entry from yellow aisle."
+    },
+    {
+     "q": 5,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Op 15 and Op 16 with times within a minute; no extras."
+    },
+    {
+     "q": 6,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no for the window."
+    },
+    {
+     "q": 7,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Says at least 5, no best estimate; leans possibly higher."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "States unknown; possibilities flagged as unconfirmed, not fact."
+    }
+   ]
+  },
+  {
+   "format": "V6",
+   "run": 2,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "About 4 people. 'People in frame' is 4.0 in both the 10:00:30 and 10:01:00 bins."
+    },
+    {
+     "q": 2,
+     "answer": "The 4 people were at Op 14 to Op 17, one per press. Op 14 was 0.9 and Op 15, Op 16 and Op 17 were each 0.7; Bench L was 0.4 and Bench R was 0.5. Each pair adds up to about 2 people, which suggests the operators were stepping back and forth between their press zones and the benches in front of them. The table shows averages, so it cannot show which operator went to the bench or exactly when."
+    },
+    {
+     "q": 3,
+     "answer": "No. Op 15 is empty in every bin from 10:03:30 through 10:07:00. It has only partial values just before (0.3 at 10:03:00) and just after (0.3 at 10:07:30), then returns to 1.0 at 10:08:00. Detection errors cannot be ruled out."
+    },
+    {
+     "q": 4,
+     "answer": "Yes. Someone was at the control panel from about 10:02:00 (0.1, then 1.0 from 10:02:30) until about 10:06:00 (0.1). They seem to have come in along the yellow aisle and across unmapped floor: both were occupied at 10:02:00 (0.5 and 0.3), and 'People in frame' rose from 4.0 to 4.9. The data does not say which side of the aisle they entered from."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty for about 4 minutes, from about 10:03:30 to 10:07:30. Op 16 was empty for about 1.5 minutes, from about 10:05:30 to 10:07:00, and during that time Op 17 showed about 2 people. Op 14 and Op 17 were never empty."
+    },
+    {
+     "q": 6,
+     "answer": "No. The yellow aisle has no occupancy in the 10:04:00 to 10:05:30 bins. It shows 0.5 in the bin starting at 10:06:00, which is at or after the end of the window."
+    },
+    {
+     "q": 7,
+     "answer": "The data cannot say. It gives average counts per zone with no track IDs, so it cannot tell whether two sightings are the same person. At most 5 people were in view at once (10:02:30 to 10:03:00), so at least 5 different people appeared; whoever returned to Op 15 around 10:07 to 10:08 may or may not be the person who left."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot say. Op 15 was empty at 10:05, and the table does not identify people or what they were doing. It suggests someone left through the passage and yellow aisle around 10:03 to 10:04 and that Op 15 was reoccupied around 10:07:30, but it cannot confirm that this was the Press 15 operator."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly states 4 people."
+    },
+    {
+     "q": 2,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Four operators, one per press, stepping to benches; correct pattern."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no with accurate timing."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, times within a minute, arrived via yellow aisle."
+    },
+    {
+     "q": 5,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Op 15 and Op 16 with times within a minute; no extras."
+    },
+    {
+     "q": 6,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct no."
+    },
+    {
+     "q": 7,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Honest uncertainty, lower bound 5, but no 4-5 best estimate."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Says cannot be known; speculation clearly hedged."
+    }
+   ]
+  },
+  {
+   "format": "V7",
+   "run": 1,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "Four people (A, B, C and D) were in view at about 10:01. Person E was not observed until about 10:02."
+    },
+    {
+     "q": 2,
+     "answer": "A was at Op 14, B at Op 15, C at Op 16 and D at Op 17. At about 10:00:55–10:01:08 all four briefly stepped forward to their bench at the same time (A and B to Bench L, C and D to Bench R) and then went back to their operator zones. This looks like a synchronised part-handling cycle, and the short bench visits repeat throughout the window."
+    },
+    {
+     "q": 3,
+     "answer": "No. Op 15 had no one in it from about 10:03:10 to 10:07:50 (event E2). Person B, its usual occupant, left through the Passage to the yellow aisle at about 10:03:30 and was not observed until about 10:07."
+    },
+    {
+     "q": 4,
+     "answer": "Yes. Person E was in the control panel area from about 10:02:26 to 10:06:04 (event E1, loitering). E first appeared at about 10:02 in the yellow aisle, which leads out of view at both ends, then crossed unmapped floor to the panel. The data does not show which side of the aisle E entered from."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty from about 10:03:10 to 10:07:50 (E2). Op 16 was empty from about 10:05:10 to 10:07:05 (E3), while Person C's track shows C at Op 17 with D. Both ends of that period are identity junctions (J1 and J2) at confidence 0.60, so this could be a tracking swap rather than real movement."
+    },
+    {
+     "q": 6,
+     "answer": "No one was observed in the yellow aisle in that window. E was at the control panel until 10:06:04. B was not observed from about 10:03:55 to 10:07, so the data cannot rule out that B was in the aisle out of the camera's view."
+    },
+    {
+     "q": 7,
+     "answer": "Five stitched people (A to E) appeared. This depends on the tracking being correct: B's track spans a gap of more than 3 minutes at confidence 0.70, and C and D pass through two identity junctions, so the true count could differ."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot say. The usual Press 15 operator (Person B) was not observed at 10:05 and Op 15 was empty, after B left through the Passage to the yellow aisle at about 10:03:30."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct count of 4; E caveat is accurate."
+    },
+    {
+     "q": 2,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Four operators at Op zones with short bench visits; correct."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no with correct times; exit route detail consistent."
+    },
+    {
+     "q": 4,
+     "score": 1,
+     "hallucinated": false,
+     "note": "Yes and times right, but direction (east/right) not given."
+    },
+    {
+     "q": 5,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Both zones and times correct; swap caveat is hedged only."
+    },
+    {
+     "q": 6,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Says no one observed; out-of-view caveat is hedged."
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Five people, with honest caveats about tracking."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says unknown, operator not observed."
+    }
+   ]
+  },
+  {
+   "format": "V7",
+   "run": 2,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "Four people: Persons A, B, C and D. Person E was not observed until about 10:02."
+    },
+    {
+     "q": 2,
+     "answer": "At about 10:00:54–10:01:08, A and B were at Bench L and C and D were at Bench R; the rest of the time each was in their own operator zone (A in Op 14, B in Op 15, C in Op 16, D in Op 17). All four stepped from their press to the shared bench at the same moment and returned shortly after. A does this regularly, roughly every 1.5 minutes, and C and D both go to Bench R again at about 10:02:45, 10:08 and 10:10."
+    },
+    {
+     "q": 3,
+     "answer": "No one was detected in Op 15 then. Person B left Op 15 at about 10:03:10, went through the Passage to the Yellow aisle, and was NOT OBSERVED from about 10:03:56 to 10:07:06. B came back through the Yellow aisle and Passage and reached Op 15 at about 10:07:52, which matches event E2 (Op 15 empty 10:03:10–10:07:50)."
+    },
+    {
+     "q": 4,
+     "answer": "Yes. Person E was in the Control panel zone from about 10:02:26 to 10:06:04 (event E1, loitering). E first appeared in the Yellow aisle at about 10:02:02, then crossed unmapped floor to the panel, and left the same way at about 10:06:04–10:06:34. The data does not show which side of the aisle E entered from."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty from about 10:03:10 to 10:07:50 (E2) while Person B was away. Op 16 was empty from about 10:05:10 to 10:07:05 (E3), when Person C's track was in Op 17 with D (identity junctions J1 and J2, chit-chat E4). Op 14 and Op 17 had only short gaps of under a minute."
+    },
+    {
+     "q": 6,
+     "answer": "No one was detected in the Yellow aisle in that window. B had left it by about 10:03:56 and was not observed, and E was at the Control panel until 10:06:04 and only reached the aisle at about 10:06:16. Because B was not observed, the data cannot rule out someone being in the aisle undetected."
+    },
+    {
+     "q": 7,
+     "answer": "The data shows 5 stitched people (A–E). This depends on the tracker's stitching: confidence for B, C and D is only 0.60–0.70, and C and D's tracks pass through identity junctions J1 and J2."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. Person B, who normally works Op 15, was NOT OBSERVED at 10:05 after leaving via the Passage and Yellow aisle at about 10:03:10–10:03:56, and Op 15 was empty."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct count of 4; caveat about E is accurate."
+    },
+    {
+     "q": 2,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Four operators in own Op zones with brief bench visits; correct."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no, times match truth."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, correct times, came from and left via yellow aisle."
+    },
+    {
+     "q": 5,
+     "score": 2,
+     "hallucinated": true,
+     "note": "Both zones and times correct; asserts C chit-chatting in Op 17 as reason."
+    },
+    {
+     "q": 6,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correct no, with reasonable caveat."
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Five people, with appropriate stitching caveat."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says unknown, operator not observed."
+    }
+   ]
+  },
+  {
+   "format": "H1",
+   "run": 1,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "At about 10:01 there were 4 people in view. People in frame is 4.0 for the 10:01:00 bin, and those 4 were Persons A, B, C and D. Person E did not enter until 10:02:02."
+    },
+    {
+     "q": 2,
+     "answer": "At about 10:01, A was at Bench L (10:00:54–10:01:04), B was at Bench L (10:00:54–10:01:08), and C and D were at Bench R (10:00:54–10:01:08). All four were otherwise at their own operator zones (Op 14–17). They all moved from their operator zone to the bench in front of it at the same time and came back within 10–14 s. Each of them repeated this short bench visit every few minutes. The system cannot see hands, so it cannot say what they did at the benches."
+    },
+    {
+     "q": 3,
+     "answer": "No. Op 15 shows 0.0 in every bin from 10:03:30 to 10:07:29, and event E2 marks it empty from 10:03:10 to 10:07:50. Person B walked out through Passage and the yellow aisle and left the camera view at the west edge at 10:03:56. B was not observed again until 10:07:06 (re-entry matched with confidence 0.70)."
+    },
+    {
+     "q": 4,
+     "answer": "Yes. Person E was at the Control panel from 10:02:26 to 10:06:04, and event E1 flagged this as loitering. E came in from the east edge of the yellow aisle at 10:02:02 and crossed unmapped floor to reach the panel. E left the same way and went out of view at the east edge at 10:06:34. The data cannot show what E did at the panel."
+    },
+    {
+     "q": 5,
+     "answer": "Two operator zones were empty for more than 1 minute. Op 15 was empty from about 10:03:10 to 10:07:50–52, which is about 4.7 minutes. Op 16 was empty from about 10:05:10 to 10:07:05–06, which is about 2 minutes, while two people were at Op 17. Op 16 was empty no matter how the uncertain C/D identity swap is resolved. Op 14 had only a 20 s occlusion gap (10:04:02–10:04:22), and Op 17 was never empty."
+    },
+    {
+     "q": 6,
+     "answer": "No one was detected in the visible part of the yellow aisle between 10:04:15 and 10:06:00. The bins from 10:04:00 to 10:05:59 all show 0.0, and the camera was healthy the whole time. The aisle goes out of view on both sides, so the data says nothing about the parts outside the camera view, where Person B was during this time."
+    },
+    {
+     "q": 7,
+     "answer": "Most likely 5 different people (A–E), which matches the peak of 5.0 people in frame. Person B's return at 10:07:06 was matched to B by appearance with only 0.70 confidence. If that match is wrong, the count would be 6. The 4 s track 12 near the fan was classified as a false detection and is not counted."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. The person at Op 15 (Person B) left the camera view at the west edge of the yellow aisle at 10:03:56 and was NOT OBSERVED until 10:07:06. Op 15 was empty at 10:05, and nothing is known about the person while they are out of view."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly states 4 people at 10:01."
+    },
+    {
+     "q": 2,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Four operators in Op zones with brief bench visits; correct pattern."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no; empty window matches truth."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, correct times, came from east yellow aisle."
+    },
+    {
+     "q": 5,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Op 15 and Op 16 with correct times; no extras."
+    },
+    {
+     "q": 6,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says nobody in visible aisle."
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Best estimate 5, honest caveat on re-identification."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly says unknown; operator out of view."
+    }
+   ]
+  },
+  {
+   "format": "H1",
+   "run": 2,
+   "answers": [
+    {
+     "q": 1,
+     "answer": "Four people. Persons A, B, C and D were all tracked at 10:01, and the occupancy table shows 4.0 people in frame for the 10:01:00–10:01:30 bin. Person E did not enter until 10:02:02."
+    },
+    {
+     "q": 2,
+     "answer": "All four operators had briefly stepped from their operator zones to the benches. A (about 10:00:54–10:01:04) and B (10:00:54–10:01:08) were at Bench L, and C and D (10:00:54–10:01:08) were at Bench R. This fits a repeating cycle: each operator stands at their press and steps to the bench for about 10–14 s every 1.5–2 minutes, then returns."
+    },
+    {
+     "q": 3,
+     "answer": "No. The occupancy table shows 0.0 in Op 15 for every bin from 10:03:30 to 10:07:30, and event E2 marks Op 15 empty from 10:03:10 to 10:07:50. Its operator (Person B) was outside the camera view from 10:03:56 to 10:07:06."
+    },
+    {
+     "q": 4,
+     "answer": "Yes, Person E (confidence 0.90) was at the control panel from 10:02:26 to 10:06:04, which event E1 flagged as loitering. E came from the east: they entered at the east edge of the yellow aisle at 10:02:02 and crossed unmapped floor to reach the panel. They later left the same way, exiting the view at the east edge at 10:06:34. The system cannot see what E did at the panel."
+    },
+    {
+     "q": 5,
+     "answer": "Op 15 was empty from 10:03:10 to about 10:07:50 (about 4 min 40 s) while B was away. Op 16 was empty from 10:05:10 to 10:07:05 (about 1 min 55 s) while two people stood in Op 17. That part is uncertain because C and D may have been swapped at junctions J1 and J2 (confidence 0.60). Op 14 had only a 20 s unobserved gap for A (10:04:02–10:04:22, occluded near the bench), and Op 17 was never empty."
+    },
+    {
+     "q": 6,
+     "answer": "No one was detected in the visible part of the yellow aisle. Its occupancy is 0.0 for every bin from 10:04:00 to 10:05:30. B had left the view at the west edge at 10:03:56 and was not observed, so B's location is unknown. E did not reach the aisle until 10:06:16."
+    },
+    {
+     "q": 7,
+     "answer": "Most likely 5 different people (A–E); track 12 was dropped as a false detection. It could be 6, because B's re-entry at 10:07:06 was matched to the person who left only by appearance (confidence 0.70). The possible C/D swap does not change the count."
+    },
+    {
+     "q": 8,
+     "answer": "The data cannot answer this. At 10:05 the Press 15 operator (Person B) was not observed: B had left the camera view at the west edge of the yellow aisle at 10:03:56, and Op 15 was empty."
+    }
+   ],
+   "grades": [
+    {
+     "q": 1,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Correctly states four people at 10:01."
+    },
+    {
+     "q": 2,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Four operators, brief bench visits, correct bench assignment and cycle."
+    },
+    {
+     "q": 3,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no with correct empty window."
+    },
+    {
+     "q": 4,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Yes, correct times, came from east yellow aisle, left same way."
+    },
+    {
+     "q": 5,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Both Op 15 and Op 16 with correct times; no extras."
+    },
+    {
+     "q": 6,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Clear no; appropriately notes B location unknown."
+    },
+    {
+     "q": 7,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Best estimate 5 with honest caveat of possible 6."
+    },
+    {
+     "q": 8,
+     "score": 2,
+     "hallucinated": false,
+     "note": "Says cannot be known; operator not observed, no speculation."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,205 @@
+You are an analysis assistant for a factory CCTV system.
+Camera: cam07 "Moulding press 14–17". Fixed overhead camera. Window: 10:00:00 to 10:10:00.
+Static zones mapped on this camera:
+- Op 14, Op 15, Op 16, Op 17: standing area in front of each moulding press where its operator works.
+- Bench L (in front of Op 14 and Op 15) and Bench R (in front of Op 16 and Op 17): work benches.
+- Passage: gap between Bench L and Bench R that leads to the yellow aisle.
+- Control panel: electrical control cabinet on the right side.
+- Yellow aisle: walkway along the front; it leads out of the camera view at the west edge and the east edge.
+- Unmapped floor: any floor area not in a named zone.
+The data below comes from automated person detection and tracking. It can contain errors.
+Answer only from the data. If the data cannot answer a question, say so (use null or "unknown").
+
+DATA:
+CAMERA HEALTH: online except 10:05:45–10:06:25 (camera OFFLINE, no data). No blockage, no blur.
+SYSTEM LIMITS: Position is the foot point mapped to zones. Hands and objects are not visible. People are NOT identified. Counts per second are the most reliable data (about ±1 for a few seconds in crowds). Movement episodes are short, anonymous tracks: they show that "a person moved this way", not who. Nothing is known while the camera is offline.
+
+PEOPLE IN FRAME (people per second from short local tracks, gaps up to 2 s bridged, 5 s median, runs under 5 s merged; ID-free)
+  10:00:00–10:02:17  4
+  10:02:17–10:02:43  7
+  10:02:43–10:02:48  6
+  10:02:48–10:03:56  7
+  10:03:56–10:05:32  6
+  10:05:32–10:05:45  5
+  10:05:45–10:06:25  UNKNOWN (camera offline)
+  10:06:25–10:06:45  5
+  10:06:45–10:07:14  6
+  10:07:14–10:07:20  5
+  10:07:20–10:08:32  4
+  10:08:32–10:08:37  5
+  10:08:37–10:10:00  4
+
+ZONE STATES (people count per zone, same method; ID-free). Zones not listed stayed at 0.
+  Op 14:
+    10:00:00–10:00:56  1 person
+    10:00:56–10:01:08  empty
+    10:01:08–10:02:26  1 person
+    10:02:26–10:02:38  empty
+    10:02:38–10:03:56  1 person
+    10:03:56–10:04:08  empty
+    10:04:08–10:05:26  1 person
+    10:05:26–10:05:38  empty
+    10:05:38–10:05:45  1 person
+    10:05:45–10:06:25  UNKNOWN (offline)
+    10:06:25–10:06:56  1 person
+    10:06:56–10:07:07  empty
+    10:07:07–10:08:26  1 person
+    10:08:26–10:08:37  empty
+    10:08:37–10:10:00  1 person
+  Op 15:
+    10:00:00–10:00:56  1 person
+    10:00:56–10:01:08  empty
+    10:01:08–10:03:21  1 person
+    10:03:21–10:05:45  empty
+    10:05:45–10:06:25  UNKNOWN (offline)
+    10:06:25–10:07:41  empty
+    10:07:41–10:10:00  1 person
+  Op 16:
+    10:00:00–10:00:56  1 person
+    10:00:56–10:01:07  empty
+    10:01:07–10:02:26  1 person
+    10:02:26–10:02:38  empty
+    10:02:38–10:03:56  1 person
+    10:03:56–10:04:08  empty
+    10:04:08–10:05:26  1 person
+    10:05:26–10:05:32  empty
+    10:05:32–10:05:38  1 person
+    10:05:38–10:05:45  2 persons
+    10:05:45–10:06:25  UNKNOWN (offline)
+    10:06:25–10:06:47  2 persons
+    10:06:47–10:06:56  1 person
+    10:06:56–10:07:08  empty
+    10:07:08–10:08:27  1 person
+    10:08:27–10:08:38  empty
+    10:08:38–10:10:00  1 person
+  Op 17:
+    10:00:00–10:00:56  1 person
+    10:00:56–10:01:08  empty
+    10:01:08–10:02:26  1 person
+    10:02:26–10:02:38  empty
+    10:02:38–10:03:57  1 person
+    10:03:57–10:04:08  empty
+    10:04:08–10:05:11  1 person
+    10:05:11–10:05:29  2 persons
+    10:05:29–10:05:38  1 person
+    10:05:38–10:05:45  2 persons
+    10:05:45–10:06:25  UNKNOWN (offline)
+    10:06:25–10:06:42  2 persons
+    10:06:42–10:06:57  1 person
+    10:06:57–10:07:08  empty
+    10:07:08–10:08:26  1 person
+    10:08:26–10:08:38  empty
+    10:08:38–10:10:00  1 person
+  Bench L:
+    10:00:00–10:00:56  empty
+    10:00:56–10:01:08  2 persons
+    10:01:08–10:02:26  empty
+    10:02:26–10:02:38  1 person
+    10:02:38–10:03:56  empty
+    10:03:56–10:04:08  1 person
+    10:04:08–10:05:26  empty
+    10:05:26–10:05:38  1 person
+    10:05:38–10:05:45  empty
+    10:05:45–10:06:25  UNKNOWN (offline)
+    10:06:25–10:06:56  empty
+    10:06:56–10:07:07  1 person
+    10:07:07–10:08:26  empty
+    10:08:26–10:08:37  1 person
+    10:08:37–10:10:00  empty
+  Bench R:
+    10:00:00–10:00:56  empty
+    10:00:56–10:01:08  2 persons
+    10:01:08–10:02:26  empty
+    10:02:26–10:02:38  2 persons
+    10:02:38–10:03:57  empty
+    10:03:57–10:04:08  2 persons
+    10:04:08–10:05:11  empty
+    10:05:11–10:05:17  1 person
+    10:05:17–10:05:26  empty
+    10:05:26–10:05:38  2 persons
+    10:05:38–10:05:45  empty
+    10:05:45–10:06:25  UNKNOWN (offline)
+    10:06:25–10:06:42  empty
+    10:06:42–10:06:57  1 person
+    10:06:57–10:07:08  2 persons
+    10:07:08–10:08:27  empty
+    10:08:27–10:08:38  2 persons
+    10:08:38–10:10:00  empty
+  Passage:
+    10:00:00–10:00:48  empty
+    10:00:48–10:00:51  1 person
+    10:00:51–10:03:21  empty
+    10:03:21–10:03:43  1 person
+    10:03:43–10:04:11  empty
+    10:04:11–10:04:15  1 person
+    10:04:15–10:05:45  empty
+    10:05:45–10:06:25  UNKNOWN (offline)
+    10:06:25–10:07:15  empty
+    10:07:15–10:07:41  1 person
+    10:07:41–10:08:32  empty
+    10:08:32–10:08:37  1 person
+    10:08:37–10:10:00  empty
+  Control panel:
+    10:00:00–10:02:38  empty
+    10:02:38–10:02:48  2 persons
+    10:02:48–10:05:07  3 persons
+    10:05:07–10:05:11  2 persons
+    10:05:11–10:05:45  empty
+    10:05:45–10:06:25  UNKNOWN (offline)
+    10:06:25–10:10:00  empty
+  Yellow aisle:
+    10:00:00–10:02:14  empty
+    10:02:14–10:02:17  2 persons
+    10:02:17–10:02:30  3 persons
+    10:02:30–10:02:34  1 person
+    10:02:34–10:03:43  empty
+    10:03:43–10:03:56  1 person
+    10:03:56–10:05:18  empty
+    10:05:18–10:05:29  1 person
+    10:05:29–10:05:45  empty
+    10:05:45–10:06:25  UNKNOWN (offline)
+    10:06:25–10:06:45  empty
+    10:06:45–10:06:59  1 person
+    10:06:59–10:07:04  2 persons
+    10:07:04–10:07:15  3 persons
+    10:07:15–10:07:20  1 person
+    10:07:20–10:10:00  empty
+  Unmapped floor:
+    10:00:00–10:02:30  empty
+    10:02:30–10:02:34  2 persons
+    10:02:34–10:02:38  3 persons
+    10:02:38–10:02:43  1 person
+    10:02:43–10:05:07  empty
+    10:05:07–10:05:18  1 person
+    10:05:18–10:05:45  empty
+    10:05:45–10:06:25  UNKNOWN (offline)
+    10:06:25–10:06:50  empty
+    10:06:50–10:06:55  1 person
+    10:06:55–10:06:59  2 persons
+    10:06:59–10:07:04  1 person
+    10:07:04–10:08:00  empty
+    10:08:00–10:08:03  1 person
+    10:08:03–10:10:00  empty
+
+QUESTIONS
+1. How many people were in the camera view at 10:03:00?
+2. What was the largest number of people in view at the same time, and in which period?
+3. Was Op 15 occupied between 10:04:00 and 10:07:00?
+4. Which operator zones (Op 14–17) were empty for more than 1 minute, and when?
+5. How many times did a person enter the camera view, and how many times did a person leave it, at each edge (west/east)?
+6. Is the person working at Op 15 at 10:09 the same person who worked at Op 15 at 10:01?
+7. Was Op 15 occupied at 10:06:00?
+8. Around 10:03 a person left the operator area. In which zones did they move, in order, by which edge did they leave the camera view, and at what time?
+9. How many different people appeared in this camera between 10:00 and 10:10?
+
+Reply with JSON only, in exactly this shape (use null when the data cannot answer; times as "10:mm:ss"):
+{"q1":{"count":int|null,"note":"..."},
+ "q2":{"max":int|null,"from":"10:mm:ss"|null,"to":"10:mm:ss"|null,"note":"..."},
+ "q3":{"answer":"yes"|"no"|"partly"|"unknown","note":"..."},
+ "q4":{"zones":[{"zone":"Op 1x","from":"10:mm:ss","to":"10:mm:ss"}],"note":"..."},
+ "q5":{"entered_west":int|null,"entered_east":int|null,"left_west":int|null,"left_east":int|null,"note":"..."},
+ "q6":{"answer":"same"|"different"|"unknown","note":"..."},
+ "q7":{"answer":"occupied"|"empty"|"unknown","note":"..."},
+ "q8":{"zones":["..."],"edge":"west"|"east"|null,"time_out_of_view":"10:mm:ss"|null,"note":"..."},
+ "q9":{"best":int|null,"min":int|null,"max":int|null,"note":"..."}}
+Each "note" is 1–2 short sentences explaining the answer and its certainty.

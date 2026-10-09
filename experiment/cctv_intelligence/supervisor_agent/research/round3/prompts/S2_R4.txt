@@ -1,0 +1,331 @@
+You are an analysis assistant for a factory CCTV system.
+Camera: cam07 "Moulding press 14–17". Fixed overhead camera. Window: 10:00:00 to 10:10:00.
+Static zones mapped on this camera:
+- Op 14, Op 15, Op 16, Op 17: standing area in front of each moulding press where its operator works.
+- Bench L (in front of Op 14 and Op 15) and Bench R (in front of Op 16 and Op 17): work benches.
+- Passage: gap between Bench L and Bench R that leads to the yellow aisle.
+- Control panel: electrical control cabinet on the right side.
+- Yellow aisle: walkway along the front; it leads out of the camera view at the west edge and the east edge.
+- Unmapped floor: any floor area not in a named zone.
+The data below comes from automated person detection and tracking. It can contain errors.
+Answer only from the data. If the data cannot answer a question, say so (use null or "unknown").
+
+DATA:
+CAMERA HEALTH: online 100% of window, no blockage, no blur.
+SYSTEM LIMITS: Position is the foot point mapped to zones. Hands and objects are not visible. People are NOT identified. Counts per second are the most reliable data (about ±1 for a few seconds in crowds). Movement episodes are short, anonymous tracks: they show that "a person moved this way", not who. Nothing is known while the camera is offline.
+
+PEOPLE IN FRAME (people per second from short local tracks, gaps up to 2 s bridged, 5 s median, runs under 5 s merged; ID-free)
+  10:00:00–10:01:01  4
+  10:01:01–10:02:41  5
+  10:02:41–10:03:17  4
+  10:03:17–10:03:48  3
+  10:03:48–10:04:50  4
+  10:04:50–10:04:55  5
+  10:04:55–10:05:03  4
+  10:05:03–10:05:37  5
+  10:05:37–10:06:20  4
+  10:06:20–10:07:56  5
+  10:07:56–10:10:00  4
+
+ZONE STATES (people count per zone, same method; ID-free). Zones not listed stayed at 0.
+  Op 14:
+    10:00:00–10:00:42  1 person
+    10:00:42–10:00:53  empty
+    10:00:53–10:01:42  1 person
+    10:01:42–10:04:25  empty
+    10:04:25–10:05:09  1 person
+    10:05:09–10:05:24  empty
+    10:05:24–10:06:43  1 person
+    10:06:43–10:06:54  empty
+    10:06:54–10:08:12  1 person
+    10:08:12–10:08:23  empty
+    10:08:23–10:09:42  1 person
+    10:09:42–10:09:53  empty
+    10:09:53–10:10:00  1 person
+  Op 15:
+    10:00:00–10:01:12  1 person
+    10:01:12–10:01:24  empty
+    10:01:24–10:02:42  1 person
+    10:02:42–10:02:54  empty
+    10:02:54–10:04:12  1 person
+    10:04:12–10:04:24  empty
+    10:04:24–10:05:42  1 person
+    10:05:42–10:05:54  empty
+    10:05:54–10:07:12  1 person
+    10:07:12–10:07:24  empty
+    10:07:24–10:08:43  1 person
+    10:08:43–10:08:54  empty
+    10:08:54–10:10:00  1 person
+  Op 16:
+    10:00:00–10:00:27  1 person
+    10:00:27–10:00:38  empty
+    10:00:38–10:01:59  1 person
+    10:01:59–10:02:09  empty
+    10:02:09–10:03:27  1 person
+    10:03:27–10:03:39  empty
+    10:03:39–10:04:57  1 person
+    10:04:57–10:05:09  empty
+    10:05:09–10:06:27  1 person
+    10:06:27–10:06:39  empty
+    10:06:39–10:08:06  1 person
+    10:08:06–10:09:18  empty
+    10:09:18–10:10:00  1 person
+  Op 17:
+    10:00:00–10:00:27  1 person
+    10:00:27–10:00:38  empty
+    10:00:38–10:01:57  1 person
+    10:01:57–10:02:08  empty
+    10:02:08–10:03:27  1 person
+    10:03:27–10:03:39  empty
+    10:03:39–10:04:58  1 person
+    10:04:58–10:05:09  empty
+    10:05:09–10:06:27  1 person
+    10:06:27–10:06:39  empty
+    10:06:39–10:08:06  1 person
+    10:08:06–10:09:18  2 persons
+    10:09:18–10:10:00  1 person
+  Bench L:
+    10:00:00–10:00:42  empty
+    10:00:42–10:00:53  1 person
+    10:00:53–10:01:12  empty
+    10:01:12–10:01:24  1 person
+    10:01:24–10:01:42  empty
+    10:01:42–10:01:57  1 person
+    10:01:57–10:02:42  empty
+    10:02:42–10:02:54  1 person
+    10:02:54–10:04:12  empty
+    10:04:12–10:04:24  1 person
+    10:04:24–10:05:12  empty
+    10:05:12–10:05:24  1 person
+    10:05:24–10:05:42  empty
+    10:05:42–10:05:54  1 person
+    10:05:54–10:06:43  empty
+    10:06:43–10:06:49  1 person
+    10:06:49–10:06:54  2 persons
+    10:06:54–10:07:12  1 person
+    10:07:12–10:07:24  2 persons
+    10:07:24–10:08:12  empty
+    10:08:12–10:08:23  1 person
+    10:08:23–10:08:43  empty
+    10:08:43–10:08:54  1 person
+    10:08:54–10:09:42  empty
+    10:09:42–10:09:53  1 person
+    10:09:53–10:10:00  empty
+  Bench R:
+    10:00:00–10:00:27  empty
+    10:00:27–10:00:38  2 persons
+    10:00:38–10:01:28  empty
+    10:01:28–10:01:57  1 person
+    10:01:57–10:02:09  2 persons
+    10:02:09–10:02:35  1 person
+    10:02:35–10:03:27  empty
+    10:03:27–10:03:39  2 persons
+    10:03:39–10:04:58  empty
+    10:04:58–10:05:09  2 persons
+    10:05:09–10:06:27  empty
+    10:06:27–10:06:39  2 persons
+    10:06:39–10:10:00  empty
+  Passage:
+    10:00:00–10:00:30  empty
+    10:00:30–10:00:33  1 person
+    10:00:33–10:01:20  empty
+    10:01:20–10:01:28  1 person
+    10:01:28–10:01:57  empty
+    10:01:57–10:02:15  1 person
+    10:02:15–10:02:36  empty
+    10:02:36–10:02:44  1 person
+    10:02:44–10:02:50  empty
+    10:02:50–10:02:54  1 person
+    10:02:54–10:04:13  empty
+    10:04:13–10:04:19  1 person
+    10:04:19–10:04:50  empty
+    10:04:50–10:04:55  1 person
+    10:04:55–10:06:42  empty
+    10:06:42–10:06:48  1 person
+    10:06:48–10:07:00  empty
+    10:07:00–10:07:03  1 person
+    10:07:03–10:07:26  empty
+    10:07:26–10:07:31  1 person
+    10:07:31–10:08:50  empty
+    10:08:50–10:08:54  1 person
+    10:08:54–10:10:00  empty
+  Yellow aisle:
+    10:00:00–10:01:01  empty
+    10:01:01–10:01:20  1 person
+    10:01:20–10:02:15  empty
+    10:02:15–10:02:41  1 person
+    10:02:41–10:02:44  empty
+    10:02:44–10:03:17  1 person
+    10:03:17–10:03:48  empty
+    10:03:48–10:04:13  1 person
+    10:04:13–10:05:03  empty
+    10:05:03–10:05:37  1 person
+    10:05:37–10:06:20  empty
+    10:06:20–10:06:42  1 person
+    10:06:42–10:07:31  empty
+    10:07:31–10:07:56  1 person
+    10:07:56–10:10:00  empty
+  Unmapped floor:
+    10:00:00–10:02:00  empty
+    10:02:00–10:02:03  1 person
+    10:02:03–10:10:00  empty
+
+EDGE CROSSINGS (judged from a few seconds of track next to the image edge; ID-free)
+  10:01:01  1 person ENTERED view at west edge of Yellow aisle
+  10:02:41  1 person LEFT view at east edge of Yellow aisle
+  10:03:17  1 person LEFT view at east edge of Yellow aisle
+  10:03:48  1 person ENTERED view at east edge of Yellow aisle
+  10:05:03  1 person ENTERED view at west edge of Yellow aisle
+  10:05:37  1 person LEFT view at east edge of Yellow aisle
+  10:06:20  1 person ENTERED view at east edge of Yellow aisle
+  10:07:56  1 person LEFT view at west edge of Yellow aisle
+
+MOVEMENT EPISODES (one line = one continuous short track = "a person moved this way". Different lines can be the same person or different people. Do not join lines into identities.)
+  Op 14 (10:00:00–10:01:42) → Bench L (10:01:42–10:01:57) → Passage (10:01:57–10:02:15) → Yellow aisle (10:02:15–10:02:41) → left view at east edge 10:02:41
+  Op 16 (10:00:00–10:01:57) → Bench R (10:01:59–10:02:01) → track ends 10:02:01 inside view (lost: occlusion, crowd or ID break)
+  entered at west edge → Yellow aisle (10:01:01–10:01:20) → Passage (10:01:20–10:01:28) → Bench R (10:01:28–10:02:08) → Op 16 (10:02:09–10:05:55) → track ends 10:05:55 inside view (lost: occlusion, crowd or ID break)
+  track starts 10:02:04 inside view → Bench R (10:02:04–10:02:36) → Passage (10:02:36–10:02:44) → Yellow aisle (10:02:44–10:03:17) → left view at east edge 10:03:17
+  track starts 10:03:42 inside view → Op 15 (10:03:42–10:04:12) → Bench L (10:04:12–10:04:23) → track ends 10:04:23 inside view (lost: occlusion, crowd or ID break)
+  entered at east edge → Yellow aisle (10:03:48–10:04:13) → Passage (10:04:13–10:04:20) → Bench L (10:04:20–10:04:24) → Op 15 (10:04:24–10:04:54) → track ends 10:04:54 inside view (lost: occlusion, crowd or ID break)
+  track starts 10:05:12 inside view → Bench L (10:05:12–10:05:24) → Op 14 (10:05:24–10:09:59)
+  track starts 10:05:55 inside view → Op 16 (10:05:55–10:08:05) → Op 17 (10:08:06–10:09:18) → Op 16 (10:09:18–10:10:00)
+  entered at east edge → Yellow aisle (10:06:20–10:06:42) → Passage (10:06:42–10:06:49) → Bench L (10:06:49–10:07:09) → track ends 10:07:09 inside view (lost: occlusion, crowd or ID break)
+  track starts 10:07:09 inside view → Bench L (10:07:09–10:07:24) → Unmapped floor (10:07:24–10:07:26) → Passage (10:07:26–10:07:31) → Yellow aisle (10:07:31–10:07:56) → left view at west edge 10:07:56
+
+SHORT BENCH VISITS (Op zone → its bench → same Op zone, under 25 s), start times:
+  Op 14: 10:00:42, 10:06:43, 10:08:12, 10:09:42
+  Op 15: 10:01:12, 10:02:42, 10:05:42, 10:07:12, 10:08:43
+  Op 16: 10:00:27, 10:03:27, 10:04:57, 10:06:27
+  Op 17: 10:00:27, 10:01:57, 10:03:27, 10:04:58, 10:06:27
+
+IDENTITY HYPOTHESES (low trust; use only if a question needs identity, and say how uncertain it is)
+STITCHED PERSONS (tracker fragments joined offline; 13 persons; tracks under 3 s dropped as false detections)
+Person A (from tracker IDs 1; overall confidence 0.95)
+  10:00:00–10:00:42  Op 14
+  10:00:42–10:00:53  Bench L
+  10:00:53–10:01:42  Op 14
+  10:01:42–10:01:57  Bench L
+  10:01:57–10:02:15  Passage
+  10:02:15–10:02:41  Yellow aisle
+  after 10:02:41  NOT OBSERVED (left at east edge)
+Person B (from tracker IDs 2, 11; overall confidence 0.92)
+  10:00:00–10:01:12  Op 15
+  10:01:12–10:01:24  Bench L
+  10:01:24–10:02:42  Op 15
+  10:02:42–10:02:54  Bench L
+  10:02:54–10:04:12  Op 15
+  10:04:12–10:04:23  Bench L
+  after 10:04:23  NOT OBSERVED (track lost inside view)
+Person C (from tracker IDs 3, 9, 12, 17, 28, 29; overall confidence 0.55)
+  10:00:00–10:00:27  Op 16
+  10:00:27–10:00:38  Bench R
+  10:00:38–10:01:57  Op 16
+  10:01:59–10:02:36  Bench R
+  10:02:36–10:02:44  Passage
+  10:02:44–10:03:17  Yellow aisle
+  10:03:17–10:03:48  NOT OBSERVED
+  10:03:48–10:04:13  Yellow aisle  [re-entered at east edge; matched to earlier exit by appearance, confidence 0.65]
+  10:04:13–10:04:20  Passage
+  10:04:20–10:04:24  Bench L
+  10:04:24–10:05:42  Op 15
+  10:05:42–10:05:54  Bench L
+  10:05:54–10:07:12  Op 15
+  10:07:12–10:07:24  Bench L
+  10:07:24–10:08:42  Op 15
+  10:08:43–10:08:54  Bench L
+  10:08:54–10:10:00  Op 15
+Person D (from tracker IDs 4, 20; overall confidence 0.92)
+  10:00:00–10:00:27  Op 17
+  10:00:27–10:00:38  Bench R
+  10:00:38–10:01:57  Op 17
+  10:01:57–10:02:08  Bench R
+  10:02:08–10:03:27  Op 17
+  10:03:27–10:03:39  Bench R
+  10:03:39–10:04:58  Op 17
+  10:04:58–10:05:09  Bench R
+  10:05:09–10:06:27  Op 17
+  10:06:27–10:06:39  Bench R
+  10:06:39–10:10:00  Op 17
+Person E (from tracker IDs 5; overall confidence 0.95)
+  before 10:00:30  NOT OBSERVED
+  10:00:30–10:00:33  Passage
+  after 10:00:33  NOT OBSERVED (track lost inside view)
+Person F (from tracker IDs 6, 22; overall confidence 0.92)
+  before 10:01:01  NOT OBSERVED (entered at west edge)
+  10:01:01–10:01:20  Yellow aisle
+  10:01:20–10:01:28  Passage
+  10:01:28–10:02:08  Bench R
+  10:02:09–10:03:27  Op 16
+  10:03:27–10:03:39  Bench R
+  10:03:39–10:04:57  Op 16
+  10:04:57–10:05:09  Bench R
+  10:05:09–10:06:27  Op 16
+  10:06:27–10:06:39  Bench R
+  10:06:39–10:08:05  Op 16
+  10:08:06–10:09:18  Op 17
+  10:09:18–10:10:00  Op 16
+Person G (from tracker IDs 8; overall confidence 0.95)
+  before 10:02:00  NOT OBSERVED
+  10:02:00–10:02:03  Unmapped floor
+  after 10:02:03  NOT OBSERVED (track lost inside view)
+Person H (from tracker IDs 10; overall confidence 0.95)
+  before 10:02:50  NOT OBSERVED
+  10:02:50–10:02:54  Passage
+  after 10:02:54  NOT OBSERVED (track lost inside view)
+Person I (from tracker IDs 15, 19; overall confidence 0.92)
+  before 10:04:25  NOT OBSERVED
+  10:04:25–10:05:09  Op 14
+  10:05:12–10:05:24  Bench L
+  10:05:24–10:06:43  Op 14
+  10:06:43–10:06:54  Bench L
+  10:06:54–10:08:12  Op 14
+  10:08:12–10:08:23  Bench L
+  10:08:23–10:09:42  Op 14
+  10:09:42–10:09:53  Bench L
+  10:09:53–10:09:59  Op 14
+Person J (from tracker IDs 16; overall confidence 0.95)
+  before 10:04:50  NOT OBSERVED
+  10:04:50–10:04:55  Passage
+  after 10:04:55  NOT OBSERVED (track lost inside view)
+Person K (from tracker IDs 18, 21, 24, 26; overall confidence 0.58)
+  before 10:05:03  NOT OBSERVED (entered at west edge)
+  10:05:03–10:05:37  Yellow aisle
+  10:05:37–10:06:20  NOT OBSERVED
+  10:06:20–10:06:42  Yellow aisle  [re-entered at east edge; matched to earlier exit by appearance, confidence 0.65]
+  10:06:42–10:06:49  Passage
+  10:06:49–10:07:24  Bench L
+  10:07:24–10:07:26  Unmapped floor
+  10:07:26–10:07:31  Passage
+  10:07:31–10:07:56  Yellow aisle
+  after 10:07:56  NOT OBSERVED (left at west edge)
+Person L (from tracker IDs 25; overall confidence 0.95)
+  before 10:07:00  NOT OBSERVED
+  10:07:00–10:07:03  Passage
+  after 10:07:03  NOT OBSERVED (track lost inside view)
+Person M (from tracker IDs 30; overall confidence 0.95)
+  before 10:08:50  NOT OBSERVED
+  10:08:50–10:08:54  Passage
+  after 10:08:54  NOT OBSERVED (track lost inside view)
+
+QUESTIONS
+1. How many people were in the camera view at 10:01:30?
+2. What was the largest number of people in view at the same time, and in which period?
+3. Was Op 16 occupied between 10:08:10 and 10:09:00?
+4. Which operator zones (Op 14–17) were empty for more than 1 minute, and when?
+5. How many times did a person enter the camera view, and how many times did a person leave it, at each edge (west/east)?
+6. Is the person working at Op 14 at 10:06 the same person who worked at Op 14 at 10:01?
+7. Was Op 14 occupied at 10:03:00?
+8. Around 10:02 a person left the operator area. In which zones did they move, in order, by which edge did they leave the camera view, and at what time?
+9. How many different people appeared in this camera between 10:00 and 10:10?
+
+Reply with JSON only, in exactly this shape (use null when the data cannot answer; times as "10:mm:ss"):
+{"q1":{"count":int|null,"note":"..."},
+ "q2":{"max":int|null,"from":"10:mm:ss"|null,"to":"10:mm:ss"|null,"note":"..."},
+ "q3":{"answer":"yes"|"no"|"partly"|"unknown","note":"..."},
+ "q4":{"zones":[{"zone":"Op 1x","from":"10:mm:ss","to":"10:mm:ss"}],"note":"..."},
+ "q5":{"entered_west":int|null,"entered_east":int|null,"left_west":int|null,"left_east":int|null,"note":"..."},
+ "q6":{"answer":"same"|"different"|"unknown","note":"..."},
+ "q7":{"answer":"occupied"|"empty"|"unknown","note":"..."},
+ "q8":{"zones":["..."],"edge":"west"|"east"|null,"time_out_of_view":"10:mm:ss"|null,"note":"..."},
+ "q9":{"best":int|null,"min":int|null,"max":int|null,"note":"..."}}
+Each "note" is 1–2 short sentences explaining the answer and its certainty.

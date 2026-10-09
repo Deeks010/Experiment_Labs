@@ -1,0 +1,35 @@
+{
+ "normal": {
+  "count_exact": 0.948,
+  "count_pm1": 1.0,
+  "zone_state": 0.994,
+  "edges_exact": 0.7,
+  "n_ids": 32.175,
+  "stitched": 11.65,
+  "true_people": 7.0,
+  "stitched_right": 0.0,
+  "stitch_purity": 0.247
+ },
+ "bad": {
+  "count_exact": 0.872,
+  "count_pm1": 0.991,
+  "zone_state": 0.992,
+  "edges_exact": 0.475,
+  "n_ids": 56.925,
+  "stitched": 12.1,
+  "true_people": 7.0,
+  "stitched_right": 0.0,
+  "stitch_purity": 0.271
+ },
+ "very bad": {
+  "count_exact": 0.778,
+  "count_pm1": 0.953,
+  "zone_state": 0.983,
+  "edges_exact": 0.35,
+  "n_ids": 91.525,
+  "stitched": 13.5,
+  "true_people": 7.0,
+  "stitched_right": 0.0,
+  "stitch_purity": 0.256
+ }
+}

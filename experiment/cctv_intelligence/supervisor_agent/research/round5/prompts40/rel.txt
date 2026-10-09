@@ -1,0 +1,53 @@
+You are an analysis assistant for a factory CCTV system. Camera cam07, top-view floor plan in metres.
+Press 15 and Press 16 are machines at the back wall. Bench 15 and Bench 16 are work benches in front of them. The operator runs a press from the gap between press and bench. The yellow aisle runs along the front.
+Answer only from the data.
+
+DATA:
+STAYS (anonymous; one line = one stay of about 40 s). Relations are computed by the system from the foot point.
+  s1  10:00:00  cell: Front of Bench 15 (aisle side) | nearest: Bench 15 0.9 m, Bench 16 2.9 m | vs Bench 15: aisle side, 82% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s2  10:00:15  cell: Yellow aisle | nearest: Bench 15 1.8 m, Bench 16 2.4 m | vs Bench 15: beyond right end, 110% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s3  10:00:30  cell: Yellow aisle | nearest: Bench 15 1.7 m, Bench 16 2.6 m | vs Bench 15: beyond right end, 101% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s4  10:00:45  cell: Other floor | nearest: Bench 15 0.5 m, Press 15 2.2 m | vs Bench 15: beyond left end, -13% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s5  10:01:00  cell: Passage between benches | nearest: Bench 16 0.8 m, Bench 15 1.4 m | vs Bench 15: beyond right end, 134% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s6  10:01:15  cell: Passage between benches | nearest: Bench 16 1.2 m, Bench 15 1.3 m | vs Bench 15: beyond right end, 127% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s7  10:01:30  cell: Gap Press 15 ↔ Bench 15 | nearest: Bench 15 0.2 m, Press 15 1.0 m | vs Bench 15: press side, 57% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s8  10:01:45  cell: Front of Bench 15 (aisle side) | nearest: Bench 15 0.2 m, Press 15 2.4 m | vs Bench 15: aisle side, 70% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.2 m of cell "On/over Bench 15"
+  s9  10:02:00  cell: Other floor | nearest: Bench 15 0.7 m, Press 15 1.4 m | vs Bench 15: beyond left end, -16% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s10 10:02:15  cell: Yellow aisle | nearest: Bench 15 1.6 m, Press 15 3.8 m | vs Bench 15: aisle side, 27% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s11 10:02:30  cell: Passage between benches | nearest: Bench 15 0.6 m, Press 15 0.9 m | vs Bench 15: beyond right end, 105% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.2 m of cell "Gap Press 15 ↔ Bench 15"
+  s12 10:02:45  cell: Passage between benches | nearest: Bench 15 0.8 m, Press 15 1.0 m | vs Bench 15: beyond right end, 110% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s13 10:03:00  cell: Gap Press 15 ↔ Bench 15 | nearest: Press 15 0.5 m, Bench 15 0.7 m | vs Bench 15: press side, 81% along its length (0% = left end, 100% = right end) | within 0.8 m reach of Press 15 front face
+  s14 10:03:15  cell: Yellow aisle | nearest: Bench 15 1.6 m, Press 15 3.8 m | vs Bench 15: beyond left end, -17% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s15 10:03:30  cell: Gap Press 15 ↔ Bench 15 | nearest: Bench 15 0.3 m, Press 15 0.9 m | vs Bench 15: press side, 16% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s16 10:03:45  cell: Yellow aisle | nearest: Bench 16 1.5 m, Bench 15 2.2 m | vs Bench 15: beyond right end, 140% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.2 m of cell "Passage between benches"
+  s17 10:04:00  cell: Yellow aisle | nearest: Bench 15 1.8 m, Press 15 4.0 m | vs Bench 15: aisle side, 29% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s18 10:04:15  cell: Front of Bench 15 (aisle side) | nearest: Bench 15 0.6 m, Press 15 2.8 m | vs Bench 15: aisle side, 69% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s19 10:04:30  cell: Yellow aisle | nearest: Bench 15 1.8 m, Press 15 4.0 m | vs Bench 15: aisle side, 15% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s20 10:04:45  cell: Yellow aisle | nearest: Bench 15 1.9 m, Bench 16 2.9 m | vs Bench 15: aisle side, 93% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s21 10:05:00  cell: Passage between benches | nearest: Bench 16 1.0 m, Bench 15 1.0 m | vs Bench 15: beyond right end, 125% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s22 10:05:15  cell: Gap Press 15 ↔ Bench 15 | nearest: Bench 15 0.5 m, Press 15 0.7 m | vs Bench 15: press side, 40% along its length (0% = left end, 100% = right end) | within 0.8 m reach of Press 15 front face
+  s23 10:05:30  cell: Gap Press 15 ↔ Bench 15 | nearest: Press 15 0.4 m, Bench 15 1.0 m | vs Bench 15: press side, 6% along its length (0% = left end, 100% = right end) | within 0.8 m reach of Press 15 front face
+  s24 10:05:45  cell: Front of Bench 15 (aisle side) | nearest: Bench 15 0.3 m, Press 15 2.5 m | vs Bench 15: aisle side, 31% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s25 10:06:00  cell: Other floor | nearest: Bench 15 0.9 m, Press 15 3.1 m | vs Bench 15: beyond left end, -17% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s26 10:06:15  cell: Passage between benches | nearest: Bench 15 0.5 m, Bench 16 1.5 m | vs Bench 15: beyond right end, 113% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s27 10:06:30  cell: Gap Press 15 ↔ Bench 15 | nearest: Press 15 0.4 m, Bench 15 1.0 m | vs Bench 15: press side, 95% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.2 m of cell "Passage between benches"
+  s28 10:06:45  cell: Passage between benches | nearest: Press 16 1.0 m, Bench 16 1.2 m | vs Bench 15: beyond right end, 138% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s29 10:07:00  cell: Yellow aisle | nearest: Bench 15 1.3 m, Bench 16 2.3 m | vs Bench 15: beyond right end, 102% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.0 m of cell "Front of Bench 15 (aisle side)"; within 0.0 m of cell "Passage between benches"
+  s30 10:07:15  cell: Other floor | nearest: Bench 15 1.2 m, Press 15 3.5 m | vs Bench 15: beyond left end, -15% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s31 10:07:30  cell: Front of Bench 15 (aisle side) | nearest: Bench 15 0.2 m, Press 15 2.4 m | vs Bench 15: aisle side, 41% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s32 10:07:45  cell: Other floor | nearest: Press 15 1.1 m, Bench 15 1.2 m | vs Bench 15: beyond left end, -16% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s33 10:08:00  cell: Yellow aisle | nearest: Bench 15 1.8 m, Press 15 4.0 m | vs Bench 15: aisle side, 12% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s34 10:08:15  cell: Front of Bench 15 (aisle side) | nearest: Bench 15 1.0 m, Press 15 3.2 m | vs Bench 15: aisle side, 14% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s35 10:08:30  cell: Yellow aisle | nearest: Bench 16 1.9 m, Bench 15 2.2 m | vs Bench 15: beyond right end, 131% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s36 10:08:45  cell: Front of Bench 15 (aisle side) | nearest: Bench 15 1.0 m, Press 15 3.2 m | vs Bench 15: aisle side, 66% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s37 10:09:00  cell: Other floor | nearest: Bench 15 0.9 m, Press 15 3.2 m | vs Bench 15: beyond left end, -0% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.0 m of cell "Front of Bench 15 (aisle side)"
+  s38 10:09:15  cell: Yellow aisle | nearest: Bench 15 1.5 m, Bench 16 2.1 m | vs Bench 15: beyond right end, 110% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.1 m of cell "Passage between benches"
+  s39 10:09:30  cell: Yellow aisle | nearest: Bench 15 1.8 m, Press 15 4.1 m | vs Bench 15: beyond left end, -12% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s40 10:09:45  cell: Other floor | nearest: Bench 15 0.1 m, Press 15 1.5 m | vs Bench 15: beyond left end, -3% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.1 m of cell "Gap Press 15 ↔ Bench 15"; within 0.1 m of cell "On/over Bench 15"
+
+QUESTIONS. For EACH stay s1–s40 answer:
+ nearest: which object was the person closest to? one of "Press 15","Bench 15","Press 16","Bench 16","Control panel"
+ side: where relative to Bench 15? one of "press_side","aisle_side","on_bench","beyond_left_end","beyond_right_end"
+ reach: was the person within 0.8 m of the front face of Press 15 (and in front of it, not beside it)? "yes"/"no"
+ part: which part of Bench 15's length were they level with? "left_third","middle_third","right_third","outside_length"
+Reply with JSON only: {"s1":{"nearest":"...","side":"...","reach":"...","part":"..."}, ... ,"s40":{...}}

@@ -1,0 +1,36 @@
+You are an analysis assistant for a factory CCTV system.
+Camera: cam07 "Moulding press 14–17". Fixed overhead camera. Window: 10:00:00 to 10:10:00.
+Static zones mapped on this camera:
+- Op 14, Op 15, Op 16, Op 17: standing area in front of each moulding press where its operator works.
+- Bench L (in front of Op 14 and Op 15) and Bench R (in front of Op 16 and Op 17): work benches.
+- Passage: gap between Bench L and Bench R that leads to the yellow aisle.
+- Control panel: electrical control cabinet on the right side.
+- Yellow aisle: walkway along the front; it leads out of the camera view at the west edge and the east edge.
+- Unmapped floor: any floor area not in a named zone.
+The data below comes from automated person detection and tracking. It can contain errors.
+Answer only from the data. If the data cannot answer a question, say so (use null or "unknown").
+
+DATA: One image (attached). CAMERA HEALTH: online except 10:05:45–10:06:25 (camera OFFLINE, no data). No blockage, no blur. It is an ID-free timeline of zone states: one row per zone, the number in each bar is the count of people in that zone, plus image-edge crossings. People are NOT identified. Read the title in the image.
+
+QUESTIONS
+1. How many people were in the camera view at 10:03:00?
+2. What was the largest number of people in view at the same time, and in which period?
+3. Was Op 15 occupied between 10:04:00 and 10:07:00?
+4. Which operator zones (Op 14–17) were empty for more than 1 minute, and when?
+5. How many times did a person enter the camera view, and how many times did a person leave it, at each edge (west/east)?
+6. Is the person working at Op 15 at 10:09 the same person who worked at Op 15 at 10:01?
+7. Was Op 15 occupied at 10:06:00?
+8. Around 10:03 a person left the operator area. In which zones did they move, in order, by which edge did they leave the camera view, and at what time?
+9. How many different people appeared in this camera between 10:00 and 10:10?
+
+Reply with JSON only, in exactly this shape (use null when the data cannot answer; times as "10:mm:ss"):
+{"q1":{"count":int|null,"note":"..."},
+ "q2":{"max":int|null,"from":"10:mm:ss"|null,"to":"10:mm:ss"|null,"note":"..."},
+ "q3":{"answer":"yes"|"no"|"partly"|"unknown","note":"..."},
+ "q4":{"zones":[{"zone":"Op 1x","from":"10:mm:ss","to":"10:mm:ss"}],"note":"..."},
+ "q5":{"entered_west":int|null,"entered_east":int|null,"left_west":int|null,"left_east":int|null,"note":"..."},
+ "q6":{"answer":"same"|"different"|"unknown","note":"..."},
+ "q7":{"answer":"occupied"|"empty"|"unknown","note":"..."},
+ "q8":{"zones":["..."],"edge":"west"|"east"|null,"time_out_of_view":"10:mm:ss"|null,"note":"..."},
+ "q9":{"best":int|null,"min":int|null,"max":int|null,"note":"..."}}
+Each "note" is 1–2 short sentences explaining the answer and its certainty.

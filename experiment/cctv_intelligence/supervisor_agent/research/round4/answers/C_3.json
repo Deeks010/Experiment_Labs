@@ -1,0 +1,9 @@
+{"q1":{"answer":"uncertain","note":"Track a is only 'near Workstation 15', a zone that doesn't separate the press-side gap, the bench and the aisle side, and the track is not identified as the Press 15 operator."},
+ "q2":{"answer":"uncertain","note":"Track a is 'near Workstation 15' at 10:03:00 with no finer position, and track c in the yellow aisle is a separate, unidentified track."},
+ "q3":{"answer":"uncertain","note":"Track a is 'near Workstation 15' at 10:04:30, a zone too coarse to give an exact spot."},
+ "q4":{"answer":"uncertain","note":"Track b is 'near Workstation 16' at 10:05:00, which doesn't show gap versus bench versus aisle side, and the person is not identified."},
+ "q5":{"answer":"uncertain","note":"Track b is 'near Workstation 16' at 10:02:00 with no finer position."},
+ "q6":{"minutes":null,"note":"The log has no zone for the gap between press and bench, so time in the gap can't be measured (track a was near Workstation 15 for about 9 minutes 3 seconds in total)."},
+ "q7":{"answer":"unknown","note":"The log doesn't show whether track a was in the gap, and press operation is not recorded."},
+ "q8":{"time":null,"note":"The log doesn't separate the press-side gap from the aisle side of the bench, so no such move can be found."},
+ "q9":{"answer":"unknown","note":"Track b was 'near Workstation 16' for the whole period, but the data can't place it in the gap specifically."}}

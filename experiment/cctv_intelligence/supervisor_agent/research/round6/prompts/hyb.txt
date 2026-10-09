@@ -1,0 +1,35 @@
+You are an analysis assistant for a factory CCTV system. Camera cam07, top-view floor plan in metres.
+Press 15 and Press 16 are machines at the back wall. Bench 15 and Bench 16 are work benches in front of them. Operators normally stand in the gap between press and bench (to run the press) or on the aisle side of the bench. The yellow aisle runs along the front. A control panel is on the right.
+Answer only from the data.
+
+DATA:
+DWELL OVERVIEW cam07 09:00–10:00 (all people together; no identities; no time order)
+TIME PER FLOOR CELL (minutes):
+  Gap Press 15 ↔ Bench 15             35.0
+  Gap Press 16 ↔ Bench 16             30.0
+  Front of Bench 15 (aisle side)      10.0
+  Front of Bench 16 (aisle side)       8.0
+  Yellow aisle                         6.1
+  Other floor                          4.9
+  Front of Control panel               4.0
+  Passage between benches              3.0
+  On/over Bench 16                     0.1
+  On/over Bench 15                     0.0
+HOTSPOTS (connected areas with ≥1.5 min; centre position described relative to objects):
+  H1   34.2 min  press side of Bench 15, 75% along it; nearest Bench 15 (0.6 m)  xy=(7.5,2.6)
+  H2   29.1 min  press side of Bench 16, 17% along it; nearest Bench 16 (0.6 m)  xy=(11.2,2.6)
+  H3    9.3 min  aisle side of Bench 15, 37% along it; nearest Bench 15 (0.6 m)  xy=(6.0,4.8)
+  H4    7.2 min  aisle side of Bench 16, 50% along it; nearest Bench 16 (0.7 m)  xy=(12.5,4.9)
+  H5    4.0 min  beyond RIGHT end of Bench 16; nearest Bench 16 (0.4 m)  xy=(14.9,3.7)
+  H6    3.4 min  nearest Control panel (0.7 m)  xy=(16.6,4.6)
+  H7    2.2 min  beyond RIGHT end of Bench 15; nearest Bench 15 (0.8 m)  xy=(9.0,4.8)
+
+Also attached: one image, the dwell heatmap with hotspot labels H1.. matching the list above.
+
+QUESTIONS (one hour, 09:00–10:00)
+1. Name the 3 places where people spent the most time, in order, with approximate minutes. Describe each place exactly (which object, which side, which part).
+2. At Bench 15: how many minutes on the press side and how many on the aisle side?
+3. In the gap between Press 16 and Bench 16, which part was used most: left end, middle, or right end?
+4. List every place OUTSIDE the normal work spots (normal = press-side gaps, aisle sides of benches, yellow aisle) where people spent 2 minutes or more. Give minutes and an exact description.
+5. About how many minutes in total were spent in the yellow aisle?
+Reply with JSON only: {"q1":[{"place":"...","minutes":n},...],"q2":{"press_side":n,"aisle_side":n},"q3":"left end"|"middle"|"right end"|"unknown","q4":[{"place":"...","minutes":n}],"q5":n}

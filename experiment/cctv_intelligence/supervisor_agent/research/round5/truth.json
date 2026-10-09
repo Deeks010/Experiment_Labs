@@ -1,0 +1,74 @@
+[
+ {
+  "nearest": "Press 15",
+  "side": "press_side",
+  "reach": "yes",
+  "part": "middle_third"
+ },
+ {
+  "nearest": "Bench 15",
+  "side": "beyond_left_end",
+  "reach": "no",
+  "part": "outside_length"
+ },
+ {
+  "nearest": "Bench 15",
+  "side": "beyond_right_end",
+  "reach": "no",
+  "part": "outside_length"
+ },
+ {
+  "nearest": "Bench 15",
+  "side": "beyond_right_end",
+  "reach": "no",
+  "part": "outside_length"
+ },
+ {
+  "nearest": "Bench 15",
+  "side": "aisle_side",
+  "reach": "no",
+  "part": "middle_third"
+ },
+ {
+  "nearest": "Press 15",
+  "side": "press_side",
+  "reach": "yes",
+  "part": "left_third"
+ },
+ {
+  "nearest": "Bench 15",
+  "side": "press_side",
+  "reach": "no",
+  "part": "right_third"
+ },
+ {
+  "nearest": "Bench 15",
+  "side": "aisle_side",
+  "reach": "no",
+  "part": "left_third"
+ },
+ {
+  "nearest": "Bench 15",
+  "side": "aisle_side",
+  "reach": "no",
+  "part": "right_third"
+ },
+ {
+  "nearest": "Bench 16",
+  "side": "beyond_right_end",
+  "reach": "no",
+  "part": "outside_length"
+ },
+ {
+  "nearest": "Bench 15",
+  "side": "beyond_left_end",
+  "reach": "no",
+  "part": "outside_length"
+ },
+ {
+  "nearest": "Bench 15",
+  "side": "aisle_side",
+  "reach": "no",
+  "part": "right_third"
+ }
+]

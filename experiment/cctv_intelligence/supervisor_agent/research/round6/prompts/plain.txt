@@ -1,0 +1,14 @@
+You are an analysis assistant for a factory CCTV system. Camera cam07, top-view floor plan in metres.
+Press 15 and Press 16 are machines at the back wall. Bench 15 and Bench 16 are work benches in front of them. Operators normally stand in the gap between press and bench (to run the press) or on the aisle side of the bench. The yellow aisle runs along the front. A control panel is on the right.
+Answer only from the data.
+
+DATA:
+DATA: one image (attached): dwell heatmap on the floor plan.
+
+QUESTIONS (one hour, 09:00–10:00)
+1. Name the 3 places where people spent the most time, in order, with approximate minutes. Describe each place exactly (which object, which side, which part).
+2. At Bench 15: how many minutes on the press side and how many on the aisle side?
+3. In the gap between Press 16 and Bench 16, which part was used most: left end, middle, or right end?
+4. List every place OUTSIDE the normal work spots (normal = press-side gaps, aisle sides of benches, yellow aisle) where people spent 2 minutes or more. Give minutes and an exact description.
+5. About how many minutes in total were spent in the yellow aisle?
+Reply with JSON only: {"q1":[{"place":"...","minutes":n},...],"q2":{"press_side":n,"aisle_side":n},"q3":"left end"|"middle"|"right end"|"unknown","q4":[{"place":"...","minutes":n}],"q5":n}

@@ -1,0 +1,116 @@
+You are an analysis assistant for a factory CCTV system.
+Camera: cam07 "Moulding press 14–17". Fixed overhead camera. Window: 10:00:00 to 10:10:00.
+Static zones mapped on this camera:
+- Press 14, Press 15, Press 16, Press 17: four moulding press machines along the back wall.
+- Op 14, Op 15, Op 16, Op 17: standing area in front of each press where its operator works.
+- Bench L (in front of Op 14 and Op 15) and Bench R (in front of Op 16 and Op 17): work benches where operators place and trim parts.
+- Passage: gap between Bench L and Bench R that leads to the yellow aisle.
+- Control panel: electrical control cabinet on the right side.
+- Yellow aisle: marked walkway along the front of the area; it leads out of the camera view on both sides.
+- Unmapped floor: any floor area not in a named zone.
+The data below comes from automated person detection and tracking. It can contain errors.
+Answer only from the data. If the data cannot answer a question, say so.
+
+CAMERA HEALTH: online 100% of window, no blockage, no blur.
+SYSTEM LIMITS: Position is the person's foot point mapped to zones. The system cannot see hands or what a person holds. Chit-chat is inferred from distance and duration only, not from audio. Nothing is known about a person while NOT OBSERVED.
+
+DATA: Zone occupancy table. Each cell is the AVERAGE number of people in that zone over the 30-second bin (sampled every 2 s). For each bin, the zone rows add up to "People in frame". 1.0 means one person present for the whole bin; 0.5 means one person for half of the bin (or similar).
+
+Columns are 30-second bins starting at the time shown (mm:ss after 10:00).
+Zone            |00:00|00:30|01:00|01:30|02:00|02:30|03:00|03:30|04:00|04:30|05:00|05:30|06:00|06:30|07:00|07:30|08:00|08:30|09:00|09:30
+People in frame |4.0  |4.0  |4.0  |4.0  |4.9  |5.0  |5.0  |4.9  |3.5  |4.0  |4.0  |4.0  |4.0  |3.1  |3.8  |4.0  |4.0  |4.0  |4.0  |4.0  
+Op 14           |1.0  |0.8  |0.9  |1.0  |0.8  |0.9  |1.0  |0.8  |0.3  |1.0  |0.7  |1.0  |1.0  |0.8  |0.9  |1.0  |0.8  |0.9  |1.0  |0.8  
+Op 15           |1.0  |0.8  |0.7  |1.0  |1.0  |1.0  |0.3  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.3  |1.0  |0.8  |0.7  |1.0  
+Op 16           |1.0  |0.8  |0.7  |1.0  |1.0  |0.8  |0.7  |1.0  |1.0  |1.0  |0.3  |0.0  |0.0  |0.0  |0.8  |0.9  |0.7  |1.0  |1.0  |0.8  
+Op 17           |1.0  |0.8  |0.7  |1.0  |1.0  |0.8  |0.7  |1.0  |1.0  |1.0  |1.7  |2.0  |2.0  |2.0  |1.2  |0.7  |0.7  |1.0  |1.0  |0.8  
+Bench L         |0.0  |0.4  |0.4  |0.0  |0.2  |0.1  |0.0  |0.2  |0.1  |0.0  |0.3  |0.0  |0.0  |0.2  |0.1  |0.0  |0.2  |0.3  |0.3  |0.2  
+Bench R         |0.0  |0.4  |0.5  |0.0  |0.0  |0.4  |0.5  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.5  |0.5  |0.0  |0.0  |0.4  
+Passage         |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.7  |0.2  |0.2  |0.0  |0.0  |0.0  |0.0  |0.0  |0.1  |0.7  |0.0  |0.0  |0.0  |0.0  
+Control panel   |0.0  |0.0  |0.0  |0.0  |0.1  |1.0  |1.0  |1.0  |1.0  |1.0  |1.0  |1.0  |0.1  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  
+Yellow aisle    |0.0  |0.0  |0.0  |0.0  |0.5  |0.0  |0.0  |0.7  |0.0  |0.0  |0.0  |0.0  |0.5  |0.1  |0.7  |0.0  |0.0  |0.0  |0.0  |0.0  
+Unmapped floor  |0.0  |0.0  |0.0  |0.0  |0.3  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.4  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  |0.0  
+
+DATA: Stitched person tracks (tracker fragments joined offline), with confidence and unobserved gaps.
+
+Person A (stitched from tracker IDs 3, 11; overall confidence 0.95)
+  10:00:00–10:00:54  Op 14
+  10:00:54–10:01:04  Bench L
+  10:01:04–10:02:24  Op 14
+  10:02:24–10:02:34  Bench L
+  10:02:34–10:03:54  Op 14
+  10:03:54–10:04:02  Bench L
+  10:04:02–10:04:22  NOT OBSERVED (occluded near bench)
+  10:04:22–10:05:14  Op 14
+  10:05:14–10:05:24  Bench L
+  10:05:24–10:06:54  Op 14
+  10:06:54–10:07:04  Bench L
+  10:07:04–10:08:24  Op 14
+  10:08:24–10:08:34  Bench L
+  10:08:34–10:09:54  Op 14
+  10:09:54–10:10:00  Bench L
+
+Person B (stitched from tracker IDs 5, 14; overall confidence 0.70)
+  10:00:00–10:00:54  Op 15
+  10:00:54–10:01:08  Bench L
+  10:01:08–10:03:10  Op 15
+  10:03:10–10:03:36  Passage
+  10:03:36–10:03:56  Yellow aisle
+  10:03:56–10:07:06  NOT OBSERVED (left camera view at west edge of yellow aisle; re-entry matched by appearance, confidence 0.70)
+  10:07:06–10:07:28  Yellow aisle
+  10:07:28–10:07:52  Passage
+  10:07:52–10:08:54  Op 15
+  10:08:54–10:09:08  Bench L
+  10:09:08–10:10:00  Op 15
+
+Person C (stitched from tracker IDs 17, 18, 20; overall confidence 0.60)
+  10:00:00–10:00:54  Op 16
+  10:00:54–10:01:08  Bench R
+  10:01:08–10:02:54  Op 16
+  10:02:54–10:03:08  Bench R
+  10:03:08–10:05:10  Op 16
+  10:05:10–10:07:06  Op 17  [junction J1: C and D close together; identity of C and D after this point may be swapped, confidence 0.60]
+  10:07:06–10:07:56  Op 16
+  10:07:56–10:08:08  Bench R
+  10:08:08–10:09:54  Op 16
+  10:09:54–10:10:00  Bench R
+
+Person D (stitched from tracker IDs 16, 19, 21; overall confidence 0.60)
+  10:00:00–10:00:54  Op 17
+  10:00:54–10:01:08  Bench R
+  10:01:08–10:02:54  Op 17
+  10:02:54–10:03:08  Bench R
+  10:03:08–10:07:50  Op 17  [junction J1: see C]
+  10:07:50–10:08:08  Bench R
+  10:08:08–10:09:54  Op 17
+  10:09:54–10:10:00  Bench R
+
+Person E (stitched from tracker IDs 9; overall confidence 0.90)
+  before 10:02:02  NOT OBSERVED (outside camera view; entered at east edge of yellow aisle)
+  10:02:02–10:02:16  Yellow aisle
+  10:02:16–10:02:26  Unmapped floor
+  10:02:26–10:06:04  Control panel
+  10:06:04–10:06:16  Unmapped floor
+  10:06:16–10:06:34  Yellow aisle
+  after 10:06:34  NOT OBSERVED (outside camera view; left at east edge of yellow aisle)
+
+Dropped: track ID 12 (visible 4 s near the fan in Passage; classified as false detection).
+
+EVENTS (from the event detectors)
+  E1 loitering   Person E   Control panel   10:02:26–10:06:04  (non-operator standing in non-work zone)
+  E2 absence     Op 15      empty           10:03:10–10:07:50
+  E3 absence     Op 16      empty           10:05:10–10:07:05
+  E4 chit-chat   Persons C, D within 1 m, Op 17   10:05:10–10:07:00
+
+Two images are also attached: a path map (colour = person) and a person timeline with events.
+
+QUESTIONS
+1. How many people were in the camera view at about 10:01?
+2. Around 10:01, where were the people in view, and what pattern of movement do they show?
+3. Was Op 15 occupied between 10:04 and 10:07?
+4. Did anyone go to the control panel area? If yes, when, and from which direction did they come?
+5. Which operator zones were empty for more than 1 minute, and when?
+6. Was anyone in the yellow aisle between 10:04:15 and 10:06:00?
+7. How many different people appeared in this camera between 10:00 and 10:10?
+8. What was the operator of Press 15 doing at 10:05?
+
+Reply with JSON only, no other text, in this shape: {"answers":[{"q":1,"answer":"..."},...]} with one entry per question. Keep each answer to 1–3 sentences.

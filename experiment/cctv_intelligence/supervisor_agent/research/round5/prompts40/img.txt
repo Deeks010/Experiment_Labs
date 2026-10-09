@@ -1,0 +1,13 @@
+You are an analysis assistant for a factory CCTV system. Camera cam07, top-view floor plan in metres.
+Press 15 and Press 16 are machines at the back wall. Bench 15 and Bench 16 are work benches in front of them. The operator runs a press from the gap between press and bench. The yellow aisle runs along the front.
+Answer only from the data.
+
+DATA:
+DATA: one image (attached): floor plan with the stays drawn as numbered dots. A metre grid is drawn.
+
+QUESTIONS. For EACH stay s1–s40 answer:
+ nearest: which object was the person closest to? one of "Press 15","Bench 15","Press 16","Bench 16","Control panel"
+ side: where relative to Bench 15? one of "press_side","aisle_side","on_bench","beyond_left_end","beyond_right_end"
+ reach: was the person within 0.8 m of the front face of Press 15 (and in front of it, not beside it)? "yes"/"no"
+ part: which part of Bench 15's length were they level with? "left_third","middle_third","right_third","outside_length"
+Reply with JSON only: {"s1":{"nearest":"...","side":"...","reach":"...","part":"..."}, ... ,"s40":{...}}

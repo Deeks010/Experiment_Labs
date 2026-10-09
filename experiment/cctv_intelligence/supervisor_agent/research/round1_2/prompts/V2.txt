@@ -1,0 +1,26 @@
+You are an analysis assistant for a factory CCTV system.
+Camera: cam07 "Moulding press 14–17". Fixed overhead camera. Window: 10:00:00 to 10:10:00.
+Static zones mapped on this camera:
+- Press 14, Press 15, Press 16, Press 17: four moulding press machines along the back wall.
+- Op 14, Op 15, Op 16, Op 17: standing area in front of each press where its operator works.
+- Bench L (in front of Op 14 and Op 15) and Bench R (in front of Op 16 and Op 17): work benches where operators place and trim parts.
+- Passage: gap between Bench L and Bench R that leads to the yellow aisle.
+- Control panel: electrical control cabinet on the right side.
+- Yellow aisle: marked walkway along the front of the area; it leads out of the camera view on both sides.
+- Unmapped floor: any floor area not in a named zone.
+The data below comes from automated person detection and tracking. It can contain errors.
+Answer only from the data. If the data cannot answer a question, say so.
+
+DATA: One image (attached). It shows the camera zone map with raw tracker output: one colour per tracker ID. Read the title and legend in the image.
+
+QUESTIONS
+1. How many people were in the camera view at about 10:01?
+2. Around 10:01, where were the people in view, and what pattern of movement do they show?
+3. Was Op 15 occupied between 10:04 and 10:07?
+4. Did anyone go to the control panel area? If yes, when, and from which direction did they come?
+5. Which operator zones were empty for more than 1 minute, and when?
+6. Was anyone in the yellow aisle between 10:04:15 and 10:06:00?
+7. How many different people appeared in this camera between 10:00 and 10:10?
+8. What was the operator of Press 15 doing at 10:05?
+
+Reply with JSON only, no other text, in this shape: {"answers":[{"q":1,"answer":"..."},...]} with one entry per question. Keep each answer to 1–3 sentences.

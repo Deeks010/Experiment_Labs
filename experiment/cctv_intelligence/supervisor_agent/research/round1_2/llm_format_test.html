@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Camera data format test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEEEEC;--card:#FFFFFF;--ink:#1F2124;--mute:#5E6166;--line:#D4D5D2;--tape:#F2B705;--tape-ink:#5A4300;--ok:#2E7D4F;--mid:#A86B00;--bad:#B3261E;--code:#F5F5F3;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17181A;--card:#212326;--ink:#ECECEA;--mute:#A3A6AB;--line:#3A3D41;--tape:#F2B705;--tape-ink:#F2B705;--ok:#6CC596;--mid:#E3A93A;--bad:#F08A80;--code:#1B1C1E}}
+:root[data-theme="dark"]{--bg:#17181A;--card:#212326;--ink:#ECECEA;--mute:#A3A6AB;--line:#3A3D41;--tape:#F2B705;--tape-ink:#F2B705;--ok:#6CC596;--mid:#E3A93A;--bad:#F08A80;--code:#1B1C1E}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+.tape{height:10px;background:repeating-linear-gradient(135deg,var(--tape) 0 14px,transparent 14px 28px);margin-bottom:22px;border-radius:2px}
+h1{font:600 34px/1.1 "Barlow Semi Condensed",system-ui,sans-serif;margin:0 0 10px;letter-spacing:.2px}
+h2{font:600 22px/1.2 "Barlow Semi Condensed",system-ui,sans-serif;margin:30px 0 10px}
+p{margin:0 0 12px;max-width:70ch;color:var(--mute)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0}
+.row{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+label{display:flex;gap:8px;align-items:center;font-size:15px;cursor:pointer}
+button{font:600 15px "Source Sans 3",system-ui,sans-serif;padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.go{background:var(--tape);border-color:var(--tape);color:#2A2000}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--tape);outline-offset:2px}
+select{font:15px "Source Sans 3",system-ui,sans-serif;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+#log{font-size:14px;color:var(--mute);min-height:22px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;color:var(--mute)}
+.s2{color:var(--ok);font-weight:600}.s1{color:var(--mid);font-weight:600}.s0{color:var(--bad);font-weight:600}
+details{border-top:1px solid var(--line);padding:10px 0}
+summary{cursor:pointer;font-weight:600}
+pre{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:10px;font-size:12.5px;line-height:1.45;overflow-x:auto;white-space:pre;max-height:340px}
+.qa{font-size:14px;margin:8px 0;padding-left:10px;border-left:3px solid var(--line)}
+.qa b{font-weight:600}
+.muted{color:var(--mute);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="tape" aria-hidden="true"></div>
+<h1>Can a fresh model read our camera data?</h1>
+<p>Each text or visual format below describes the same 10 minutes on camera 07 (Moulding press 14–17). A fresh model gets one format and eight neutral questions. A second fresh model grades the answers against what really happened. The tested model never sees the true story.</p>
+
+<div class="panel">
+<div class="row" id="fmts" style="flex-direction:column;align-items:flex-start;gap:14px"></div>
+<div class="row" style="margin-top:12px">
+<label>Runs per format <select id="runs"><option>1</option><option selected>2</option><option>3</option></select></label>
+<button class="go" id="runBtn">Run test</button>
+<button id="stopBtn">Stop</button>
+</div>
+<div id="log" style="margin-top:10px" role="status"></div>
+</div>
+
+<h2>Results</h2>
+<p>Score per question: 2 correct, 1 partly correct, 0 wrong. Average over runs. H = number of answers with invented facts.</p>
+<div class="panel tbl"><table id="res"><thead></thead><tbody></tbody></table></div>
+<div id="detail"></div>
+
+<h2>What each model sees</h2>
+<p>The shared brief goes to every tested model, followed by one data format and the questions.</p>
+<div id="preview"></div>
+</div>
+
+<script>
+const P={
+A:{k:[[0,95,135],[60,95,172],[90,95,135],[150,95,172],[180,95,135],[240,95,172],[260,95,135],[320,95,172],[350,95,135],[420,95,172],[450,95,135],[510,95,172],[540,95,135],[600,95,172]],vis:t=>!(t>240&&t<262),raw:t=>t<=240?3:11},
+B:{k:[[0,212,135],[60,212,172],[120,212,135],[180,212,138],[195,300,170],[210,300,280],[220,300,315],[240,10,315],[420,10,315],[440,300,315],[455,300,280],[465,300,170],[480,212,138],[540,212,172],[600,212,138]],vis:t=>t<236||t>424,raw:t=>t<240?5:14},
+C:{k:[[0,387,135],[60,387,172],[120,387,135],[180,387,172],[240,387,135],[300,387,138],[315,478,145],[420,478,150],[435,387,138],[480,387,172],[540,387,135],[600,387,172]],vis:t=>true,raw:t=>t<315?17:(t<420?18:20)},
+D:{k:[[0,507,135],[60,507,172],[120,507,135],[180,507,172],[240,507,135],[300,512,145],[420,512,148],[480,507,172],[540,507,135],[600,507,172]],vis:t=>true,raw:t=>t<315?16:(t<420?19:21)},
+E:{k:[[0,690,315],[120,672,315],[132,590,315],[150,612,190],[360,616,195],[378,590,315],[396,690,315],[600,690,315]],vis:t=>t>=122&&t<=392,raw:t=>9}};
+const ZONES=[['Op 14',40,108,150,168],['Op 15',150,108,270,168],['Op 16',330,108,445,168],['Op 17',445,108,560,168],['Bench L',40,168,270,230],['Bench R',330,168,560,230],['Passage',270,108,330,300],['Control panel',570,40,680,220],['Yellow aisle',0,300,680,330]];
+const ZN=ZONES.map(z=>z[0]).concat(['Unmapped floor']);
+function pos(k,t){for(let i=0;i<k.length-1;i++){if(t>=k[i][0]&&t<=k[i+1][0]){const f=(t-k[i][0])/(k[i+1][0]-k[i][0]||1);return[k[i][1]+f*(k[i+1][1]-k[i][1]),k[i][2]+f*(k[i+1][2]-k[i][2])];}}const l=k[k.length-1];return[l[1],l[2]];}
+function zoneOf(p){for(const z of ZONES)if(p[0]>=z[1]&&p[0]<z[3]&&p[1]>=z[2]&&p[1]<z[4])return z[0];return 'Unmapped floor';}
+function hh(t){const m=Math.floor(t/60),s=Math.round(t%60);return '10:'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+const SAMP=[];
+for(let t=0;t<600;t+=2){const o=[];for(const id in P){if(!P[id].vis(t))continue;const p=pos(P[id].k,t);if(p[0]<14||p[0]>676)continue;o.push({pid:id,raw:P[id].raw(t),zone:zoneOf(p)});}
+ if(t>=250&&t<=254)o.push({pid:'G',raw:12,zone:'Passage'});SAMP.push({t,o});}
+
+function segs(list){const out=[];for(const s of list){const l=out[out.length-1];if(l&&l.zone===s.zone&&s.t-l.end<=2){l.end=s.t;}else out.push({zone:s.zone,start:s.t,end:s.t});}
+ const m=[];for(const s of out){if(s.end-s.start<4&&m.length&&s.start-m[m.length-1].end<=2){m[m.length-1].end=s.end;}else m.push(s);}
+ const r=[];for(const s of m){const l=r[r.length-1];if(l&&l.zone===s.zone&&s.start-l.end<=2)l.end=s.end;else r.push(s);}return r;}
+function segText(s){return '  '+hh(s.start)+'–'+hh(s.end+2)+'  '+s.zone;}
+
+const BIN=30,NB=20;
+function table(kind){const head=['Zone'].concat([...Array(NB).keys()].map(b=>hh(b*BIN).slice(3)));
+ const rows=[['People in frame'].concat([]),...ZN.map(z=>[z])];
+ for(let b=0;b<NB;b++){const ss=SAMP.filter(s=>s.t>=b*BIN&&s.t<(b+1)*BIN);
+  const tot=ss.map(s=>s.o.length);rows[0].push(kind==='max'?Math.max(...tot):(tot.reduce((a,c)=>a+c,0)/ss.length).toFixed(1));
+  ZN.forEach((z,i)=>{const c=ss.map(s=>s.o.filter(x=>x.zone===z).length);rows[i+1].push(kind==='max'?Math.max(...c):(c.reduce((a,v)=>a+v,0)/ss.length).toFixed(1));});}
+ const w=[16].concat(Array(NB).fill(5));const fmt=r=>r.map((c,i)=>String(c).padEnd(w[i])).join('|');
+ return 'Columns are 30-second bins starting at the time shown (mm:ss after 10:00).\n'+fmt(head)+'\n'+rows.map(fmt).join('\n');}
+
+function rawStories(){const by={};SAMP.forEach(s=>s.o.forEach(x=>{(by[x.raw]=by[x.raw]||[]).push({t:s.t,zone:x.zone});}));
+ return Object.keys(by).sort((a,b)=>a-b).map(id=>'Track ID '+id+' (first seen '+hh(by[id][0].t)+', last seen '+hh(by[id][by[id].length-1].t+2)+')\n'+segs(by[id]).map(segText).join('\n')).join('\n\n');}
+
+const META={A:{ids:'3, 11',conf:'0.95',gaps:{'240':'NOT OBSERVED (occluded near bench)'}},B:{ids:'5, 14',conf:'0.70',gaps:{'234':'NOT OBSERVED (left camera view at west edge of yellow aisle; re-entry matched by appearance, confidence 0.70)'}},C:{ids:'17, 18, 20',conf:'0.60',notes:{'314':'[junction J1: C and D close together; identity of C and D after this point may be swapped, confidence 0.60]','420':'[junction J2: C and D close together; identity may be swapped, confidence 0.60]'}},D:{ids:'16, 19, 21',conf:'0.60',notes:{'314':'[junction J1: see C]','420':'[junction J2: see C]'}},E:{ids:'9',conf:'0.90'}};
+function stitchedStories(){const by={};SAMP.forEach(s=>s.o.forEach(x=>{if(x.pid!=='G')(by[x.pid]=by[x.pid]||[]).push({t:s.t,zone:x.zone});}));
+ return Object.keys(by).map(id=>{const L=by[id],m=META[id];const ss=segs(L);const lines=[];
+  if(id==='E')lines.push('  before '+hh(L[0].t)+'  NOT OBSERVED (outside camera view; entered at east edge of yellow aisle)');
+  ss.forEach((s,i)=>{if(i>0){const gap=s.start-ss[i-1].end;if(gap>4){const key=Object.keys(m.gaps||{}).find(k=>Math.abs(+k-ss[i-1].end)<=8);lines.push('  '+hh(ss[i-1].end+2)+'–'+hh(s.start)+'  '+(key?m.gaps[key]:'NOT OBSERVED'));}}
+   const nk=Object.keys(m.notes||{}).find(k=>+k>=s.start&&+k<=s.end+2);lines.push(segText(s)+(nk?'  '+m.notes[nk]:''));});
+  if(id==='E')lines.push('  after '+hh(L[L.length-1].t+2)+'  NOT OBSERVED (outside camera view; left at east edge of yellow aisle)');
+  return 'Person '+id+' (stitched from tracker IDs '+m.ids+'; overall confidence '+m.conf+')\n'+lines.join('\n');}).join('\n\n')+'\n\nDropped: track ID 12 (visible 4 s near the fan in Passage; classified as false detection).';}
+
+const EVENTS='EVENTS (from the event detectors)\n  E1 loitering   Person E   Control panel   10:02:26–10:06:04  (non-operator standing in non-work zone)\n  E2 absence     Op 15      empty           10:03:10–10:07:50\n  E3 absence     Op 16      empty           10:05:10–10:07:05\n  E4 chit-chat   Persons C, D within 1 m, Op 17   10:05:10–10:07:00';
+const HEALTH='CAMERA HEALTH: online 100% of window, no blockage, no blur.';
+const LIMITS='SYSTEM LIMITS: Position is the person\'s foot point mapped to zones. The system cannot see hands or what a person holds. Chit-chat is inferred from distance and duration only, not from audio. Nothing is known about a person while NOT OBSERVED.';
+
+const BRIEF=`You are an analysis assistant for a factory CCTV system.
+Camera: cam07 "Moulding press 14–17". Fixed overhead camera. Window: 10:00:00 to 10:10:00.
+Static zones mapped on this camera:
+- Press 14, Press 15, Press 16, Press 17: four moulding press machines along the back wall.
+- Op 14, Op 15, Op 16, Op 17: standing area in front of each press where its operator works.
+- Bench L (in front of Op 14 and Op 15) and Bench R (in front of Op 16 and Op 17): work benches where operators place and trim parts.
+- Passage: gap between Bench L and Bench R that leads to the yellow aisle.
+- Control panel: electrical control cabinet on the right side.
+- Yellow aisle: marked walkway along the front of the area; it leads out of the camera view on both sides.
+- Unmapped floor: any floor area not in a named zone.
+The data below comes from automated person detection and tracking. It can contain errors.
+Answer only from the data. If the data cannot answer a question, say so.`;
+
+const FORMATS={
+F1:{name:'Raw tracker zone stories',data:()=>'DATA: Zone visits per tracker ID. IDs are assigned by the tracker.\n\n'+rawStories()},
+F2:{name:'Max-per-bin occupancy table',data:()=>'DATA: Zone occupancy table. Each cell is the MAXIMUM number of people detected in that zone at any moment within the 30-second bin. "People in frame" is the maximum total number of detections at any moment within the bin.\n\n'+table('max')},
+F3:{name:'Average occupancy table',data:()=>'DATA: Zone occupancy table. Each cell is the AVERAGE number of people in that zone over the 30-second bin (sampled every 2 s). For each bin, the zone rows add up to "People in frame". 1.0 means one person present for the whole bin; 0.5 means one person for half of the bin (or similar).\n\n'+table('avg')},
+F4:{name:'Stitched stories + events',data:()=>'DATA: Stitched person tracks (tracker fragments joined offline), with confidence and unobserved gaps.\n\n'+stitchedStories()+'\n\n'+EVENTS},
+F5:{name:'Full package',data:()=>HEALTH+'\n'+LIMITS+'\n\n'+FORMATS.F3.data()+'\n\n'+FORMATS.F4.data()}};
+
+const QS=['How many people were in the camera view at about 10:01?',
+'Around 10:01, where were the people in view, and what pattern of movement do they show?',
+'Was Op 15 occupied between 10:04 and 10:07?',
+'Did anyone go to the control panel area? If yes, when, and from which direction did they come?',
+'Which operator zones were empty for more than 1 minute, and when?',
+'Was anyone in the yellow aisle between 10:04:15 and 10:06:00?',
+'How many different people appeared in this camera between 10:00 and 10:10?',
+'What was the operator of Press 15 doing at 10:05?'];
+const TRUTH=[
+'Truth: 4 people. Score 2 for 4. Score 0 for any other single number (for example 8). Score 1 only if the answer gives 4 but adds a wrong caveat.',
+'Truth: 4 operators, one per press. Each one stays mostly in their own Op zone and makes short visits (about 10–15 s) to the bench in front, then returns (Op 14/15 use Bench L, Op 16/17 use Bench R). Around 10:01 all four make such a short bench visit. Nobody else is present. Score 2 if it describes 4 people who are mostly at their Op zones and briefly move to the benches. Score 1 if the count is right but the pattern is missing or vague. Score 0 if it says more than 4 people, or treats people in Op zones and people at benches as different people.',
+'Truth: No. Op 15 was empty from about 10:03:10 to about 10:07:50. Score 2 for a clear no. Score 0 for yes.',
+'Truth: Yes, one person, from about 10:02:26 to about 10:06:04. They came from the yellow aisle on the right/east side (outside the view) and left the same way. Score 2 for yes + roughly right times (within 1 minute) + from the aisle. Score 1 if yes but time or direction wrong or missing. Score 0 for no.',
+'Truth: Op 15 about 10:03:10–10:07:50, and Op 16 about 10:05:10–10:07:05. Op 14 and Op 17 were never empty for more than about 30 seconds. Score 2 for both zones with times within 1 minute and no extra zones. Score 1 for one zone correct or both with wrong times. Score 0 if neither, or if Op 14 or Op 17 is listed as empty for more than a minute.',
+'Truth: No. Nobody was in the yellow aisle in that window. Score 2 for no. Score 0 for yes.',
+'Truth: 5 different people (4 operators + 1 visitor). The tracker produced more IDs because of fragmentation, and one 4-second detection was false. Score 2 for 5, or for an honest statement that the exact number cannot be determined from this data with a range that includes 5 and a best estimate of 4–5. Score 1 for a range that includes 5 but leans to a wrong number. Score 0 for a definite wrong number (for example 6, 11, 12).',
+'Truth: Unknown. The operator of Press 15 was outside the camera view at 10:05, so the data cannot say what they were doing. Score 2 if the answer says it cannot be known / not observed / not in view. Score 1 if it says they were absent from Op 15 but then speculates about the reason. Score 0 if it states a specific activity as fact.'];
+
+function prompt(f){return BRIEF+'\n\n'+FORMATS[f].data()+'\n\nQUESTIONS\n'+QS.map((q,i)=>(i+1)+'. '+q).join('\n')+'\n\nReply with JSON only, no other text, in this shape: {"answers":[{"q":1,"answer":"..."},...]} with one entry per question. Keep each answer to 1–3 sentences.';}
+function gradePrompt(ans){return 'You grade answers from an assistant that analysed factory CCTV tracking data. You know what really happened. Grade each answer strictly against the truth and rubric. Mark hallucinated=true if the answer states as fact any specific detail that is not in the truth (invented people, activities, reasons, or wrong counts stated with certainty).\n\n'+QS.map((q,i)=>'Q'+(i+1)+': '+q+'\n'+TRUTH[i]+'\nAnswer given: '+((ans.find(a=>a.q===i+1)||{}).answer||'(no answer)')).join('\n\n')+'\n\nReply with JSON only: {"grades":[{"q":1,"score":0,"hallucinated":false,"note":"max 15 words"},...]} with one entry per question.';}
+
+const PCOL={A:'#1F6FD1',B:'#1A9E6A',C:'#E0592A',D:'#7B5CD6',E:'#D0367A'};
+const ZCOL={'Op 14':'#4E79A7','Op 15':'#59A14F','Op 16':'#F28E2B','Op 17':'#B07AA1','Bench L':'#9C755F','Bench R':'#8CD17D','Passage':'#76B7B2','Control panel':'#E15759','Yellow aisle':'#D4A017','Unmapped floor':'#BBBBBB'};
+const S=1.5,OX=20,OY=70;
+function cv(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.textBaseline='alphabetic';return [c,x];}
+function title(x,t2){x.fillStyle='#111';x.font='bold 20px sans-serif';x.fillText('cam07 "Moulding press 14–17"   10:00:00–10:10:00',20,30);x.font='16px sans-serif';x.fillStyle='#444';x.fillText(t2,20,54);}
+function base(x,ox,oy,s,small){const R=(a,b,c,d,f,st,dash)=>{x.save();x.fillStyle=f;if(f)x.fillRect(ox+a*s,oy+b*s,(c-a)*s,(d-b)*s);if(st){x.strokeStyle=st;x.lineWidth=1;x.setLineDash(dash||[]);x.strokeRect(ox+a*s,oy+b*s,(c-a)*s,(d-b)*s);}x.restore();};
+ const L=(t,a,b,al)=>{x.fillStyle='#333';x.font=(small?11:14)+'px sans-serif';x.textAlign=al||'center';x.fillText(t,ox+a*s,oy+b*s);x.textAlign='left';};
+ R(0,0,680,345,'#FAFAF8','#999');
+ [[40,145,'Press 14'],[160,265,'Press 15'],[335,440,'Press 16'],[455,560,'Press 17']].forEach(p=>{R(p[0],35,p[1],100,'#DADAD6','#888');L(p[2],(p[0]+p[1])/2,72);});
+ R(0,300,680,330,'#FBE7A8','#C9A227',[8,5]);L('Yellow aisle',340,320);if(!small){L('← west edge (exit)',4,322,'left');L('east edge (exit) →',676,322,'right');}
+ [['Op 14',40,150],['Op 15',150,270],['Op 16',330,445],['Op 17',445,560]].forEach(z=>{R(z[1],108,z[2],168,null,'#2A8C6E',[4,3]);x.fillStyle='#1E6B54';x.font=(small?11:13)+'px sans-serif';x.fillText(z[0],ox+(z[1]+3)*s,oy+120*s);});
+ R(40,168,270,230,'#ECE9FB','#7B6FD6');L('Bench L',155,222);R(330,168,560,230,'#ECE9FB','#7B6FD6');L('Bench R',445,222);
+ R(270,108,330,300,null,'#AAA',[2,3]);L('Passage',300,262);
+ R(570,40,680,220,'#FBE3DC','#D8693F');L('Control',625,120);L('panel',625,135);
+ R(628,232,676,290,'#E6E6E3','#999');L('Notice',652,258);L('board',652,272);}
+function P2(p,ox,oy,s){return [ox+p[0]*s,oy+p[1]*s];}
+function dot(x,a,b,r,c,al){x.globalAlpha=al??1;x.fillStyle=c;x.beginPath();x.arc(a,b,r,0,7);x.fill();x.globalAlpha=1;}
+function tag(x,a,b,t,c,fs){x.font='bold '+(fs||14)+'px sans-serif';const w=x.measureText(t).width+10;x.fillStyle='#fff';x.strokeStyle=c;x.lineWidth=1.5;x.fillRect(a,b-15,w,20);x.strokeRect(a,b-15,w,20);x.fillStyle=c;x.fillText(t,a+5,b);}
+function note(x,a,b,t,c){x.font='13px sans-serif';const w=x.measureText(t).width+8;x.fillStyle='rgba(255,255,255,0.92)';x.fillRect(a-2,b-13,w,18);x.fillStyle=c||'#222';x.fillText(t,a+2,b);}
+function personSamples(id,t0,t1){const o=[];SAMP.forEach(s=>{if(s.t<t0||s.t>=t1)return;if(!P[id].vis(s.t))return;const p=pos(P[id].k,s.t);if(p[0]<14||p[0]>676)return;o.push({t:s.t,p});});return o;}
+function drawPersons(x,ox,oy,s,t0,t1,labels,r){for(const id in P){const L=personSamples(id,t0,t1);if(!L.length)continue;x.strokeStyle=PCOL[id];x.lineWidth=2;x.globalAlpha=0.5;x.beginPath();L.forEach((q,i)=>{const [a,b]=P2(q.p,ox,oy,s);if(i&&q.t-L[i-1].t>2)x.moveTo(a,b);else if(i)x.lineTo(a,b);else x.moveTo(a,b);});x.stroke();x.globalAlpha=1;
+ L.forEach(q=>{if(q.t%4)return;const [a,b]=P2(q.p,ox,oy,s);dot(x,a,b,r||3.2,PCOL[id],0.8);});
+ if(labels){const [a,b]=P2(L[0].p,ox,oy,s);tag(x,a+8,b-10,id,PCOL[id],labels==='small'?12:14);}}}
+function legendPersons(x,y){let a=20;x.font='15px sans-serif';[['A','0.95'],['B','0.70'],['C','0.60'],['D','0.60'],['E','0.90']].forEach(([id,c])=>{dot(x,a+7,y-5,7,PCOL[id]);x.fillStyle='#222';const t='Person '+id+', conf '+c;x.fillText(t,a+20,y);a+=x.measureText(t).width+40;});}
+const IMG={};
+function V1(){const [c,x]=cv(1060,690);title(x,'Paths of stitched persons. Colour = person. One dot = 4 seconds. Dense dots = person stayed there.');base(x,OX,OY,S);drawPersons(x,OX,OY,S,0,600,true);
+ const j=P2([495,146],OX,OY,S);x.strokeStyle='#C27C00';x.setLineDash([5,4]);x.lineWidth=2;x.beginPath();x.arc(j[0],j[1],34,0,7);x.stroke();x.setLineDash([]);
+ note(x,j[0]-60,j[1]+60,'J1 10:05:10 and J2 10:07:00: C/D identity may swap','#8A5A00');
+ note(x,OX+18*S,OY+292*S,'B: NOT OBSERVED 10:03:56–10:07:06 (left view at west edge)','#1A7A52');
+ note(x,OX+395*S,OY+292*S,'E: entered 10:02:02, left 10:06:34 (east edge)','#A3245E');
+ note(x,OX+44*S,OY+243*S,'A: NOT OBSERVED 10:04:02–10:04:22 (occluded)','#1F5AA8');
+ legendPersons(x,OY+345*S+40);x.font='14px sans-serif';x.fillStyle='#444';x.fillText('A 4-second detection near the fan (Passage, 10:04:10) was classified as false and is not shown.',20,OY+345*S+68);return c;}
+function V2(){const [c,x]=cv(1060,720);title(x,'Raw tracker output. Colour = tracker ID. One dot = 4 seconds. IDs are assigned by the tracker.');base(x,OX,OY,S);
+ const pal=['#1F6FD1','#1A9E6A','#E0592A','#7B5CD6','#D0367A','#5E8C1F','#B8860B','#C62828','#0E5A8A','#8E3B66','#00897B','#6D4C41'];const ids=[3,5,9,11,12,14,16,17,18,19,20,21];const col=id=>pal[ids.indexOf(id)];
+ const by={};SAMP.forEach(s=>s.o.forEach(o=>{let p;if(o.pid==='G')p=[322,150];else p=pos(P[o.pid].k,s.t);(by[o.raw]=by[o.raw]||[]).push({t:s.t,p});}));
+ Object.keys(by).forEach(id=>{const L=by[id];x.strokeStyle=col(+id);x.lineWidth=2;x.globalAlpha=0.5;x.beginPath();L.forEach((q,i)=>{const [a,b]=P2(q.p,OX,OY,S);i?x.lineTo(a,b):x.moveTo(a,b);});x.stroke();x.globalAlpha=1;L.forEach((q,i)=>{if(q.t%4&&i)return;const [a,b]=P2(q.p,OX,OY,S);dot(x,a,b,3.2,col(+id),0.8);});const [a,b]=P2(L[0].p,OX,OY,S);tag(x,a+6,b-8,'ID '+id,col(+id),12);});
+ let a=20,y=OY+345*S+36;x.font='14px sans-serif';Object.keys(by).forEach(id=>{const L=by[id];const t='ID '+id+' '+hh(L[0].t)+'–'+hh(L[L.length-1].t+2);const w=x.measureText(t).width+34;if(a+w>1040){a=20;y+=26;}dot(x,a+6,y-5,6,col(+id));x.fillStyle='#222';x.fillText(t,a+16,y);a+=w;});return c;}
+function V3(){const [c,x]=cv(1060,690);title(x,'All detections, no identities. Colour = time (dark = 10:00, light = 10:10). One dot = 4 seconds.');base(x,OX,OY,S);
+ const ramp=t=>{const f=t/600;const r=Math.round(20+f*(250-20)),g=Math.round(40+f*(200-40)),b=Math.round(120+f*(80-120));return 'rgb('+r+','+g+','+b+')';};
+ SAMP.forEach(s=>{if(s.t%4)return;s.o.forEach(o=>{const p=o.pid==='G'?[322,150]:pos(P[o.pid].k,s.t);const [a,b]=P2(p,OX,OY,S);dot(x,a,b,3.4,ramp(s.t),0.85);});});
+ const y=OY+345*S+30;for(let i=0;i<=300;i++){x.fillStyle=ramp(i*2);x.fillRect(120+i*2,y-12,2,16);}x.fillStyle='#222';x.font='14px sans-serif';x.fillText('10:00',70,y+1);x.fillText('10:10',730,y+1);
+ for(let m=1;m<10;m++){x.fillRect(120+m*60,y+4,1,6);x.fillText('10:0'+m,104+m*60,y+24);}return c;}
+function V4(){const [c,x]=cv(1060,690);title(x,'Heatmap of presence, no identities, no time. Colour = total seconds people spent at that spot.');base(x,OX,OY,S);
+ const G=8,H={};SAMP.forEach(s=>s.o.forEach(o=>{const p=o.pid==='G'?[322,150]:pos(P[o.pid].k,s.t);const k=Math.floor(p[0]/G)+','+Math.floor(p[1]/G);H[k]=(H[k]||0)+2;}));
+ const mx=Math.max(...Object.values(H));const col=v=>{const f=Math.pow(v/mx,0.5);return 'rgba('+Math.round(230-f*40)+','+Math.round(200-f*170)+','+Math.round(60-f*40)+','+(0.25+0.7*f)+')';};
+ Object.entries(H).forEach(([k,v])=>{const [i,j]=k.split(',').map(Number);x.fillStyle=col(v);x.fillRect(OX+i*G*S,OY+j*G*S,G*S,G*S);});
+ const y=OY+345*S+30;[2,10,30,60,90].filter(v=>v<mx).concat([mx]).forEach((v,i)=>{x.fillStyle=col(v);x.fillRect(120+i*90,y-14,40,18);x.fillStyle='#222';x.font='14px sans-serif';x.fillText(v+' s',165+i*90,y);});x.fillText('Seconds:',20,y);return c;}
+function V5(){const [c,x]=cv(1060,760);title(x,'Four time slices. Colour = person (same in every panel). One dot = 4 seconds.');const sl=[[0,150],[150,300],[300,450],[450,600]];const s=0.74;
+ sl.forEach((q,i)=>{const ox=20+(i%2)*520,oy=80+Math.floor(i/2)*300;x.fillStyle='#111';x.font='bold 15px sans-serif';x.fillText(hh(q[0])+' – '+hh(q[1]),ox,oy-8);base(x,ox,oy,s,true);drawPersons(x,ox,oy,s,q[0],q[1],'small',2.4);});
+ legendPersons(x,700);x.font='14px sans-serif';x.fillStyle='#444';x.fillText('A person missing from a panel was outside the camera view or not observed in that slice.',20,730);return c;}
+function V6(){const [c,x]=cv(1110,520);title(x,'Zone occupancy. Cell = average people in the zone in that 30-second bin. Zone rows add up to "People in frame".');
+ const L=150,W=47,T=100,RH=32;const rows=['People in frame'].concat(ZN);
+ x.font='12px sans-serif';x.fillStyle='#222';for(let b=0;b<NB;b++){x.save();x.translate(L+b*W+W/2+4,T-8);x.rotate(-0.6);x.fillText(hh(b*BIN),0,0);x.restore();}
+ rows.forEach((r,ri)=>{x.font=(ri?'14px':'bold 14px')+' sans-serif';x.fillStyle='#222';x.fillText(r,10,T+ri*RH+21);
+  for(let b=0;b<NB;b++){const ss=SAMP.filter(s=>s.t>=b*BIN&&s.t<(b+1)*BIN);const v=ss.reduce((a,s)=>a+(ri?s.o.filter(o=>o.zone===r).length:s.o.length),0)/ss.length;
+   x.fillStyle=ri?'rgba(123,92,214,'+Math.min(1,v/2*0.9+(v>0?0.1:0))+')':'rgba(120,120,120,'+(v/5*0.5)+')';x.fillRect(L+b*W+1,T+ri*RH+2,W-2,RH-4);x.strokeStyle='#DDD';x.strokeRect(L+b*W+1,T+ri*RH+2,W-2,RH-4);
+   if(v>0){x.fillStyle=v>1.2&&ri?'#fff':'#111';x.font='13px sans-serif';x.textAlign='center';x.fillText(v.toFixed(1),L+b*W+W/2,T+ri*RH+21);x.textAlign='left';}}});return c;}
+function V7(){const [c,x]=cv(1110,560);title(x,'Timeline per stitched person. Bar colour = zone. Hatched = NOT OBSERVED. Vertical dashed lines = identity junctions.');
+ const L=190,Wd=890,T=96,RH=40;const X=t=>L+t*Wd/600;
+ x.font='12px sans-serif';for(let m=0;m<=10;m++){x.fillStyle='#222';x.fillText('10:'+String(m).padStart(2,'0'),X(m*60)-15,T-10);x.fillStyle='#E4E4E0';x.fillRect(X(m*60),T-4,1,5*RH+150);}
+ for(let h=0;h<20;h++){x.fillStyle='#F0F0EC';x.fillRect(X(h*30+30),T,1,5*RH);}
+ const hatch=(a,b,w,h)=>{x.save();x.fillStyle='#EEE';x.fillRect(a,b,w,h);x.beginPath();x.rect(a,b,w,h);x.clip();x.strokeStyle='#888';x.lineWidth=1;for(let k=-h;k<w;k+=7){x.beginPath();x.moveTo(a+k,b+h);x.lineTo(a+k+h,b);x.stroke();}x.restore();};
+ ['A','B','C','D','E'].forEach((id,ri)=>{const y=T+ri*RH;x.fillStyle=PCOL[id];x.font='bold 15px sans-serif';x.fillText('Person '+id,10,y+18);x.font='12px sans-serif';x.fillStyle='#555';x.fillText('confidence '+META[id].conf,10,y+33);
+  const L2=[];SAMP.forEach(s=>s.o.forEach(o=>{if(o.pid===id)L2.push({t:s.t,zone:o.zone});}));const sg=segs(L2);
+  if(sg[0].start>0)hatch(X(0),y+6,X(sg[0].start)-X(0),RH-14);
+  sg.forEach((g,i)=>{if(i&&g.start-sg[i-1].end>4)hatch(X(sg[i-1].end+2),y+6,X(g.start)-X(sg[i-1].end+2),RH-14);x.fillStyle=ZCOL[g.zone];x.fillRect(X(g.start),y+6,Math.max(1.5,X(g.end+2)-X(g.start)),RH-14);});
+  const e=sg[sg.length-1].end+2;if(e<598)hatch(X(e),y+6,X(600)-X(e),RH-14);});
+ [[310,'J1'],[420,'J2']].forEach(([t,n])=>{x.strokeStyle='#C27C00';x.setLineDash([5,4]);x.lineWidth=2;x.beginPath();x.moveTo(X(t),T+2*RH);x.lineTo(X(t),T+4*RH);x.stroke();x.setLineDash([]);x.fillStyle='#8A5A00';x.font='bold 12px sans-serif';x.fillText(n,X(t)+3,T+2*RH+2);});
+ const ey=T+5*RH+20;x.fillStyle='#111';x.font='bold 14px sans-serif';x.fillText('Events',10,ey+14);
+ [[146,364,'E1 loitering, Person E, Control panel'],[190,470,'E2 absence, Op 15 empty'],[310,425,'E3 absence, Op 16 empty'],[310,420,'E4 chit-chat, C+D in Op 17']].forEach((e,i)=>{const y=ey+i*24;x.fillStyle='#C9503A';x.globalAlpha=0.8;x.fillRect(X(e[0]),y,X(e[1])-X(e[0]),16);x.globalAlpha=1;x.fillStyle='#222';x.font='12px sans-serif';const tt=e[2]+' ('+hh(e[0])+'–'+hh(e[1])+')',tw=x.measureText(tt).width;x.fillText(tt,X(e[1])+6+tw>1100?X(e[0])-tw-6:X(e[1])+6,y+12);});
+ let a=10,y=ey+112;x.font='13px sans-serif';Object.entries(ZCOL).forEach(([z,col])=>{const w=x.measureText(z).width+30;if(a+w>1100){a=10;y+=22;}x.fillStyle=col;x.fillRect(a,y-11,14,14);x.fillStyle='#222';x.fillText(z,a+18,y);a+=w;});hatch(a,y-11,14,14);x.fillStyle='#222';x.fillText('NOT OBSERVED',a+18,y);return c;}
+
+const VIS={
+V1:{name:'Path map, colour = person (stitched)',imgs:['V1'],cap:'DATA: One image (attached). It shows the camera zone map with the paths of persons after the tracker fragments were joined offline. Read the title and legend in the image.'},
+V2:{name:'Path map, colour = raw tracker ID',imgs:['V2'],cap:'DATA: One image (attached). It shows the camera zone map with raw tracker output: one colour per tracker ID. Read the title and legend in the image.'},
+V3:{name:'Dots coloured by time, no IDs',imgs:['V3'],cap:'DATA: One image (attached). It shows every person detection as a dot on the zone map. Dot colour shows the time. No identities. Read the title and colour bar in the image.'},
+V4:{name:'Heatmap, no IDs, no time',imgs:['V4'],cap:'DATA: One image (attached). It is a heatmap of where people spent time over the whole window. No identities and no time. Read the title and legend in the image.'},
+V5:{name:'Four time slices, colour = person',imgs:['V5'],cap:'DATA: One image (attached). It shows four small zone maps, one per 2.5-minute slice, with the paths of stitched persons. Read the panel titles and legend in the image.'},
+V6:{name:'Zone occupancy timeline (image)',imgs:['V6'],cap:'DATA: One image (attached). It is a table-chart of average zone occupancy per 30-second bin. Read the title in the image.'},
+V7:{name:'Person timeline (Gantt) + events',imgs:['V7'],cap:'DATA: One image (attached). It is a timeline: one row per stitched person, bar colour shows the zone, hatched means NOT OBSERVED, plus detector events at the bottom. Read the title and legend in the image.'},
+H1:{name:'Full text package + path map + timeline',imgs:['V1','V7'],cap:null}};
+const DRAW={V1,V2,V3,V4,V5,V6,V7};
+function blobOf(c){return new Promise(r=>c.toBlob(r,'image/png'));}
+async function images(keys){const out=[];for(const k of keys){if(!IMG[k])IMG[k]=await blobOf(DRAW[k]());out.push(IMG[k]);}return out;}
+function promptFor(f){if(FORMATS[f])return prompt(f);const v=VIS[f];const data=f==='H1'?FORMATS.F5.data()+'\n\nTwo images are also attached: a path map (colour = person) and a person timeline with events.':v.cap;
+ return BRIEF+'\n\n'+data+'\n\nQUESTIONS\n'+QS.map((q,i)=>(i+1)+'. '+q).join('\n')+'\n\nReply with JSON only, no other text, in this shape: {"answers":[{"q":1,"answer":"..."},...]} with one entry per question. Keep each answer to 1–3 sentences.';}
+function nameOf(f){return (FORMATS[f]||VIS[f]).name;}
+
+const fbox=document.getElementById('fmts');
+const grp=(t,keys,on)=>{const d=document.createElement('div');d.style.cssText='width:100%;display:flex;flex-wrap:wrap;gap:6px 18px';d.innerHTML='<div style="width:100%;font-weight:600">'+t+'</div>'+keys.map(f=>'<label><input type="checkbox" '+(on.includes(f)?'checked':'')+' value="'+f+'"> '+f+' '+nameOf(f)+'</label>').join('');fbox.appendChild(d);};
+grp('Text formats',Object.keys(FORMATS),['F5']);grp('Visual formats',Object.keys(VIS),Object.keys(VIS));
+
+const pv=document.getElementById('preview');
+pv.innerHTML='<details><summary>Shared brief</summary><pre></pre></details>'+Object.keys(FORMATS).map(f=>'<details><summary>'+f+' '+FORMATS[f].name+'</summary><pre></pre></details>').join('')+'<details><summary>Questions</summary><pre></pre></details>';
+const pres=pv.querySelectorAll('pre');pres[0].textContent=BRIEF;Object.keys(FORMATS).forEach((f,i)=>pres[i+1].textContent=FORMATS[f].data());pres[pres.length-1].textContent=QS.map((q,i)=>(i+1)+'. '+q).join('\n');
+Object.keys(DRAW).forEach(k=>{const d=document.createElement('details');d.innerHTML='<summary>'+k+' '+VIS[k].name+' (image)</summary>';const c=DRAW[k]();c.style.cssText='max-width:100%;height:auto;border:1px solid var(--line);border-radius:6px;margin-top:8px';d.appendChild(c);pv.appendChild(d);});
+
+const RESULTS={};let ctl=null,running=false;
+const log=t=>document.getElementById('log').textContent=t;
+function render(){const fs=Object.keys(RESULTS);const th=document.querySelector('#res thead'),tb=document.querySelector('#res tbody');
+ th.innerHTML='<tr><th>Format</th>'+QS.map((_,i)=>'<th>Q'+(i+1)+'</th>').join('')+'<th>Total /16</th><th>H</th><th>n</th></tr>';
+ tb.innerHTML=fs.map(f=>{const rs=RESULTS[f];if(!rs.length)return '<tr><td>'+f+' '+nameOf(f)+'</td><td colspan="11" class="muted">waiting</td></tr>';const avg=i=>rs.reduce((a,r)=>a+((r.grades.find(g=>g.q===i+1)||{}).score||0),0)/rs.length;
+  const tot=QS.reduce((a,_,i)=>a+avg(i),0),h=rs.reduce((a,r)=>a+r.grades.filter(g=>g.hallucinated).length,0)/rs.length;
+  return '<tr><td>'+f+' '+nameOf(f)+'</td>'+QS.map((_,i)=>{const v=avg(i);return '<td class="s'+(v>=1.5?2:v>=0.75?1:0)+'">'+v.toFixed(1)+'</td>';}).join('')+'<td><b>'+tot.toFixed(1)+'</b></td><td>'+h.toFixed(1)+'</td><td>'+rs.length+'</td></tr>';}).join('');
+ document.getElementById('detail').innerHTML=fs.filter(f=>RESULTS[f].length).map(f=>'<details><summary>'+f+' answers and grades</summary>'+RESULTS[f].map((r,ri)=>'<p class="muted">Run '+(ri+1)+'</p>'+QS.map((q,i)=>{const a=(r.answers.find(x=>x.q===i+1)||{}).answer||'(none)',g=r.grades.find(x=>x.q===i+1)||{};return '<div class="qa"><b>Q'+(i+1)+'</b> '+esc(q)+'<br>'+esc(a)+'<br><span class="s'+(g.score??0)+'">'+(g.score??'?')+'</span>'+(g.hallucinated?' <span class="s0">invented</span>':'')+' <span class="muted">'+esc(g.note||'')+'</span></div>';}).join('')).join('')+'</details>').join('');}
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+async function save(runId,f,r,res){try{const db=await claude.use('db');if(!db)return;await db.collection('results').doc(runId+'-'+f+'-'+r).set({runId,format:f,formatName:nameOf(f),run:r,ts:Date.now(),answers:res.answers,grades:res.grades});}catch(e){}}
+
+document.getElementById('stopBtn').onclick=()=>{if(ctl)ctl.abort();running=false;log('Stopped.');};
+document.getElementById('runBtn').onclick=async()=>{if(running)return;
+ const sample=await claude.use('sample');if(!sample){log('Model access is not available in this view. Open the page in claude.ai.');return;}
+ const fs=[...fbox.querySelectorAll('input:checked')].map(i=>i.value);if(!fs.length){log('Select at least one format.');return;}
+ if(fs.some(f=>VIS[f])){let lim=null;try{lim=await sample.limits();}catch(e){}if(lim&&!lim.images){log('This view cannot send images to the model. Visual formats are skipped.');}}
+ const N=+document.getElementById('runs').value;running=true;ctl=new AbortController();const runId='r'+Date.now();
+ fs.forEach(f=>RESULTS[f]=[]);render();
+ const jobs=[];for(let r=1;r<=N;r++)fs.forEach(f=>jobs.push([f,r,0]));let done=0;const total=jobs.length;
+ const worker=async()=>{while(running&&jobs.length){const [f,r,tries]=jobs.shift();
+  try{log('Testing '+f+' run '+r+' ('+done+'/'+total+' done)…');
+   const opts={signal:ctl.signal,cache:false,modelTier:'default'};if(VIS[f])opts.images=await images(VIS[f].imgs);
+   const a=await sample.json(promptFor(f),opts);const answers=(a&&a.answers)||[];
+   const g=await sample.json(gradePrompt(answers),{signal:ctl.signal,cache:false,modelTier:'default'});
+   const res={answers,grades:(g&&g.grades)||[]};RESULTS[f].push(res);await save(runId,f,r,res);done++;render();
+  }catch(e){if(e&&e.code==='cancelled')return;if(e&&e.code==='not_granted'){running=false;log('Model access was not allowed.');return;}
+   if(e&&e.code==='rate_limited'){jobs.unshift([f,r,tries]);log('Rate limited. Waiting 20 s…');await new Promise(z=>setTimeout(z,20000));continue;}
+   if(tries<1){jobs.push([f,r,tries+1]);continue;}log('Error on '+f+' run '+r+': '+(e&&(e.code||e.message)||e));done++;}}};
+ await Promise.all([worker(),worker()]);
+ if(running)log('Finished: '+done+' of '+total+' runs. Results are saved, so Claude can read them back.');running=false;};
+
+</script>
+</body>
+</html>

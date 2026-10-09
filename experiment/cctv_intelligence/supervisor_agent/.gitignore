@@ -1,0 +1,6 @@
+sim_data/
+agent_logs/
+bench_results/
+__pycache__/
+*.mp4
+*.sqlite3

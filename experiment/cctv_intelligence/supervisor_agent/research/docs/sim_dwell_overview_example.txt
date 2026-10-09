@@ -1,0 +1,28 @@
+DWELL OVERVIEW cam07 2026-10-08 10:00:00 – 10:10:00
+HEALTH   online for the whole window
+LIMITS   All people added together. No identities. No time order. Use get_scene_log for WHEN / ORDER / HOW MANY.
+
+TIME PER PLACE (person-minutes)
+  Op 17                                                        10.3   normal work spot
+  Op 15                                                         8.8   normal work spot
+  Op 16                                                         7.8   normal work spot
+  Op 14                                                         6.4   normal work spot
+  unmapped floor (outside all mapped areas; see hotspots for where)    4.9   ← not a work spot
+  Yellow aisle                                                  3.1   walkway
+  at Bench L (foot point over its footprint)                    3.1   normal work spot
+  at Bench R (foot point over its footprint)                    3.0   normal work spot
+  Passage                                                       1.1   walkway
+  East exit                                                     0.3   walkway
+  West exit                                                     0.1   walkway
+  at Notice board (foot point over its footprint)               0.1   ← not a work spot
+
+HOTSPOTS (connected areas with ≥1.5 min; centre described relative to the map)
+  H1   10.0 min  in Op 17 | BETWEEN Bench R and Press 17 | far side of Bench R (right part), 0.4 bh (~0.6 m); camera side of Press 17 (middle), 0.6 bh (~1.1 m)  xy=(1052,351)px
+  H2    8.6 min  in Op 15 | BETWEEN Bench L and Press 15 | far side of Bench L (right part), 0.5 bh (~0.8 m); camera side of Press 15 (middle), 0.5 bh (~0.9 m)  xy=(464,336)px
+  H3    7.5 min  in Op 16 | BETWEEN Bench R and Press 16 | far side of Bench R (left part), 0.5 bh (~0.8 m); camera side of Press 16 (middle), 0.5 bh (~0.9 m)  xy=(816,336)px
+  H4    6.2 min  in Op 14 | BETWEEN Bench L and Press 14 | far side of Bench L (left part), 0.5 bh (~0.8 m); camera side of Press 14 (middle), 0.5 bh (~0.9 m)  xy=(239,336)px
+  H5    4.7 min  in no mapped floor area | beyond RIGHT end, camera side of Bench R, 0.5 bh (~0.8 m); beyond LEFT end of Notice board, 0.5 bh (~0.9 m)  xy=(1202,593)px   UNUSUAL
+  H6    2.0 min  in no mapped floor area | on/over Bench R footprint (left part); camera side of Press 16 (middle), 1.2 bh (~2.0 m)  xy=(831,445)px
+
+NEXT STEP  To see WHEN a hotspot happened: get_scene_log(camera, start, end, focus=<place>) or get_events.
+

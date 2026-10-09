@@ -1,0 +1,70 @@
+SCENE LOG cam07 2026-10-09 10:00:00 – 10:10:00
+HEALTH   OFFLINE 10:05:45–10:06:25 (40 s, nothing known then); online otherwise
+LIMITS   Position is the foot point in camera pixels. Distances are approximate (body heights). People are NOT identified: a track is 'a person', never a named worker. Counts per second are the most reliable data (about ±1 for a few seconds in crowds). Nothing is known while the camera is offline or a person is not observed. Position does not prove activity (being in front of a press does not prove the person ran it).
+
+PEOPLE IN FRAME
+  10:00:00–10:02:16  4
+  10:02:16–10:03:56  7
+  10:03:56–10:05:29  6
+  10:05:29–10:05:45  5
+  10:05:45–10:06:25  UNKNOWN (offline)
+  10:06:25–10:06:43  5
+  10:06:43–10:07:14  6
+  10:07:14–10:07:20  5
+  10:07:20–10:08:31  4
+  10:08:31–10:08:46  5
+  10:08:46–10:10:00  4
+
+OPERATOR STATIONS
+  Op 14      occupied 10:00:00–10:05:45 | UNKNOWN 10:05:45–10:06:25 | occupied 10:06:25–10:10:00   short step-aways (≤25s, counted as occupied) at 10:00:56, 10:02:26, 10:03:56, 10:05:26, 10:06:56, 10:08:26
+  Op 15      occupied 10:00:00–10:03:20 | EMPTY 10:03:20–10:05:45 | UNKNOWN 10:05:45–10:06:25 | EMPTY 10:06:25–10:07:40 | occupied 10:07:40–10:10:00   short step-aways (≤25s, counted as occupied) at 10:00:56
+  Op 16      occupied 10:00:00–10:05:38 | 2 people 10:05:38–10:05:45 | UNKNOWN 10:05:45–10:06:25 | 2 people 10:06:25–10:06:47 | occupied 10:06:47–10:10:00   short step-aways (≤25s, counted as occupied) at 10:00:56, 10:02:26, 10:03:56, 10:06:56, 10:08:26
+  Op 17      occupied 10:00:00–10:05:10 | 2 people 10:05:10–10:05:21 | 3 people 10:05:21–10:05:30 | occupied 10:05:30–10:05:38 | 2 people 10:05:38–10:05:45 | UNKNOWN 10:05:45–10:06:25 | 2 people 10:06:25–10:06:44 | occupied 10:06:44–10:10:00   short step-aways (≤25s, counted as occupied) at 10:00:56, 10:02:26, 10:03:56, 10:06:56, 10:08:26
+
+OTHER AREAS (non-zero periods)
+  Passage              1 person 10:00:48–10:00:51 | 1 person 10:03:20–10:03:43 | 1 person 10:04:11–10:04:15 | 1 person 10:07:15–10:07:40 | 1 person 10:08:32–10:08:37
+  Control panel front  2 people 10:02:37–10:02:41 | 3 people 10:02:41–10:05:12
+  Yellow aisle         1 person 10:02:16–10:02:21 | 3 people 10:02:21–10:02:30 | 1 person 10:02:30–10:02:33 | 1 person 10:03:43–10:03:55 | 1 person 10:05:17–10:05:25 | 1 person 10:06:46–10:06:58 | 2 people 10:06:58–10:07:03 | 3 people 10:07:03–10:07:11 | 2 people 10:07:11–10:07:16 | 1 person 10:08:41–10:08:45
+  East exit            2 people 10:02:13–10:02:21 | 1 person 10:05:25–10:05:29 | 1 person 10:07:10–10:07:20
+
+EDGE CROSSINGS (people entering or leaving the camera view)
+  10:02:11  IN   East exit
+  10:02:13  IN   East exit
+  10:02:19  IN   East exit
+  10:02:24  OUT  East exit
+  10:03:56  OUT  West exit
+  10:05:29  OUT  East exit
+  10:06:44  IN   West exit
+  10:07:20  OUT  East exit
+  10:08:41  IN   West exit
+  10:08:46  OUT  East exit
+
+MOVEMENTS (one line = one short continuous track = 'a person moved this way'. Lines are NOT joined into persons.)
+  m1  entered at East exit → East exit (10:02:11–10:02:19) → track ends 10:02:19 inside view (lost: occlusion, crowd or ID break)
+  m2  entered at East exit → East exit (10:02:13–10:02:18) → Yellow aisle (10:02:18–10:02:24) → track ends 10:02:24 inside view (lost: occlusion, crowd or ID break)
+  m3  track starts 10:02:16 inside view → East exit (10:02:16–10:02:21) → Yellow aisle (10:02:21–10:02:24) → left view at East exit 10:02:24
+  m4  entered at East exit → Yellow aisle (10:02:19–10:02:31) → unmapped floor (beyond LEFT end of Notice board) (10:02:31–10:02:37) → Control panel front (10:02:37–10:02:40) → track ends 10:02:40 inside view (lost: occlusion, crowd or ID break)
+  m5  track starts 10:02:24 inside view → Yellow aisle (10:02:24–10:02:34) → unmapped floor (beyond LEFT end of Notice board) (10:02:34–10:02:37) → track ends 10:02:37 inside view (lost: occlusion, crowd or ID break)
+  m6  track starts 10:02:27 inside view → Yellow aisle (10:02:27–10:02:29) → unmapped floor (beyond LEFT end of Notice board) (10:02:29–10:02:36) → Control panel front (10:02:36–10:02:50) → track ends 10:02:50 inside view (lost: occlusion, crowd or ID break)
+  m7  track starts 10:02:36 inside view → unmapped floor (beyond LEFT end of Notice board) (10:02:36–10:02:42) → Control panel front (10:02:42–10:02:56) → track ends 10:02:56 inside view (lost: occlusion, crowd or ID break)
+  m8  track starts 10:03:22 inside view → Passage (10:03:22–10:03:43) → Yellow aisle (10:03:43–10:03:56) → left view at West exit 10:03:56
+  m9  track starts 10:04:45 inside view → Control panel front (10:04:45–10:05:12) → unmapped floor (beyond LEFT end of Notice board) (10:05:12–10:05:17) → Yellow aisle (10:05:17–10:05:25) → East exit (10:05:25–10:05:29) → left view at East exit 10:05:29
+  m10  track starts 10:04:51 inside view → Control panel front (10:04:51–10:05:20) → Op 17 (10:05:20–10:05:29) → track ends 10:05:29 inside view (lost: occlusion, crowd or ID break)
+  m11  track starts 10:06:36 inside view → Op 17 (10:06:36–10:06:43) → at Bench R (foot point over its footprint) (10:06:43–10:06:50) → unmapped floor (camera side of Bench R) (10:06:50–10:06:58) → Yellow aisle (10:06:58–10:07:12) → track ends 10:07:12 inside view (lost: occlusion, crowd or ID break)
+  m12  entered at West exit → West exit (10:06:44–10:06:46) → Yellow aisle (10:06:46–10:07:15) → Passage (10:07:15–10:07:42) → track ends 10:07:42 inside view (lost: occlusion, crowd or ID break)
+  m13  track starts 10:06:47 inside view → at Bench R (foot point over its footprint) (10:06:47–10:06:55) → unmapped floor (camera side of Bench R) (10:06:55–10:07:03) → Yellow aisle (10:07:03–10:07:16) → East exit (10:07:16–10:07:20) → left view at East exit 10:07:20
+  m14  entered at West exit → Yellow aisle (10:08:41–10:08:46) → left view at East exit 10:08:46
+
+DETECTOR EVENTS IN WINDOW (details: get_events)
+  10:02:16–10:05:45  crowding                 Control panel front
+  10:02:38–10:05:17  outside_work_area_dwell  Control panel front
+  10:03:04–10:03:55  close_pair               Control panel front
+  10:03:20–10:07:40  absence                  Op 15
+  10:03:55–10:05:29  close_pair               Control panel front
+  10:06:25–10:07:00  crowding                 Op 17
+  10:08:42–10:08:44  fast_movement            Yellow aisle
+
+DERIVED
+  different people in window: at least 7 (most at one time), at most 9 (4 at start + 5 entries; re-entries of the same person cannot be told apart; edge crossings are about 90% reliable, so treat the bounds as ±1)
+  identity: NOT available. Use 'a person'. For identity questions use get_image_frames and say how uncertain it is.
+

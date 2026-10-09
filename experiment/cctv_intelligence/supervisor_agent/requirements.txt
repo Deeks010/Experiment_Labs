@@ -1,0 +1,5 @@
+anthropic>=0.40
+mcp>=1.2
+numpy
+opencv-python
+matplotlib

@@ -1,0 +1,9 @@
+{"q1":{"answer":"gap_press_bench","note":"Stay a1 (10:00:00–10:02:04) sits in the gap between Press 15 and Bench 15."},
+"q2":{"answer":"bench_aisle_side","note":"Stay a2 (10:02:04–10:03:34) is on the aisle side of Bench 15."},
+"q3":{"answer":"uncertain","note":"Stay a3 (10:03:34–10:05:05) has the feet hidden by the bench, so the dot on the bench could really be in the gap."},
+"q4":{"answer":"bench_aisle_side","note":"Stay b2 (10:04:05–10:07:05) is on the aisle side of Bench 16."},
+"q5":{"answer":"gap_press_bench","note":"Stay b1 (10:00:00–10:04:05) is in the gap between Press 16 and Bench 16."},
+"q6":{"minutes":5.98,"note":"a1 (2:04) plus a5 (3:55) gives about 5.98 min, or up to about 7.5 min if hidden-feet stay a3 (1:31) was also in the gap."},
+"q7":{"answer":"position_consistent_but_activity_not_observable","note":"The person was in the press-side gap (a1), but the data shows position only, not whether they were running the press."},
+"q8":{"time":"10:02:04","note":"Stay a1 in the gap ends and stay a2 on the aisle side of Bench 15 starts at 02:04."},
+"q9":{"answer":"no","note":"From 10:04:05 to 10:07:05 the Press 16 track was at the aisle side (b2), and no stay is in the Press 16 gap until b3 starts at 10:07:05."}}

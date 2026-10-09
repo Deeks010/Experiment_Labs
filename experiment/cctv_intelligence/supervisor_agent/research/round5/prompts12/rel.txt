@@ -1,0 +1,25 @@
+You are an analysis assistant for a factory CCTV system. Camera cam07, top-view floor plan in metres.
+Press 15 and Press 16 are machines at the back wall. Bench 15 and Bench 16 are work benches in front of them. The operator runs a press from the gap between press and bench. The yellow aisle runs along the front.
+Answer only from the data.
+
+DATA:
+STAYS (anonymous; one line = one stay of about 40 s). Relations are computed by the system from the foot point.
+  s1  10:00:00  cell: Gap Press 15 ↔ Bench 15 | nearest: Bench 15 0.6 m, Press 15 0.6 m | vs Bench 15: press side, 50% along its length (0% = left end, 100% = right end) | within 0.8 m reach of Press 15 front face
+  s2  10:01:00  cell: Other floor | nearest: Bench 15 0.6 m, Press 15 0.9 m | vs Bench 15: beyond left end, -5% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s3  10:02:00  cell: Passage between benches | nearest: Bench 15 0.3 m, Press 15 1.2 m | vs Bench 15: beyond right end, 105% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.2 m of cell "Gap Press 15 ↔ Bench 15"; within 0.2 m of cell "On/over Bench 15"
+  s4  10:03:00  cell: Passage between benches | nearest: Bench 15 0.1 m, Press 15 1.8 m | vs Bench 15: beyond right end, 102% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.1 m of cell "On/over Bench 15"
+  s5  10:04:00  cell: Front of Bench 15 (aisle side) | nearest: Bench 15 1.2 m, Press 15 3.5 m | vs Bench 15: aisle side, 50% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.0 m of cell "Yellow aisle"
+  s6  10:05:00  cell: Gap Press 15 ↔ Bench 15 | nearest: Press 15 0.1 m, Bench 15 1.1 m | vs Bench 15: press side, 12% along its length (0% = left end, 100% = right end) | within 0.8 m reach of Press 15 front face
+  s7  10:06:00  cell: Gap Press 15 ↔ Bench 15 | nearest: Bench 15 0.1 m, Press 15 1.1 m | vs Bench 15: press side, 85% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.1 m of cell "On/over Bench 15"
+  s8  10:07:00  cell: Front of Bench 15 (aisle side) | nearest: Bench 15 0.2 m, Press 15 2.4 m | vs Bench 15: aisle side, 2% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.1 m of cell "On/over Bench 15"
+  s9  10:08:00  cell: Front of Bench 15 (aisle side) | nearest: Bench 15 0.7 m, Bench 16 2.2 m | vs Bench 15: aisle side, 98% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face | boundary: within 0.1 m of cell "Passage between benches"
+  s10 10:09:00  cell: Passage between benches | nearest: Bench 16 1.2 m, Bench 15 1.4 m | vs Bench 15: beyond right end, 127% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s11 10:10:00  cell: Other floor | nearest: Bench 15 0.5 m, Press 15 2.0 m | vs Bench 15: beyond left end, -12% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+  s12 10:11:00  cell: Yellow aisle | nearest: Bench 15 1.5 m, Bench 16 3.6 m | vs Bench 15: aisle side, 68% along its length (0% = left end, 100% = right end) | NOT within 0.8 m reach of Press 15 front face
+
+QUESTIONS. For EACH stay s1–s12 answer:
+ nearest: which object was the person closest to? one of "Press 15","Bench 15","Press 16","Bench 16","Control panel"
+ side: where relative to Bench 15? one of "press_side","aisle_side","on_bench","beyond_left_end","beyond_right_end"
+ reach: was the person within 0.8 m of the front face of Press 15 (and in front of it, not beside it)? "yes"/"no"
+ part: which part of Bench 15's length were they level with? "left_third","middle_third","right_third","outside_length"
+Reply with JSON only: {"s1":{"nearest":"...","side":"...","reach":"...","part":"..."}, ... ,"s12":{...}}

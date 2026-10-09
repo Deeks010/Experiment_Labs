@@ -1,0 +1,43 @@
+You are an analysis assistant for a factory CCTV system. Camera cam07, fixed camera. Window 10:00:00–10:10:00.
+Layout: two moulding presses (machines) Press 15 and Press 16 stand at the back wall. In front of each press is a work bench (the workstation): Bench 15 and Bench 16. Between each press and its bench there is a narrow gap where the operator stands to run the press. On the other side of the bench (aisle side) there is floor where a person can stand to work at the bench. Then comes the yellow aisle. A control panel is on the right.
+The data comes from automated person detection and tracking. It can contain errors. Answer only from the data. If the data cannot answer, say so.
+
+DATA:
+POSITION LOG cam07  10:00:00–10:10:00  (foot point on floor plan, metres; people NOT identified)
+FLOOR CELLS (exclusive; every floor point is in exactly one cell; named by the objects on each side):
+  Back wall → Press 15/16 (machines, front face at y=2.0) → Gap Press↔Bench (y 2.0–3.2, operator stands here to run the press)
+  → Bench 15/16 (workstation top, y 3.2–4.2) → Front of Bench (aisle side, y 4.2–5.5) → Yellow aisle (y 5.5–7.0)
+TRACKS (one block = one continuous anonymous track)
+  track a:
+    10:00:00–10:02:04  Gap Press 15 ↔ Bench 15           0.6 m from Press 15 front face, 0.6 m behind Bench 15 (press side); spread ±0.3 m; feet visible
+    10:02:04–10:03:34  Front of Bench 15 (aisle side)    2.8 m from Press 15 front face, 0.6 m in front of Bench 15 (aisle side); spread ±0.2 m; feet visible
+    10:03:34–10:05:05  On/over Bench 15                  1.5 m from Press 15 front face, over Bench 15 footprint; spread ±0.7 m; FEET HIDDEN by bench (95% of time): position ±0.6 m, true spot may be the press-side gap
+    10:05:05–10:06:05  Yellow aisle                      4.2 m from Press 15 front face, 2.0 m in front of Bench 15 (aisle side); spread ±0.7 m; feet visible
+    10:06:05–10:10:00  Gap Press 15 ↔ Bench 15           0.6 m from Press 15 front face, 0.6 m behind Bench 15 (press side); spread ±0.2 m; feet visible
+  track b:
+    10:00:00–10:04:05  Gap Press 16 ↔ Bench 16           0.6 m from Press 16 front face, 0.6 m behind Bench 16 (press side); spread ±0.4 m; feet visible
+    10:04:05–10:07:05  Front of Bench 16 (aisle side)    2.9 m from Press 16 front face, 0.7 m in front of Bench 16 (aisle side); spread ±0.5 m; feet visible
+    10:07:05–10:10:00  Gap Press 16 ↔ Bench 16           0.6 m from Press 16 front face, 0.6 m behind Bench 16 (press side); spread ±0.2 m; feet visible
+  track c:
+    10:03:00–10:03:40  Yellow aisle                      2.1 m in front of Bench 16 (aisle side); spread ±0.1 m; feet visible
+
+DATA (image, attached): a top-view floor plan with the anonymous stays of each track drawn on it. Read the title and labels in the image.
+
+QUESTIONS
+1. Where exactly was the person working at Press 15 at 10:01:00?
+2. Where exactly was the person working at Press 15 at 10:03:00?
+3. Where exactly was the person working at Press 15 at 10:04:30?
+4. Where exactly was the person working at Press 16 at 10:05:00?
+5. Where exactly was the person working at Press 16 at 10:02:00?
+6. In total, how many minutes did the Press 15 person stand in the gap between Press 15 and Bench 15 between 10:00 and 10:10?
+7. Was the Press 15 person operating the press at 10:01:00?
+8. At what time did the Press 15 person first move from the press-side gap to the aisle side of Bench 15?
+9. Did anyone stand in the gap between Press 16 and Bench 16 between 10:05:00 and 10:06:00?
+
+Reply with JSON only, in exactly this shape. For questions 1–5 use one of: "gap_press_bench", "on_bench", "bench_aisle_side", "yellow_aisle", "uncertain", "unknown".
+{"q1":{"answer":"...","note":"..."},"q2":{"answer":"...","note":"..."},"q3":{"answer":"...","note":"..."},"q4":{"answer":"...","note":"..."},"q5":{"answer":"...","note":"..."},
+ "q6":{"minutes":number|null,"note":"..."},
+ "q7":{"answer":"yes"|"no"|"position_consistent_but_activity_not_observable"|"unknown","note":"..."},
+ "q8":{"time":"10:mm:ss"|null,"note":"..."},
+ "q9":{"answer":"yes"|"no"|"unknown","note":"..."}}
+Each note is 1 short sentence.

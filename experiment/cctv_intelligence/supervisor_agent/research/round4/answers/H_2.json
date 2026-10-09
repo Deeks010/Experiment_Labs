@@ -1,0 +1,9 @@
+{"q1":{"answer":"gap_press_bench","note":"Track a (assumed Press 15 person; tracks are anonymous) was in the Press 15/Bench 15 gap 10:00:00–10:02:04 with feet visible."},
+"q2":{"answer":"bench_aisle_side","note":"Track a was on the aisle side of Bench 15 from 10:02:04 to 10:03:34, feet visible."},
+"q3":{"answer":"uncertain","note":"At 10:04:30 track a was over Bench 15 with feet hidden 95% of the time, so the true spot may be the press-side gap or the aisle side."},
+"q4":{"answer":"bench_aisle_side","note":"Track b (assumed Press 16 person) was in front of Bench 16 on the aisle side from 10:04:05 to 10:07:05."},
+"q5":{"answer":"gap_press_bench","note":"Track b was in the Press 16/Bench 16 gap from 10:00:00 to 10:04:05, feet visible."},
+"q6":{"minutes":5.98,"note":"Confirmed gap time is 2:04 + 3:55 = 5:59 (about 5.98 min); the hidden-feet stay 10:03:34–10:05:05 (1.52 min) could add more, but it cannot be confirmed."},
+"q7":{"answer":"position_consistent_but_activity_not_observable","note":"The position log shows track a standing in the operator gap but cannot show whether it was operating the press."},
+"q8":{"time":"10:02:04","note":"Track a went from the Press 15 gap to the aisle side of Bench 15 at 10:02:04."},
+"q9":{"answer":"no","note":"No track was detected in the Press 16 gap from 10:05 to 10:06 (track b was on the aisle side), though detection errors cannot be ruled out."}}
